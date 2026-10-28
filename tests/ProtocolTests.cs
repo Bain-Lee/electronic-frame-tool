@@ -101,24 +101,24 @@ internal static class ProtocolTests
             Check(r.IsFrameValid, string.Join(";", r.Errors));
             Check(Field(r, "当前正向有功总电能").Meaning == "123456.78 kWh", "BCD or decimal scale");
         });
-        Run("645 invalid BCD retained as raw data", delegate
+        Run("645 missing BCD value retained as raw data", delegate
         {
             byte[] bytes = FrameCodec.Build645("000000000001", 0x91, Hex.Parse("00 00 01 00 FF FF FF FF"), 0);
             FrameResult r = Parse(ProtocolKind.Dlt645, Hex.Format(bytes));
-            Check(r.IsFrameValid && r.Notes.Any(n => n.Contains("无效 BCD")), "Missing invalid BCD note");
+            Check(r.IsFrameValid && r.Notes.Any(n => n.Contains("数据缺失")), "Missing unavailable-value note");
             Check(!r.Fields.Any(f => f.Name == "当前正向有功总电能"), "Invalid data converted to number");
         });
         Run("645 voltage has exact scale", delegate
         {
             byte[] bytes = FrameCodec.Build645("000000000001", 0x91, Hex.Parse("00 01 01 02 01 22"), 0);
             FrameResult r = Parse(ProtocolKind.Dlt645, Hex.Format(bytes));
-            Check(r.IsFrameValid && Field(r, "相电压").Meaning == "220.1 V", "Voltage scale");
+            Check(r.IsFrameValid && Field(r, "A相电压").Meaning == "220.1 V", "Voltage scale");
         });
         Run("645 +33H wraps modulo 256", delegate
         {
             byte[] bytes = FrameCodec.Build645("000000000001", 0x16, Hex.Parse("FF CD 00"), 0);
             Check(Hex.Format(bytes.Skip(10).Take(3).ToArray()) == "32 00 33", "Modulo addition");
-            Check(Field(Parse(ProtocolKind.Dlt645, Hex.Format(bytes)), "数据域 DATA").Meaning.EndsWith("FF CD 00"), "Modulo subtraction");
+            Check(Field(Parse(ProtocolKind.Dlt645, Hex.Format(bytes)), "数据域 DATA").Meaning.Split('；')[0] == "减 33H 后：FF CD 00", "Modulo subtraction");
         });
         Run("645 address request carries no DI", delegate
         {
@@ -236,10 +236,12 @@ internal static class ProtocolTests
             System.Windows.Forms.Application.EnableVisualStyles();
             using (MainForm form = new MainForm())
             {
-                Check(form.Text.StartsWith("FrameTools 0.4.1"), "Window title");
+                Check(form.Text.StartsWith("FrameTools 0.5.0"), "Window title");
                 Check(form.Controls.Count > 0, "Window contains no layout");
             }
         });
+        failed += BusinessTests.Run();
+        passed += BusinessTests.Passed;
         failed += StreamTests.Run();
         passed += StreamTests.Passed;
         failed += WindowFlowTests.Run();

@@ -203,28 +203,41 @@ namespace FrameTools
             Check645Limit(function, dataLength, r.Errors);
             int available = Math.Max(0, Math.Min(dataLength, b.Length - s - 12));
             byte[] plain = b.Skip(s + 10).Take(available).Select(v => unchecked((byte)(v - 0x33))).ToArray();
+            FrameField dataField = null;
             if (available > 0)
             {
                 r.Add(s + 10, available, "数据域 DATA", "减 33H 后：" + Hex.Format(plain));
+                dataField = r.Fields.Last();
             }
             bool abnormal = (control & 0xC0) == 0xC0;
             if (abnormal && plain.Length > 0)
             {
-                r.Add(s + 10, 1, "异常信息 ERR", "减 33H 后 " + plain[0].ToString("X2") + "；位值 " + Convert.ToString(plain[0], 2).PadLeft(8, '0'));
+                string error = BusinessDecoder.Describe645Error(plain[0]);
+                r.Add(s + 10, 1, "异常信息 ERR", error);
+                dataField.Meaning += "；" + error;
             }
             else if (plain.Length >= 4 && (function == 0x11 || function == 0x12 || (function == 0x14 && (control & 0x80) == 0)))
             {
                 string di = Hex.ReverseDisplay(plain.Take(4).ToArray());
-                r.Add(s + 10, 4, "数据标识 DI", di + "（减 33H，DI0 先传）");
+                r.Add(s + 10, 4, "数据标识 DI", BusinessDecoder.DescribeMeterDi(di, false) + "（减33H，DI0先传）");
                 // Only decode an ordinary read response with an exact known data length.
                 if ((control & 0x80) != 0 && function == 0x11)
                 {
-                    Decode645Value(r, s + 14, di, plain.Skip(4).ToArray());
+                    dataField.Meaning += "；" + BusinessDecoder.DecodeMeter(r, s + 14, di, plain.Skip(4).ToArray(), false);
+                }
+                else
+                {
+                    dataField.Meaning += "；" + BusinessDecoder.DescribeMeterDi(di, false) + "；请求参数，不作为返回数值";
                 }
             }
             else if ((control == 0x93) && plain.Length == 6)
             {
                 r.Add(s + 10, 6, "返回通信地址", Hex.ReverseDisplay(plain));
+                dataField.Meaning += "；返回通信地址 " + Hex.ReverseDisplay(plain);
+            }
+            else if (plain.Length > 0)
+            {
+                dataField.Meaning += "；" + BusinessDecoder.Decode645Command(r, s + 10, control, plain);
             }
             Checksum(r, s);
             r.Notes.Add("只核验帧结构及已实现的数据项；密码、MAC、业务执行条件和全部功能数据格式未验证。");
@@ -249,49 +262,15 @@ namespace FrameTools
                 { 0x08, "广播校时" }, { 0x11, "读数据" }, { 0x12, "读后续数据" },
                 { 0x13, "读通信地址" }, { 0x14, "写数据" }, { 0x15, "写通信地址" },
                 { 0x16, "冻结" }, { 0x17, "更改速率" }, { 0x18, "修改密码" },
-                { 0x19, "最大需量清零" }, { 0x1A, "电表清零" }, { 0x1B, "事件清零" }
+                { 0x19, "最大需量清零" }, { 0x1A, "电表清零" }, { 0x1B, "事件清零" },
+                { 0x1C, "跳合闸/报警/保电" }, { 0x1D, "多功能端子输出控制" }
             };
             int function = control & 0x1F;
             string name = names.ContainsKey(function) ? names[function] : "保留/未实现功能 " + function.ToString("X2");
-            return ((control & 0x80) == 0 ? "主站命令" : (control & 0x40) == 0 ? "从站正常应答" : "从站异常应答")
-                + "；" + name + "；后续帧=" + ((control >> 5) & 1);
-        }
-
-        private static void Decode645Value(FrameResult r, int offset, string di, byte[] data)
-        {
-            int size;
-            int decimals;
-            string unit;
-            string name;
-            if (di == "00010000")
-            {
-                size = 4; decimals = 2; unit = "kWh"; name = "当前正向有功总电能";
-            }
-            else if (di == "02010100" || di == "02010200" || di == "02010300")
-            {
-                size = 2; decimals = 1; unit = "V"; name = "相电压";
-            }
-            else
-            {
-                r.Notes.Add("DI " + di + " 的业务数值暂未实现解码，数据原样保留。");
-                return;
-            }
-            if (data.Length != size)
-            {
-                r.Notes.Add("DI " + di + " 的数据不是预期的 " + size + " 字节，未做数值解码。");
-                return;
-            }
-            if (data.Any(v => (v & 15) > 9 || (v >> 4) > 9))
-            {
-                r.Notes.Add("DI " + di + " 含无效 BCD 或缺失标记，未做数值解码。");
-                return;
-            }
-            decimal number = decimal.Parse(Hex.ReverseDisplay(data), CultureInfo.InvariantCulture);
-            for (int i = 0; i < decimals; i++)
-            {
-                number /= 10;
-            }
-            r.Add(offset, size, name, number.ToString("F" + decimals, CultureInfo.InvariantCulture) + " " + unit);
+            return "DIR=" + ((control >> 7) & 1) + ((control & 0x80) == 0 ? "（主站命令）" : "（电表应答）")
+                + "；D6=" + ((control >> 6) & 1) + ((control & 0x80) == 0 ? "（命令中保留）" : (control & 0x40) == 0 ? "（正常应答）" : "（异常应答）")
+                + "；D5=" + ((control >> 5) & 1) + ((control & 0x20) == 0 ? "（无后续数据帧）" : "（有后续数据帧）")
+                + "；功能码=" + function.ToString("X2") + "H（" + name + "）";
         }
 
         private static void ParseLocal(FrameResult r)
@@ -304,8 +283,7 @@ namespace FrameTools
             {
                 r.Errors.Add("总长度不符：L=" + length + "，实际 " + b.Length + "。请一次输入一帧。");
             }
-            r.Add(3, 1, "控制域 C", "DIR=" + ((control >> 7) & 1) + "；PRM=" + ((control >> 6) & 1)
-                + "；ADD=" + ((control >> 5) & 1) + "；VER=" + ((control >> 3) & 3));
+            r.Add(3, 1, "控制域 C", BusinessDecoder.DescribeLocalControl(control));
             if ((control & 0x18) != 0)
             {
                 r.Notes.Add("本地协议标准规定 VER=0；当前版本字段非零。");
@@ -326,16 +304,16 @@ namespace FrameTools
             r.Add(p, 1, "应用功能 AFN", DescribeAfn(ProtocolKind.CsgLocal, b[p]));
             r.Add(p + 1, 1, "帧序列 SEQ", b[p + 1] + "（0…255）");
             byte[] di = b.Skip(p + 2).Take(4).ToArray();
-            r.Add(p + 2, 4, "数据标识 DI", Hex.ReverseDisplay(di) + "（DI0 先传）");
+            string identifier = Hex.ReverseDisplay(di);
+            r.Add(p + 2, 4, "数据标识 DI", BusinessDecoder.DescribeLocalDi(identifier) + "（DI0先传）");
             if (di[1] != b[p])
             {
                 r.Notes.Add("DI1 与 AFN 不一致，请核对所选本地协议及版本。");
             }
             int count = b.Length - p - 8;
-            if (count > 0)
-            {
-                r.Add(p + 6, count, "数据标识内容", "原始业务数据，未做完整业务解码");
-            }
+            r.Add(p + 6, count, "数据标识内容", "原始业务数据");
+            FrameField content = r.Fields.Last();
+            content.Meaning = BusinessDecoder.DecodeLocal(r, p + 6, control, b[p], identifier, b.Skip(p + 6).Take(count).ToArray());
             Checksum(r, 3);
             r.Notes.Add("依据本机《本地通信模块接口协议（试行）》；SEQ 为完整 8 位序号。业务数据无 ±33H 变换。");
         }
@@ -365,16 +343,14 @@ namespace FrameTools
                 r.Errors.Add("重复长度后的第二起始符应为 68。");
             }
             byte c = b[s + 6];
-            r.Add(s + 6, 1, "控制域 C", "DIR=" + ((c >> 7) & 1) + "；PRM=" + ((c >> 6) & 1)
-                + "；D5(FCB/ACD)=" + ((c >> 5) & 1) + "；D4(FCV/保留)=" + ((c >> 4) & 1) + "；链路功能=" + (c & 15));
+            r.Add(s + 6, 1, "控制域 C", BusinessDecoder.DescribeUplinkControl(c));
             r.Add(s + 7, 3, "省地市区县码 A1", Hex.ReverseDisplay(b.Skip(s + 7).Take(3).ToArray()) + "（BCD，低字节先传）");
             r.Add(s + 10, 3, "终端地址 A2", Hex.ReverseDisplay(b.Skip(s + 10).Take(3).ToArray()) + "（BIN）");
             r.Add(s + 13, 1, "主站地址 A3", b[s + 13].ToString());
             byte afn = b[s + 14];
             r.Add(s + 14, 1, "应用功能 AFN", DescribeAfn(ProtocolKind.CsgUplink, afn));
             byte seq = b[s + 15];
-            r.Add(s + 15, 1, "帧序列 SEQ", "TpV=" + ((seq >> 7) & 1) + "；FIR=" + ((seq >> 6) & 1)
-                + "；FIN=" + ((seq >> 5) & 1) + "；CON=" + ((seq >> 4) & 1) + "；PSEQ/RSEQ=" + (seq & 15));
+            r.Add(s + 15, 1, "帧序列 SEQ", BusinessDecoder.DescribeSequence(c, seq));
             int end = b.Length - 2;
             if ((seq & 0x80) != 0)
             {
@@ -385,19 +361,15 @@ namespace FrameTools
                 else
                 {
                     end -= 5;
-                    r.Add(end, 5, "时间标签 Tp", "传输顺序原值；DDhhmmss + 允许延时，不验证时效性");
+                    r.Add(end, 5, "时间标签 Tp", BusinessDecoder.DescribeTimeTag(b.Skip(end).Take(5).ToArray()));
                 }
             }
             int dataLength = end - s - 16;
             if (dataLength > 0)
             {
                 r.Add(s + 16, dataLength, "应用业务区", "原始字节；可能包含多个信息体及 16 字节 PW");
-            }
-            // Restrict the first DA/DI view to known plaintext layouts in the supplied version.
-            if (dataLength >= 6 && (afn == 0x00 || afn == 0x02 || afn == 0x0A || afn == 0x0C))
-            {
-                r.Add(s + 16, 2, "首个信息点 DA", DescribeDa(b[s + 16], b[s + 17]));
-                r.Add(s + 18, 4, "首个数据标识 DI", Hex.ReverseDisplay(b.Skip(s + 18).Take(4).ToArray()) + "（DI0 先传）");
+                FrameField application = r.Fields.Last();
+                application.Meaning = BusinessDecoder.DecodeUplinkFirst(r, s + 16, dataLength, c, afn);
             }
             Checksum(r, s + 6);
             r.Notes.Add("依据上行通信规约 2024版V2.0（封面 2026年8月）。仅解读帧头和部分首信息体；不推断多信息体边界，不计算或验证 PW/MAC，不解密。");
@@ -435,8 +407,9 @@ namespace FrameTools
                 {
                     { 0x00, "确认/否认" }, { 0x01, "初始化模块" }, { 0x02, "管理任务" },
                     { 0x03, "读参数" }, { 0x04, "写参数" }, { 0x05, "上报信息" },
-                    { 0x06, "请求信息" }, { 0x07, "传输文件" }, { 0x21, "管理电表" },
-                    { 0x22, "转发数据" }, { 0x31, "管理映射表表计" }, { 0xF0, "维护模块" }
+                    { 0x06, "请求信息" }, { 0x07, "传输文件" }, { 0x10, "无线维护命令" }, { 0x21, "管理电表" },
+                    { 0x22, "转发数据" }, { 0x23, "采集器读参数" }, { 0x24, "采集器传输文件" },
+                    { 0x25, "采集器请求信息" }, { 0x31, "管理映射表表计" }, { 0xF0, "维护模块" }
                 }
                 : new Dictionary<int, string>
                 {

@@ -20,6 +20,17 @@ namespace FrameTools
         private readonly WorkspaceButton export = new WorkspaceButton();
         private StreamParseResult parsed;
 
+        public event EventHandler SelectionChanged;
+
+        public ProtocolKind? SelectedProtocol
+        {
+            get
+            {
+                StreamPart part = summary.CurrentRow == null ? null : summary.CurrentRow.Tag as StreamPart;
+                return part != null && part.Result != null ? part.Protocol : null;
+            }
+        }
+
         public BatchParserView(Func<ProtocolKind?> getProtocol)
         {
             this.getProtocol = getProtocol;
@@ -153,6 +164,7 @@ namespace FrameTools
             status.Tag = "secondary";
             status.ForeColor = WorkspaceStyle.Secondary;
             status.Text = "粘贴日志中的 HEX 后，点击“开始多帧解析”。";
+            NotifySelectionChanged();
         }
 
         public void Parse()
@@ -206,6 +218,7 @@ namespace FrameTools
 
         private void ShowSelected()
         {
+            NotifySelectionChanged();
             fields.DataSource = null;
             if (summary.CurrentRow == null)
             {
@@ -239,6 +252,14 @@ namespace FrameTools
             diagnostics.Text = text.ToString();
         }
 
+        private void NotifySelectionChanged()
+        {
+            if (SelectionChanged != null)
+            {
+                SelectionChanged(this, EventArgs.Empty);
+            }
+        }
+
         private void OpenText()
         {
             using (OpenFileDialog dialog = new OpenFileDialog { Filter = "HEX 文本|*.txt;*.hex;*.log|所有文件|*.*" })
@@ -262,7 +283,7 @@ namespace FrameTools
                 {
                     return;
                 }
-                StringBuilder text = new StringBuilder("FrameTools 0.4.1 多帧解析" + Environment.NewLine);
+                StringBuilder text = new StringBuilder("FrameTools 0.5.0 多帧解析" + Environment.NewLine);
                 text.AppendLine(status.Text);
                 text.AppendLine(parsed.FormattedText);
                 for (int i = 0; i < parsed.Parts.Count; i++)

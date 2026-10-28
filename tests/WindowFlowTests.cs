@@ -132,6 +132,8 @@ internal static class WindowFlowTests
             PumpFor(450);
             CheckUnparsed(form);
             Recognize(form);
+            int expected = frame == Read645 ? 0 : frame == Local ? 1 : 2;
+            Check(Named<ComboBox>(form, "protocol").SelectedIndex == expected, "Detected protocol not reflected in picker");
             Check(HasField(Named<DataGridView>(form, "parsedFields"), field), "Wrong automatic protocol");
             DataGridView grid = Named<DataGridView>(form, "parsedFields");
             SelectField(grid, field);
@@ -180,6 +182,40 @@ internal static class WindowFlowTests
                 tabs.SelectedIndex = 0;
                 Check(!protocol.Enabled, "Parser mode not restored");
                 CheckUnparsed(form);
+            }
+        });
+        RunTest("protocol reflection preserves composer values and parser results", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                TabControl tabs = Named<TabControl>(form, "workspaceTabs");
+                ComboBox protocol = Named<ComboBox>(form, "protocol");
+                tabs.SelectedIndex = 2;
+                protocol.SelectedIndex = 1;
+                Named<TextBoxBase>(form, "businessInput").Text = "AA BB";
+                Click(Named<Button>(form, "composeFrame"));
+                string built = Named<TextBoxBase>(form, "builtFrame").Text;
+                tabs.SelectedIndex = 0;
+                Named<TextBoxBase>(form, "rawInput").Text = Uplink;
+                Recognize(form);
+                Check(protocol.SelectedIndex == 2 && HasField(Named<DataGridView>(form, "parsedFields"), "省地市区县码 A1"), "Reflection cleared parser result");
+                tabs.SelectedIndex = 2;
+                Check(protocol.SelectedIndex == 1 && Named<TextBoxBase>(form, "businessInput").Text == "AA BB"
+                    && Named<TextBoxBase>(form, "builtFrame").Text == built, "Reflection reset composer");
+                tabs.SelectedIndex = 0;
+                Check(protocol.SelectedIndex == 2, "Parser protocol display not restored");
+            }
+        });
+        RunTest("unrecognized input clears automatic protocol display", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
+                raw.Text = Local;
+                Recognize(form);
+                raw.Text = "AA BB";
+                Recognize(form);
+                Check(Named<ComboBox>(form, "protocol").SelectedIndex == -1, "Unknown input kept stale detected protocol");
             }
         });
         RunTest("single spaces and compact input remain equivalent", delegate
@@ -246,10 +282,12 @@ internal static class WindowFlowTests
                 TextBoxBase frame = Named<TextBoxBase>(form, "batchSelectedFrame");
                 Check(list.Rows.Count == 3, "Wrong frame count");
                 list.CurrentCell = list.Rows[1].Cells[0];
+                Check(Named<ComboBox>(form, "protocol").SelectedIndex == 1, "Batch selection did not reflect local protocol");
                 Check(HasField(fields, "总长度 L") && frame.Text == Local, "Wrong local details");
                 SelectField(fields, "数据标识 DI");
                 Check(frame.SelectedText == "01 03 00 E8" && frame.SelectionStart == 18, "Wrong local highlight");
                 list.CurrentCell = list.Rows[2].Cells[0];
+                Check(Named<ComboBox>(form, "protocol").SelectedIndex == 2, "Batch selection did not reflect uplink protocol");
                 SelectField(fields, "首个数据标识 DI");
                 Check(frame.SelectedText == "00 00 01 00" && frame.SelectionStart == 54, "Wrong uplink highlight");
                 Check(raw.Text == Compact(Read645 + Local + Uplink), "Batch input changed");

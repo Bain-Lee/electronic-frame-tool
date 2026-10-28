@@ -23,6 +23,7 @@
     <Compile Include="WorkspaceStyle.cs" />
     <Compile Include="BatchParserView.cs" />
     <Compile Include="Protocol.cs" />
+    <Compile Include="BusinessDecoder.cs" />
     <Compile Include="FrameStream.cs" />
     <None Include="app.manifest" />
   </ItemGroup>

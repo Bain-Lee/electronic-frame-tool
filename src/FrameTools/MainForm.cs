@@ -38,11 +38,13 @@ namespace FrameTools
         private FrameResult current;
         private StreamParseResult parsedStream;
         private int[] inputDigits = new int[0];
+        private ProtocolKind configuredProtocol;
+        private bool reflectingProtocol;
 
         public MainForm()
         {
             WorkspaceStyle.IsDark = false;
-            Text = "FrameTools 0.4.1 — 电力报文工具";
+            Text = "FrameTools 0.5.0 — 电力报文工具";
             Font = new Font("Microsoft YaHei UI", 9F);
             AutoScaleMode = AutoScaleMode.Font;
             MinimumSize = new Size(1020, 740);
@@ -69,7 +71,7 @@ namespace FrameTools
             Panel themePanel = new Panel { Dock = DockStyle.Right, Width = 34 };
             themePanel.Controls.Add(themeButton);
             heading.Controls.Add(themePanel);
-            heading.Controls.Add(new Label { Text = "v0.4.1", Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
+            heading.Controls.Add(new Label { Text = "v0.5.0", Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
             themePanel.SendToBack();
             shell.Controls.Add(heading, 0, 0);
             WorkspaceGroupBox protocolGroup = new WorkspaceGroupBox { Text = "规约选择", Dock = DockStyle.Fill, Padding = new Padding(7, 3, 7, 2), Margin = new Padding(0, 0, 0, 5) };
@@ -98,12 +100,24 @@ namespace FrameTools
             shell.Controls.Add(tabs, 0, 2);
             BuildParserTab();
             batch = new BatchParserView(delegate { return automaticProtocol.Checked ? (ProtocolKind?)null : SelectedProtocol; });
+            batch.SelectionChanged += delegate
+            {
+                if (tabs.SelectedIndex == 1)
+                {
+                    UpdateProtocolMode();
+                }
+            };
             TabPage batchPage = new TabPage("多帧解析") { Padding = new Padding(8) };
             batchPage.Controls.Add(batch);
             tabs.TabPages.Add(batchPage);
             BuildComposerTab();
             protocol.SelectedIndexChanged += delegate
             {
+                if (reflectingProtocol || protocol.SelectedIndex < 0)
+                {
+                    return;
+                }
+                configuredProtocol = (ProtocolKind)protocol.SelectedIndex;
                 SetDefaults();
                 InvalidateParsedInput();
                 batch.InvalidateResults();
@@ -140,7 +154,7 @@ namespace FrameTools
             };
         }
 
-        private ProtocolKind SelectedProtocol { get { return (ProtocolKind)protocol.SelectedIndex; } }
+        private ProtocolKind SelectedProtocol { get { return configuredProtocol; } }
 
         private void ApplyTheme()
         {
@@ -211,9 +225,20 @@ namespace FrameTools
         private void UpdateProtocolMode()
         {
             bool composer = tabs.SelectedIndex == 2;
-            protocolLabel.Text = composer ? "组帧规约" : "手动规约";
+            bool automatic = !composer && automaticProtocol.Checked;
+            protocolLabel.Text = composer ? "组帧规约" : automatic ? "识别规约" : "手动规约";
             protocol.Enabled = composer || !automaticProtocol.Checked;
             automaticProtocol.Visible = !composer;
+            ProtocolKind? displayed = SelectedProtocol;
+            if (automatic)
+            {
+                displayed = tabs.SelectedIndex == 1 ? batch.SelectedProtocol
+                    : parsedStream != null && parsedStream.Parts.Count == 1 && parsedStream.Parts[0].Result != null
+                        ? parsedStream.Parts[0].Protocol : null;
+            }
+            reflectingProtocol = true;
+            protocol.SelectedIndex = displayed.HasValue ? (int)displayed.Value : -1;
+            reflectingProtocol = false;
         }
 
         private void BuildParserTab()
@@ -519,6 +544,7 @@ namespace FrameTools
         private void InvalidateParsedInput()
         {
             ClearParsedView();
+            UpdateProtocolMode();
             status.Tag = "secondary";
             status.ForeColor = WorkspaceStyle.Secondary;
             if (string.IsNullOrWhiteSpace(input.Text))
@@ -547,6 +573,7 @@ namespace FrameTools
                 diagnostics.Text = e.Message;
                 return;
             }
+            UpdateProtocolMode();
             if (parsedStream.Parts.Count > 1)
             {
                 status.Tag = "warning";
@@ -644,7 +671,7 @@ namespace FrameTools
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
                     StringBuilder report = new StringBuilder();
-                    report.AppendLine("FrameTools 0.4.1");
+                    report.AppendLine("FrameTools 0.5.0");
                     report.AppendLine(automaticProtocol.Checked ? "自动识别规约" : "手动规约：" + protocol.Text);
                     report.AppendLine(status.Text);
                     report.AppendLine("整形报文流：");
