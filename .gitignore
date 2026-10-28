@@ -1,0 +1,10 @@
+# Original standards stay local; do not redistribute them in source releases.
+specifications/*
+!specifications/README.md
+.work/
+bin/
+obj/
+artifacts/
+.vs/
+*.user
+*.suo
