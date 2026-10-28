@@ -26,8 +26,8 @@ Write-Output "Built: $app"
 if ($Test)
 {
     $testApp = Join-Path $artifactDir 'FrameTools.Tests.exe'
-    $testSource = Join-Path $projectRoot 'tests\ProtocolTests.cs'
-    & $compiler /nologo /codepage:65001 /langversion:5 /warn:4 /warnaserror /target:exe "/out:$testApp" "/reference:$app" /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll $testSource
+    $testSources = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'tests') -Filter '*.cs' | Select-Object -ExpandProperty FullName
+    & $compiler /nologo /codepage:65001 /langversion:5 /warn:4 /warnaserror /target:exe "/out:$testApp" "/reference:$app" /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll $testSources
     if ($LASTEXITCODE -ne 0)
     {
         throw 'Test compilation failed.'

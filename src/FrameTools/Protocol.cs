@@ -55,12 +55,7 @@ namespace FrameTools
     {
         public static byte[] Parse(string text)
         {
-            string value = Regex.Replace(text ?? "", @"\b0[xX]", "");
-            value = Regex.Replace(value, @"[\s,:\-]", "");
-            if (!Regex.IsMatch(value, @"\A[0-9a-fA-F]*\z"))
-            {
-                throw new FormatException("请输入十六进制字节；可使用空白、逗号、冒号或短横线分隔。日志时间戳需先移除。");
-            }
+            string value = Compact(text);
             if (value.Length % 2 != 0)
             {
                 throw new FormatException("十六进制字符数为奇数，存在不完整的字节。");
@@ -71,6 +66,17 @@ namespace FrameTools
                 bytes[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
             }
             return bytes;
+        }
+
+        public static string Compact(string text)
+        {
+            string value = Regex.Replace(text ?? "", @"\b0[xX]", "");
+            value = Regex.Replace(value, @"[\s,:\-]", "");
+            if (!Regex.IsMatch(value, @"\A[0-9a-fA-F]*\z"))
+            {
+                throw new FormatException("请输入十六进制字节；可使用空白、逗号、冒号或短横线分隔。日志时间戳需先移除。");
+            }
+            return value.ToUpperInvariant();
         }
 
         public static string Format(byte[] bytes)

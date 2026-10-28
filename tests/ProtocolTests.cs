@@ -236,10 +236,14 @@ internal static class ProtocolTests
             System.Windows.Forms.Application.EnableVisualStyles();
             using (MainForm form = new MainForm())
             {
-                Check(form.Text.StartsWith("FrameTools 0.1.0"), "Window title");
+                Check(form.Text.StartsWith("FrameTools 0.2.0"), "Window title");
                 Check(form.Controls.Count > 0, "Window contains no layout");
             }
         });
+        failed += StreamTests.Run();
+        passed += StreamTests.Passed;
+        failed += WindowFlowTests.Run();
+        passed += WindowFlowTests.Passed;
         Console.WriteLine("RESULT: " + passed + " passed, " + failed + " failed");
         return failed == 0 ? 0 : 1;
     }

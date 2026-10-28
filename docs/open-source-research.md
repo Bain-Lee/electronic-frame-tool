@@ -34,3 +34,11 @@
 如果目标是维护一个范围明确、与 Windows 集成、运行依赖少的自有工具，可以保留当前 C# 实现，从帧结构逐步补齐业务数据字典。代价是目前功能覆盖明显少于上述完整工具，需要持续增加有标准和样本支撑的数据项。
 
 本次选择后者，交付独立的帧级首版及可重现测试；开源项目用于产品功能和实现方式的比较，没有把旧版协议代码直接并入当前工具。
+
+## 0.2.0 连续流实现参考
+
+本次按用户提供的同一仓库进一步阅读 [frame_deframe.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/frame_deframe.py) 中的 `declared_frame_len`、`frame_length_for`、`frame_incomplete`，参考按各协议长度域分帧、计算 FE 消费范围和等待未完整帧的思路。
+
+同时检查了 [batch_core.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/batch_core.py) 的 `_extract_68_frames`、`_extract_line_frames`、`extract_frames_for_protocol`，以及 [protocol_registry.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/protocol_registry.py) 的提取策略。所读代码部分路径仍依赖分行，不能据此认为它直接覆盖本次所有混合连续流输入。
+
+[clipboard_monitor.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/system_integration/clipboard_monitor.py) 的 `detect_protocol` 使用起止和特定位置字节进行启发式判断。本项目没有采用“其余默认南网”的方式，而是独立实现三种规约的头部、长度、结束符、CS 匹配，并保留真实的多候选歧义和手动入口。没有复制第三方源码。
