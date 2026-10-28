@@ -11,8 +11,11 @@ namespace FrameTools
     public sealed class MainForm : Form
     {
         private readonly ComboBox protocol = new ComboBox();
-        private readonly CheckBox automaticProtocol = new ProtocolSwitch();
+        private readonly CheckBox automaticProtocol = new CheckBox();
         private readonly TabControl tabs = new WorkspaceTabs();
+        private readonly ThemeButton themeButton = new ThemeButton();
+        private readonly ToolTip themeTip = new ToolTip();
+        private readonly BatchParserView batch;
         private readonly Label protocolLabel = new Label();
         private readonly TextBox input = new TextBox();
         private readonly TextBox formatted = new TextBox();
@@ -39,88 +42,114 @@ namespace FrameTools
 
         public MainForm()
         {
-            Text = "FrameTools 0.3.0 — 电力报文工具";
-            Font = new Font("Microsoft YaHei UI", 9.5F);
+            WorkspaceStyle.IsDark = true;
+            Text = "FrameTools 0.4.0 — 电力报文工具";
+            Font = new Font("Microsoft YaHei UI", 9F);
             AutoScaleMode = AutoScaleMode.Font;
-            MinimumSize = new Size(1000, 800);
-            Size = new Size(1240, 960);
+            MinimumSize = new Size(1020, 740);
+            Size = new Size(1280, 900);
             StartPosition = FormStartPosition.CenterScreen;
             BackColor = WorkspaceStyle.Background;
             ForeColor = WorkspaceStyle.Text;
             KeyPreview = true;
 
-            TableLayoutPanel shell = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1, Padding = new Padding(24, 18, 24, 20) };
-            shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 72));
-            shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 56));
+            TableLayoutPanel shell = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1, Padding = new Padding(10) };
+            shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
+            shell.RowStyles.Add(new RowStyle(SizeType.Absolute, 58));
             shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             Controls.Add(shell);
-            Panel heading = new Panel { Dock = DockStyle.Fill };
+            Panel heading = new Panel { Dock = DockStyle.Fill, Margin = new Padding(3, 0, 3, 2) };
             heading.Controls.Add(new Label
             {
-                Text = "电力报文", Font = new Font(Font.FontFamily, 21, FontStyle.Bold),
+                Text = "FrameTools 电力报文工具", Font = new Font(Font.FontFamily, 10, FontStyle.Bold),
                 ForeColor = WorkspaceStyle.Text, AutoSize = true, Location = new Point(0, 0)
             });
-            heading.Controls.Add(new Label
-            {
-                Text = "查看报文结构，核对每个字节。",
-                AutoSize = true, ForeColor = WorkspaceStyle.Secondary, Location = new Point(2, 42)
-            });
-            heading.Controls.Add(new Label { Text = "v0.3.0", Dock = DockStyle.Right, Width = 90, TextAlign = ContentAlignment.MiddleRight, ForeColor = WorkspaceStyle.Secondary });
+            themeButton.Name = "themeToggle";
+            themeButton.Location = new Point(4, 0);
+            themeButton.Click += delegate { WorkspaceStyle.IsDark = !WorkspaceStyle.IsDark; ApplyTheme(); };
+            Panel themePanel = new Panel { Dock = DockStyle.Right, Width = 34 };
+            themePanel.Controls.Add(themeButton);
+            heading.Controls.Add(themePanel);
+            heading.Controls.Add(new Label { Text = "v0.4.0", Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
+            themePanel.SendToBack();
             shell.Controls.Add(heading, 0, 0);
+            WorkspaceGroupBox protocolGroup = new WorkspaceGroupBox { Text = "规约选择", Dock = DockStyle.Fill, Padding = new Padding(7, 3, 7, 2), Margin = new Padding(0, 0, 0, 5) };
             FlowLayoutPanel selector = Toolbar();
             protocolLabel.Text = "手动规约";
             protocolLabel.AutoSize = true;
-            protocolLabel.Margin = new Padding(0, 11, 14, 0);
+            protocolLabel.Margin = new Padding(0, 5, 12, 0);
             selector.Controls.Add(protocolLabel);
             protocol.Name = "protocol";
             ConfigurePicker(protocol);
             protocol.Width = 385;
-            protocol.Margin = new Padding(0, 7, 0, 0);
+            protocol.Margin = new Padding(0, 0, 0, 0);
             protocol.Items.AddRange(new object[] { "DL/T 645-2007", "南网本地通信模块接口（试行）", "南网上行通信规约（2024版 V2.0）" });
             selector.Controls.Add(protocol);
             automaticProtocol.Name = "automaticProtocol";
             automaticProtocol.Text = "自动识别规约";
             automaticProtocol.AutoSize = true;
+            automaticProtocol.FlatStyle = FlatStyle.Flat;
             automaticProtocol.Checked = true;
-            automaticProtocol.Margin = new Padding(20, 0, 0, 0);
+            automaticProtocol.Margin = new Padding(16, 3, 0, 0);
             selector.Controls.Add(automaticProtocol);
-            shell.Controls.Add(selector, 0, 1);
+            protocolGroup.Controls.Add(selector);
+            shell.Controls.Add(protocolGroup, 0, 1);
             tabs.Dock = DockStyle.Fill;
             tabs.Name = "workspaceTabs";
             shell.Controls.Add(tabs, 0, 2);
             BuildParserTab();
+            batch = new BatchParserView(delegate { return automaticProtocol.Checked ? (ProtocolKind?)null : SelectedProtocol; });
+            TabPage batchPage = new TabPage("多帧解析") { Padding = new Padding(8) };
+            batchPage.Controls.Add(batch);
+            tabs.TabPages.Add(batchPage);
             BuildComposerTab();
             protocol.SelectedIndexChanged += delegate
             {
                 SetDefaults();
                 InvalidateParsedInput();
+                batch.InvalidateResults();
             };
             automaticProtocol.CheckedChanged += delegate
             {
                 UpdateProtocolMode();
                 InvalidateParsedInput();
+                batch.InvalidateResults();
             };
             tabs.SelectedIndexChanged += delegate { UpdateProtocolMode(); };
             protocol.SelectedIndex = 0;
             UpdateProtocolMode();
+            ApplyTheme();
+            Disposed += delegate { themeTip.Dispose(); };
             KeyDown += delegate(object sender, KeyEventArgs e)
             {
                 if (e.Control && e.KeyCode == Keys.Enter)
                 {
                     e.SuppressKeyPress = true;
-                    if (tabs.SelectedIndex == 0)
+                    if (tabs.SelectedIndex == 2)
                     {
-                        Guard(ParseInput);
+                        Guard(Compose);
+                    }
+                    else if (tabs.SelectedIndex == 1)
+                    {
+                        Guard(batch.Parse);
                     }
                     else
                     {
-                        Guard(Compose);
+                        Guard(ParseInput);
                     }
                 }
             };
         }
 
         private ProtocolKind SelectedProtocol { get { return (ProtocolKind)protocol.SelectedIndex; } }
+
+        private void ApplyTheme()
+        {
+            WorkspaceStyle.Apply(this);
+            string action = WorkspaceStyle.IsDark ? "切换到亮色主题" : "切换到暗色主题";
+            themeButton.AccessibleName = action;
+            themeTip.SetToolTip(themeButton, action);
+        }
 
         private static FlowLayoutPanel Toolbar()
         {
@@ -147,7 +176,7 @@ namespace FrameTools
             box.FlatStyle = FlatStyle.Flat;
             box.BackColor = WorkspaceStyle.Surface;
             box.DrawMode = DrawMode.OwnerDrawFixed;
-            box.ItemHeight = Math.Max(24, box.Font.Height + 6);
+            box.ItemHeight = Math.Max(20, box.Font.Height + 3);
             box.DrawItem += delegate(object sender, DrawItemEventArgs e)
             {
                 if (e.Index < 0 || e.Index >= box.Items.Count)
@@ -155,7 +184,7 @@ namespace FrameTools
                     return;
                 }
                 bool selected = (e.State & DrawItemState.Selected) != 0 && (e.State & DrawItemState.ComboBoxEdit) == 0;
-                Color background = !box.Enabled ? Color.FromArgb(232, 232, 237) : selected ? WorkspaceStyle.Blue : WorkspaceStyle.Surface;
+                Color background = !box.Enabled ? WorkspaceStyle.Header : selected ? WorkspaceStyle.Blue : WorkspaceStyle.Surface;
                 using (Brush fill = new SolidBrush(background))
                 {
                     e.Graphics.FillRectangle(fill, e.Bounds);
@@ -173,8 +202,8 @@ namespace FrameTools
         {
             WorkspaceButton button = new WorkspaceButton
             {
-                Text = text, AutoSize = true, MinimumSize = new Size(80, 36),
-                Margin = new Padding(0, 0, 10, 0)
+                Text = text, AutoSize = true, MinimumSize = new Size(65, 25),
+                Margin = new Padding(0, 2, 6, 2)
             };
             button.Click += delegate { Guard(action); };
             panel.Controls.Add(button);
@@ -183,7 +212,7 @@ namespace FrameTools
 
         private void UpdateProtocolMode()
         {
-            bool composer = tabs.SelectedIndex == 1;
+            bool composer = tabs.SelectedIndex == 2;
             protocolLabel.Text = composer ? "组帧规约" : "手动规约";
             protocol.Enabled = composer || !automaticProtocol.Checked;
             automaticProtocol.Visible = !composer;
@@ -191,13 +220,12 @@ namespace FrameTools
 
         private void BuildParserTab()
         {
-            TabPage page = new TabPage("报文解析") { BackColor = BackColor, Padding = new Padding(14) };
+            TabPage page = new TabPage("单帧解析") { BackColor = BackColor, Padding = new Padding(8) };
             tabs.TabPages.Add(page);
-            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 6, ColumnCount = 1 };
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 168));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, ColumnCount = 1 };
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 145));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 25));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
             page.Controls.Add(layout);
@@ -234,57 +262,20 @@ namespace FrameTools
             Button(actions, "打开文本", OpenText);
             exportButton = Button(actions, "导出全部解析", ExportReport);
             exportButton.Enabled = false;
+            Button(actions, "转到多帧解析", delegate { batch.InputText = input.Text; tabs.SelectedIndex = 1; }).Name = "sendToBatch";
             layout.Controls.Add(actions, 0, 1);
-            FlowLayoutPanel navigation = Toolbar();
-            navigation.Controls.Add(new Label { Text = "逐条查看", AutoSize = true, Margin = new Padding(0, 10, 14, 0), ForeColor = WorkspaceStyle.Secondary });
             streamParts.Name = "streamParts";
             ConfigurePicker(streamParts);
-            streamParts.Width = 565;
-            streamParts.Margin = new Padding(0, 7, 12, 0);
+            streamParts.Visible = false;
             streamParts.SelectedIndexChanged += delegate { ShowStreamPart(); };
-            navigation.Controls.Add(streamParts);
-            Button(navigation, "上一条", delegate
-            {
-                if (streamParts.SelectedIndex > 0)
-                {
-                    streamParts.SelectedIndex--;
-                }
-            });
-            Button(navigation, "下一条", delegate
-            {
-                if (streamParts.SelectedIndex < streamParts.Items.Count - 1)
-                {
-                    streamParts.SelectedIndex++;
-                }
-            });
-            layout.Controls.Add(navigation, 0, 2);
+            page.Controls.Add(streamParts);
             status.Name = "parseStatus";
             status.Dock = DockStyle.Fill;
             status.TextAlign = ContentAlignment.MiddleLeft;
             status.ForeColor = WorkspaceStyle.Secondary;
-            layout.Controls.Add(status, 0, 3);
+            layout.Controls.Add(status, 0, 2);
             fields.Name = "parsedFields";
-            fields.Dock = DockStyle.Fill;
-            fields.ReadOnly = true;
-            fields.AllowUserToAddRows = false;
-            fields.AllowUserToDeleteRows = false;
-            fields.RowHeadersVisible = false;
-            fields.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            fields.MultiSelect = false;
-            fields.AutoGenerateColumns = false;
-            fields.BackgroundColor = Color.White;
-            fields.BorderStyle = BorderStyle.None;
-            fields.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
-            fields.GridColor = Color.FromArgb(229, 229, 234);
-            fields.EnableHeadersVisualStyles = false;
-            fields.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None;
-            fields.ColumnHeadersHeight = 36;
-            fields.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(229, 229, 234);
-            fields.ColumnHeadersDefaultCellStyle.ForeColor = WorkspaceStyle.Secondary;
-            fields.DefaultCellStyle.SelectionBackColor = Color.FromArgb(226, 239, 255);
-            fields.DefaultCellStyle.SelectionForeColor = WorkspaceStyle.Text;
-            fields.DefaultCellStyle.Padding = new Padding(5, 5, 5, 5);
-            fields.RowTemplate.Height = 34;
+            WorkspaceStyle.ConfigureGrid(fields);
             fields.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Offset", HeaderText = "帧内偏移", Width = 85 });
             fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Length", HeaderText = "字节数", Width = 65 });
@@ -313,13 +304,14 @@ namespace FrameTools
                     }
                 }
             };
-            layout.Controls.Add(fields, 0, 4);
+            layout.Controls.Add(fields, 0, 3);
             ConfigureHex(diagnostics, true);
             diagnostics.Name = "parseDiagnostics";
             diagnostics.Font = Font;
             diagnostics.ForeColor = WorkspaceStyle.Secondary;
+            diagnostics.Tag = "secondary";
             diagnostics.AccessibleName = "帧结构诊断与解析范围";
-            layout.Controls.Add(EditorSurface(diagnostics), 0, 5);
+            layout.Controls.Add(EditorSurface(diagnostics), 0, 4);
         }
 
         private TableLayoutPanel EditorPane(string title, TextBox editor)
@@ -337,22 +329,7 @@ namespace FrameTools
 
         private static Panel EditorSurface(TextBox editor)
         {
-            Panel surface = new Panel { Dock = DockStyle.Fill, Padding = new Padding(12), Margin = new Padding(0), BackColor = WorkspaceStyle.Background };
-            surface.Paint += delegate(object sender, PaintEventArgs e)
-            {
-                if (surface.Width < 2 || surface.Height < 2)
-                {
-                    return;
-                }
-                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                using (System.Drawing.Drawing2D.GraphicsPath path = WorkspaceStyle.RoundedRectangle(new RectangleF(0.5F, 0.5F, surface.Width - 1F, surface.Height - 1F), 12))
-                using (Brush fill = new SolidBrush(WorkspaceStyle.Surface))
-                using (Pen border = new Pen(WorkspaceStyle.Border))
-                {
-                    e.Graphics.FillPath(fill, path);
-                    e.Graphics.DrawPath(border, path);
-                }
-            };
+            Panel surface = new WorkspaceEditor();
             editor.BorderStyle = BorderStyle.None;
             surface.Controls.Add(editor);
             return surface;
@@ -360,7 +337,7 @@ namespace FrameTools
 
         private void BuildComposerTab()
         {
-            TabPage page = new TabPage("组装报文") { BackColor = BackColor, Padding = new Padding(12) };
+            TabPage page = new TabPage("报文组装") { BackColor = BackColor, Padding = new Padding(8) };
             page.AutoScroll = true;
             tabs.TabPages.Add(page);
             TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Top, RowCount = 7, ColumnCount = 1, Height = 660, MinimumSize = new Size(0, 660) };
@@ -390,7 +367,7 @@ namespace FrameTools
             Label hint = new Label
             {
                 Text = "C / AFN / SEQ 均按十六进制输入。\n\n645：DI 单独填写，其他明文字节放入业务数据区。\n\n本地：ADD 位决定是否携带地址。\n\n上行：业务区按传输顺序填写完整的 DA / DI / 数据 / 可选 PW / Tp。",
-                Dock = DockStyle.Fill, ForeColor = WorkspaceStyle.Secondary, Padding = new Padding(24, 5, 0, 0)
+                Dock = DockStyle.Fill, ForeColor = WorkspaceStyle.Secondary, Tag = "secondary", Padding = new Padding(24, 5, 0, 0)
             };
             parameters.Controls.Add(hint, 2, 0);
             parameters.SetColumnSpan(hint, 2);
@@ -424,6 +401,7 @@ namespace FrameTools
             layout.Controls.Add(EditorSurface(output), 0, 5);
             builderHelp.Dock = DockStyle.Fill;
             builderHelp.ForeColor = WorkspaceStyle.Secondary;
+            builderHelp.Tag = "secondary";
             builderHelp.Padding = new Padding(0, 8, 0, 0);
             layout.Controls.Add(builderHelp, 0, 6);
             control.TextChanged += delegate { UpdateAddressState(); output.Clear(); };
@@ -561,10 +539,11 @@ namespace FrameTools
         private void InvalidateParsedInput()
         {
             ClearParsedView();
+            status.Tag = "secondary";
             status.ForeColor = WorkspaceStyle.Secondary;
             if (string.IsNullOrWhiteSpace(input.Text))
             {
-                status.Text = "粘贴报文后，点击“识别并解析”。支持连续多帧与 Ctrl+Enter。";
+                status.Text = "粘贴一条报文后点击识别；连续日志请使用“多帧解析”。";
                 return;
             }
             status.Text = "输入已更新，点击“识别并解析”查看结果。";
@@ -574,7 +553,8 @@ namespace FrameTools
         {
             ClearParsedView();
             status.Text = "正在解析…";
-            status.ForeColor = Color.FromArgb(79, 94, 110);
+            status.Tag = "secondary";
+            status.ForeColor = WorkspaceStyle.Secondary;
             try
             {
                 parsedStream = FrameStream.Parse(input.Text, automaticProtocol.Checked ? (ProtocolKind?)null : SelectedProtocol);
@@ -582,11 +562,20 @@ namespace FrameTools
             catch (FormatException e)
             {
                 status.Text = "输入格式错误；请保留 HEX 字节并移除日志时间戳或文字。";
-                status.ForeColor = Color.Firebrick;
+                status.Tag = "error";
+                status.ForeColor = WorkspaceStyle.Error;
                 diagnostics.Text = e.Message;
                 return;
             }
             formatted.Text = parsedStream.FormattedText;
+            if (parsedStream.Parts.Count > 1)
+            {
+                status.Tag = "warning";
+                status.ForeColor = WorkspaceStyle.Warning;
+                status.Text = "检测到多条报文或多个数据片段，请点击“转到多帧解析”逐条查看。";
+                diagnostics.Text = "原始输入和整形结果已保留，单帧页不会只取第一条而忽略其余内容。";
+                return;
+            }
             exportButton.Enabled = parsedStream.Parts.Count > 0 || parsedStream.PendingNibble.Length > 0;
             formattedStarts = new int[parsedStream.Parts.Count];
             int character = 0;
@@ -606,8 +595,9 @@ namespace FrameTools
             int frames = parsedStream.Parts.Count(p => p.Kind == StreamPartKind.Frame);
             int valid = parsedStream.Parts.Count(p => p.Result != null && p.Result.IsFrameValid);
             int unresolved = parsedStream.Parts.Count - frames;
-            status.ForeColor = frames > valid ? Color.Firebrick
-                : unresolved > 0 || parsedStream.PendingNibble.Length > 0 ? Color.DarkGoldenrod : Color.FromArgb(20, 110, 80);
+            status.Tag = frames > valid ? "error" : unresolved > 0 || parsedStream.PendingNibble.Length > 0 ? "warning" : "success";
+            status.ForeColor = frames > valid ? WorkspaceStyle.Error
+                : unresolved > 0 || parsedStream.PendingNibble.Length > 0 ? WorkspaceStyle.Warning : WorkspaceStyle.Success;
             status.Text = "识别 " + frames + " 帧 · 结构通过 " + valid + " · 结构错误 " + (frames - valid)
                 + " · 待定片段 " + unresolved + (parsedStream.PendingNibble.Length > 0 ? " · 末尾半字节待补全" : "");
             if (parsedStream.Parts.Count > 0)
@@ -685,7 +675,7 @@ namespace FrameTools
 
         private void ExportReport()
         {
-            if (parsedStream == null || (parsedStream.Parts.Count == 0 && parsedStream.PendingNibble.Length == 0))
+            if (parsedStream == null || parsedStream.Parts.Count > 1 || (parsedStream.Parts.Count == 0 && parsedStream.PendingNibble.Length == 0))
             {
                 throw new FormatException("请先点击“识别并解析”，再导出结果。");
             }
@@ -694,7 +684,7 @@ namespace FrameTools
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
                     StringBuilder report = new StringBuilder();
-                    report.AppendLine("FrameTools 0.3.0");
+                    report.AppendLine("FrameTools 0.4.0");
                     report.AppendLine(automaticProtocol.Checked ? "自动识别规约" : "手动规约：" + protocol.Text);
                     report.AppendLine(status.Text);
                     report.AppendLine("整形报文流：");

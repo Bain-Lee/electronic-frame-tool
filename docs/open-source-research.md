@@ -42,3 +42,7 @@
 同时检查了 [batch_core.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/batch_core.py) 的 `_extract_68_frames`、`_extract_line_frames`、`extract_frames_for_protocol`，以及 [protocol_registry.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/protocol_registry.py) 的提取策略。所读代码部分路径仍依赖分行，不能据此认为它直接覆盖本次所有混合连续流输入。
 
 [clipboard_monitor.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/system_integration/clipboard_monitor.py) 的 `detect_protocol` 使用起止和特定位置字节进行启发式判断。本项目没有采用“其余默认南网”的方式，而是独立实现三种规约的头部、长度、结束符、CS 匹配，并保留真实的多候选歧义和手动入口。没有复制第三方源码。
+
+## 0.4.0 界面参考
+
+根据用户提供的截图和该项目 [README](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/README.md) 中的批量解析说明，本版将多帧页设计为“上方输入、左侧结果摘要、右侧选中帧详情”，使用紧凑工具栏、轻微圆角和深灰交替行底色。另阅读了 [batch_parse_worker.py](https://github.com/Liruitao1993/South_Network_Protocol_Analysis_Tool/blob/main/batch_parse_worker.py) 的批量处理入口，作为功能组织参考；未复制其实现，也未因此扩展本项目的规约支持范围。
