@@ -1,6 +1,6 @@
 # FrameTools 电力报文工具
 
-Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.2.0，支持自动识别和连续多帧解析**。
+Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.2.1，支持自动识别和连续多帧解析**。
 
 ## 运行
 
@@ -64,7 +64,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -Test
 ```
 
-验证情况见 [验证记录](docs/verification.md)。
+验证情况见 [验证记录](docs/verification.md)，本次审查及修复见 [Code Review 记录](docs/code-review.md)。
 
 ## 标准与设计
 
@@ -77,7 +77,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -Test
 
 本地仓库使用 `main` 分支；源代码、构建脚本、测试、示例和设计文档纳入版本管理。原始标准、临时提取内容及构建产物保留在本机，通过 `.gitignore` 排除。
 
-本次没有配置远程地址或推送 GitHub，也没有引入调研项目的代码。后续可从 `main` 新建功能分支，验证后再合并；无需重置历史或强制推送。
+项目仓库：[Bain-Lee/electronic-frame-tool](https://github.com/Bain-Lee/electronic-frame-tool)。主分支为 `main`，版本由 Git 标签定位，保留现有提交历史。当前没有引入调研项目的代码。
+
+```powershell
+git clone git@github.com:Bain-Lee/electronic-frame-tool.git
+cd electronic-frame-tool
+.\Build.ps1 -Test
+```
+
+Windows EXE 输出到本机 `artifacts/FrameTools.exe`，不作为源码文件提交。原始标准和临时提取文本也不会上传。后续可从 `main` 新建功能分支，验证后再合并；无需重置历史或强制推送。
 
 ## 后续范围
 

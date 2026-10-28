@@ -38,7 +38,7 @@ namespace FrameTools
 
         public MainForm()
         {
-            Text = "FrameTools 0.2.0 — 电力报文工具";
+            Text = "FrameTools 0.2.1 — 电力报文工具";
             Font = new Font("Microsoft YaHei UI", 9F);
             AutoScaleMode = AutoScaleMode.Font;
             MinimumSize = new Size(1000, 800);
@@ -121,6 +121,7 @@ namespace FrameTools
         {
             box.Dock = DockStyle.Fill;
             box.Multiline = true;
+            box.MaxLength = int.MaxValue;
             box.Font = new Font("Consolas", 11F);
             box.ScrollBars = ScrollBars.Vertical;
             box.ReadOnly = readOnly;
@@ -157,7 +158,6 @@ namespace FrameTools
             layout.Controls.Add(new Label { Text = "原始 HEX 输入    粘贴后自动识别并逐条解析；支持多帧连续、不带空格和换行的内容", AutoSize = true }, 0, 0);
             ConfigureHex(input, false);
             input.Name = "rawInput";
-            input.MaxLength = int.MaxValue;
             input.AccessibleName = "待解析十六进制报文";
             input.TextChanged += delegate { QueueParse(); };
             layout.Controls.Add(input, 0, 1);
@@ -574,7 +574,7 @@ namespace FrameTools
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
                     StringBuilder report = new StringBuilder();
-                    report.AppendLine("FrameTools 0.2.0");
+                    report.AppendLine("FrameTools 0.2.1");
                     report.AppendLine(automaticProtocol.Checked ? "自动识别规约" : "手动规约：" + protocol.Text);
                     report.AppendLine(status.Text);
                     report.AppendLine("整形报文流：");

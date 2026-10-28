@@ -98,6 +98,12 @@ namespace FrameTools
                     continue;
                 }
 
+                List<Candidate> checksummed = candidates.Where(c => c.Complete && c.ChecksumMatches).ToList();
+                if (checksummed.Count > 0)
+                {
+                    position = AddDamagedOrAmbiguous(result, bytes, sums, position, checksummed, forcedProtocol);
+                    continue;
+                }
                 List<Candidate> framed = candidates.Where(c => c.Complete && c.EndMatches).ToList();
                 if (framed.Count > 0)
                 {

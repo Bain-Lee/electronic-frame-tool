@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using FrameTools;
@@ -14,6 +15,9 @@ internal static class WindowFlowTests
     private static int failed;
 
     public static int Passed { get; private set; }
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr SendMessage(IntPtr handle, uint message, IntPtr value, IntPtr extra);
 
     private static void Check(bool condition, string message)
     {
@@ -156,6 +160,29 @@ internal static class WindowFlowTests
                 raw.Text = Compact(Local);
                 WaitFor(delegate { return formatted.Text == Local && HasField(grid, "总长度 L"); }, "Compact input differs");
                 Check(raw.Text == Compact(Local), "Raw compact text changed");
+            }
+        });
+        RunTest("window native business-data editing preserves a valid-sized payload beyond 32767 characters", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Named<ComboBox>(form, "protocol").SelectedIndex = 2;
+                TabControl tabs = form.Controls.OfType<TableLayoutPanel>().Single().Controls.OfType<TabControl>().Single();
+                TextBox business = tabs.TabPages[1].Controls.OfType<TableLayoutPanel>().Single().Controls.OfType<TextBox>()
+                    .Single(box => box.AccessibleName == "组帧业务数据");
+                byte[] application = Enumerable.Repeat((byte)0xAA, 13334).ToArray();
+                string expected = Hex.Format(application);
+                byte[] frame = FrameCodec.BuildUplink(0x4B, Hex.Parse("06 01 44 01 00 00 01"), 0x0C, 0x60, application);
+                Check(frame.Length == application.Length + 18 && expected.Length > 32767, "Expected a legal-sized long HEX payload");
+                business.Clear();
+                IntPtr handle = business.Handle;
+                foreach (char character in expected)
+                {
+                    // WM_CHAR follows native editing limits; assigning Text or SelectedText bypasses them.
+                    SendMessage(handle, 0x0102, (IntPtr)character, IntPtr.Zero);
+                }
+                Check(business.Text == expected, "Native input truncated " + expected.Length + " characters to " + business.TextLength);
+                Check(Hex.Parse(business.Text).SequenceEqual(application), "Business-data bytes changed during editing");
             }
         });
         RunTest("window mixed continuous stream selects each frame and locates its bytes", delegate

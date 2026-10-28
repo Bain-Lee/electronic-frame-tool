@@ -141,6 +141,25 @@ internal static class StreamTests
             Check(result.Parts[1].Protocol == ProtocolKind.Dlt645 && result.Parts[1].Result.IsFrameValid, "Following frame lost");
             Preserved(result, text);
         });
+        Run("checksum-matching bad-end 645 outranks an incomplete local hypothesis", delegate
+        {
+            string text = "68 12 00 00 00 00 00 68 11 04 33 33 34 33 C4 00";
+            StreamParseResult result = FrameStream.Parse(text);
+            StreamPart part = OnlyFrame(result);
+            Check(part.Protocol == ProtocolKind.Dlt645 && !part.Result.IsFrameValid
+                && part.Result.Errors.Any(e => e.Contains("结束字节")), "Bad-end diagnosis was hidden by an incomplete local hypothesis");
+            Preserved(result, text);
+        });
+        Run("checksum-matching bad-end 645 does not consume the following local frame", delegate
+        {
+            string text = "68 12 00 00 00 00 00 68 11 04 33 33 34 33 C4 00 " + Local;
+            StreamParseResult result = FrameStream.Parse(text);
+            Check(result.Parts.Count == 2 && result.Parts.All(p => p.Kind == StreamPartKind.Frame), "Bad-end frame swallowed a following boundary");
+            Check(result.Parts[0].Protocol == ProtocolKind.Dlt645 && !result.Parts[0].Result.IsFrameValid, "Bad 645 diagnosis missing");
+            Check(result.Parts[1].Protocol == ProtocolKind.CsgLocal && result.Parts[1].Result.IsFrameValid
+                && result.Parts[1].Offset == 16, "Following local frame was not recovered at byte 16");
+            Preserved(result, text);
+        });
         Run("provably corrupt inflated length recovers at validated boundary", delegate
         {
             byte[] bad = Hex.Parse(Local);
