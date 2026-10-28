@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace FrameTools
@@ -26,7 +27,7 @@ namespace FrameTools
         {
             root.BackColor = root.Parent == null ? Background : root.Parent.BackColor;
             root.ForeColor = Text;
-            if (root is TextBox || root is ComboBox || root is NumericUpDown || root is TabPage
+            if (root is TextBoxBase || root is ComboBox || root is NumericUpDown || root is TabPage
                 || root is WorkspaceGroupBox || root is WorkspaceEditor)
             {
                 root.BackColor = Surface;
@@ -114,6 +115,83 @@ namespace FrameTools
                 DataPropertyName = "Meaning", HeaderText = "解读", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, MinimumWidth = 180,
                 DefaultCellStyle = new DataGridViewCellStyle { WrapMode = DataGridViewTriState.True }
             });
+        }
+    }
+
+    public sealed class WorkspaceTextBox : TextBox
+    {
+        private bool updatingScrollbars;
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr window, int message, IntPtr first, IntPtr second);
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr window, int index);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowScrollBar(IntPtr window, int bar, bool show);
+
+        public WorkspaceTextBox()
+        {
+            Multiline = true;
+            ScrollBars = ScrollBars.Both;
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            UpdateScrollbars();
+        }
+
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+            UpdateScrollbars();
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateScrollbars();
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            UpdateScrollbars();
+        }
+
+        private void UpdateScrollbars()
+        {
+            if (!IsHandleCreated || updatingScrollbars)
+            {
+                return;
+            }
+            updatingScrollbars = true;
+            try
+            {
+                int textWidth = WordWrap || TextLength == 0 ? 0 : TextRenderer.MeasureText(Text, Font,
+                    new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding | TextFormatFlags.NoPrefix).Width;
+                // One scrollbar can make the other axis overflow.
+                for (int pass = 0; pass < 2; pass++)
+                {
+                    SetScrollbar(0, 0x00100000, textWidth > ClientSize.Width);
+                    int lines = (int)SendMessage(Handle, 0x00BA, IntPtr.Zero, IntPtr.Zero); // EM_GETLINECOUNT includes wrapped lines.
+                    SetScrollbar(1, 0x00200000, TextLength > 0 && lines * Font.Height > ClientSize.Height);
+                }
+            }
+            finally
+            {
+                updatingScrollbars = false;
+            }
+        }
+
+        private void SetScrollbar(int bar, int style, bool visible)
+        {
+            if (((GetWindowLong(Handle, -16) & style) != 0) != visible)
+            {
+                ShowScrollBar(Handle, bar, visible);
+            }
         }
     }
 

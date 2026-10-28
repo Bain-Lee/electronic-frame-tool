@@ -11,9 +11,9 @@ namespace FrameTools
     public sealed class BatchParserView : UserControl
     {
         private readonly Func<ProtocolKind?> getProtocol;
-        private readonly TextBox input = new TextBox();
-        private readonly TextBox selectedFrame = new TextBox();
-        private readonly TextBox diagnostics = new TextBox();
+        private readonly WorkspaceTextBox input = new WorkspaceTextBox();
+        private readonly WorkspaceTextBox selectedFrame = new WorkspaceTextBox();
+        private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
         private readonly DataGridView summary = new DataGridView();
         private readonly DataGridView fields = new DataGridView();
         private readonly Label status = new Label();
@@ -86,7 +86,6 @@ namespace FrameTools
             details.Controls.Add(detailLayout);
             ConfigureHex(selectedFrame, "batchSelectedFrame", true);
             selectedFrame.WordWrap = false;
-            selectedFrame.ScrollBars = ScrollBars.Both;
             WorkspaceEditor selectedSurface = new WorkspaceEditor();
             selectedSurface.Controls.Add(selectedFrame);
             detailLayout.Controls.Add(selectedSurface, 0, 0);
@@ -124,7 +123,7 @@ namespace FrameTools
             set { input.Text = value; }
         }
 
-        private static void ConfigureHex(TextBox box, string name, bool readOnly)
+        private static void ConfigureHex(WorkspaceTextBox box, string name, bool readOnly)
         {
             box.Name = name;
             box.Dock = DockStyle.Fill;
@@ -132,7 +131,6 @@ namespace FrameTools
             box.ReadOnly = readOnly;
             box.MaxLength = int.MaxValue;
             box.Font = new Font("Consolas", 10F);
-            box.ScrollBars = ScrollBars.Vertical;
             box.BorderStyle = BorderStyle.None;
             box.HideSelection = false;
         }
@@ -264,7 +262,7 @@ namespace FrameTools
                 {
                     return;
                 }
-                StringBuilder text = new StringBuilder("FrameTools 0.4.0 多帧解析" + Environment.NewLine);
+                StringBuilder text = new StringBuilder("FrameTools 0.4.1 多帧解析" + Environment.NewLine);
                 text.AppendLine(status.Text);
                 text.AppendLine(parsed.FormattedText);
                 for (int i = 0; i < parsed.Parts.Count; i++)

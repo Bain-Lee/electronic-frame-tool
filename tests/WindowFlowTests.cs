@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -17,6 +18,9 @@ internal static class WindowFlowTests
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern IntPtr SendMessage(IntPtr handle, uint message, IntPtr value, IntPtr extra);
+
+    [DllImport("user32.dll")]
+    private static extern int GetWindowLong(IntPtr handle, int index);
 
     private static void Check(bool condition, string message)
     {
@@ -123,13 +127,15 @@ internal static class WindowFlowTests
         using (MainForm form = NewForm())
         {
             Named<ComboBox>(form, "protocol").SelectedIndex = otherProtocol;
-            TextBox raw = Named<TextBox>(form, "rawInput");
+            TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
             raw.Text = Compact(frame);
             PumpFor(450);
             CheckUnparsed(form);
             Recognize(form);
             Check(HasField(Named<DataGridView>(form, "parsedFields"), field), "Wrong automatic protocol");
-            Check(Named<TextBox>(form, "formattedStream").Text == frame, "Formatting changed");
+            DataGridView grid = Named<DataGridView>(form, "parsedFields");
+            SelectField(grid, field);
+            Check(Hex.Compact(raw.SelectedText) == Hex.Compact(Data(grid).Single(f => f.Name == field).Raw), "Field not located in original input");
             Check(raw.Text == Compact(frame), "Raw text changed");
         }
     }
@@ -143,9 +149,11 @@ internal static class WindowFlowTests
             using (MainForm form = NewForm())
             {
                 PumpFor(450);
-                Check(Named<TextBox>(form, "rawInput").TextLength == 0 && Named<TextBox>(form, "batchInput").TextLength == 0, "Startup loaded sample");
+                Check(Named<TextBoxBase>(form, "rawInput").TextLength == 0 && Named<TextBoxBase>(form, "batchInput").TextLength == 0, "Startup loaded sample");
                 CheckUnparsed(form);
                 Check(Named<TabControl>(form, "workspaceTabs").TabPages.Count == 3, "Missing separate pages");
+                Check(!WorkspaceStyle.IsDark, "Startup did not use light theme");
+                Check(form.Controls.Find("formattedStream", true).Length == 0, "Single frame still has redundant formatted pane");
             }
         });
         RunTest("single click identifies 645", delegate { Single(Read645, 2, "通信地址 A"); });
@@ -168,7 +176,7 @@ internal static class WindowFlowTests
                 Check(protocol.Enabled && !automatic.Visible, "Builder blocked");
                 protocol.SelectedIndex = 2;
                 Click(Named<Button>(form, "composeFrame"));
-                Check(FrameCodec.Parse(ProtocolKind.CsgUplink, Named<TextBox>(form, "builtFrame").Text).IsFrameValid, "Builder failed");
+                Check(FrameCodec.Parse(ProtocolKind.CsgUplink, Named<TextBoxBase>(form, "builtFrame").Text).IsFrameValid, "Builder failed");
                 tabs.SelectedIndex = 0;
                 Check(!protocol.Enabled, "Parser mode not restored");
                 CheckUnparsed(form);
@@ -178,14 +186,14 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
-                TextBox raw = Named<TextBox>(form, "rawInput");
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
                 raw.Text = Local.ToLowerInvariant().Replace(" ", "\t ");
                 Recognize(form);
-                string formatted = Named<TextBox>(form, "formattedStream").Text;
+                string[] spaced = Data(Named<DataGridView>(form, "parsedFields")).Select(f => f.Offset + ":" + f.Raw).ToArray();
                 raw.Text = Compact(Local);
                 CheckUnparsed(form);
                 Recognize(form);
-                Check(formatted == Local && Named<TextBox>(form, "formattedStream").Text == Local, "Different input formats");
+                Check(spaced.SequenceEqual(Data(Named<DataGridView>(form, "parsedFields")).Select(f => f.Offset + ":" + f.Raw)), "Different input formats");
             }
         });
         RunTest("native business input preserves legal payload beyond 32767 characters", delegate
@@ -194,7 +202,7 @@ internal static class WindowFlowTests
             {
                 Named<TabControl>(form, "workspaceTabs").SelectedIndex = 2;
                 Named<ComboBox>(form, "protocol").SelectedIndex = 2;
-                TextBox box = Named<TextBox>(form, "businessInput");
+                TextBoxBase box = Named<TextBoxBase>(form, "businessInput");
                 byte[] bytes = Enumerable.Repeat((byte)0xAA, 13334).ToArray();
                 string expected = Hex.Format(bytes);
                 box.Clear();
@@ -205,16 +213,37 @@ internal static class WindowFlowTests
                 Check(box.Text == expected && Hex.Parse(box.Text).SequenceEqual(bytes), "Native input truncated");
             }
         });
+        RunTest("single field selection follows compact, separated and prefixed HEX", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
+                foreach (string text in new[]
+                {
+                    Compact(Read645),
+                    Read645.ToLowerInvariant().Replace(" ", " ,\r\n "),
+                    "0xFE:0xFE-" + string.Join(", ", Read645.Split(' ').Select(b => "0x" + b))
+                })
+                {
+                    raw.Text = text;
+                    string original = raw.Text;
+                    Recognize(form);
+                    SelectField(Named<DataGridView>(form, "parsedFields"), "数据标识 DI");
+                    Check(Hex.Compact(raw.SelectedText) == "33333433", "Wrong original HEX selection");
+                    Check(raw.Text == original, "Field selection rewrote original input");
+                }
+            }
+        });
         RunTest("batch mixed stream shows independent summaries and selected fields", delegate
         {
             using (MainForm form = NewForm())
             {
-                TextBox raw = Named<TextBox>(form, "batchInput");
+                TextBoxBase raw = Named<TextBoxBase>(form, "batchInput");
                 raw.Text = Compact(Read645 + Local + Uplink);
                 Batch(form);
                 DataGridView list = Named<DataGridView>(form, "batchSummary");
                 DataGridView fields = Named<DataGridView>(form, "batchFields");
-                TextBox frame = Named<TextBox>(form, "batchSelectedFrame");
+                TextBoxBase frame = Named<TextBoxBase>(form, "batchSelectedFrame");
                 Check(list.Rows.Count == 3, "Wrong frame count");
                 list.CurrentCell = list.Rows[1].Cells[0];
                 Check(HasField(fields, "总长度 L") && frame.Text == Local, "Wrong local details");
@@ -230,7 +259,7 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
-                TextBox raw = Named<TextBox>(form, "batchInput");
+                TextBoxBase raw = Named<TextBoxBase>(form, "batchInput");
                 string tail = Compact(Local);
                 raw.Text = Compact(Read645) + tail.Substring(0, 11);
                 Batch(form);
@@ -248,7 +277,7 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
-                TextBox raw = Named<TextBox>(form, "rawInput");
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
                 raw.Text = Read645;
                 Recognize(form);
                 raw.Text += "ZZ";
@@ -262,7 +291,7 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
-                TextBox raw = Named<TextBox>(form, "batchInput");
+                TextBoxBase raw = Named<TextBoxBase>(form, "batchInput");
                 for (int i = 0; i < 6; i++)
                 {
                     raw.AppendText(Compact(Read645));
@@ -277,7 +306,7 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
-                Named<TextBox>(form, "rawInput").Text = Hex.Format(FrameCodec.BuildLocal(0x60, "8C1168000000", "000000000001", 3, 1, Hex.Identifier("E8000301"), new byte[128]));
+                Named<TextBoxBase>(form, "rawInput").Text = Hex.Format(FrameCodec.BuildLocal(0x60, "8C1168000000", "000000000001", 3, 1, Hex.Identifier("E8000301"), new byte[128]));
                 Recognize(form);
                 Check(Data(Named<DataGridView>(form, "parsedFields")).Length == 0, "Ambiguity silently resolved");
                 Named<CheckBox>(form, "automaticProtocol").Checked = false;
@@ -292,7 +321,7 @@ internal static class WindowFlowTests
             {
                 Named<CheckBox>(form, "automaticProtocol").Checked = false;
                 Named<ComboBox>(form, "protocol").SelectedIndex = 1;
-                Named<TextBox>(form, "rawInput").Text = Local;
+                Named<TextBoxBase>(form, "rawInput").Text = Local;
                 Recognize(form);
                 Check(HasField(Named<DataGridView>(form, "parsedFields"), "总长度 L"), "Manual local failed");
                 Named<ComboBox>(form, "protocol").SelectedIndex = 0;
@@ -305,12 +334,12 @@ internal static class WindowFlowTests
             using (MainForm form = NewForm())
             {
                 string raw = Compact(Read645 + Local);
-                Named<TextBox>(form, "rawInput").Text = raw;
+                Named<TextBoxBase>(form, "rawInput").Text = raw;
                 Recognize(form);
                 Check(Data(Named<DataGridView>(form, "parsedFields")).Length == 0
                     && Named<Label>(form, "parseStatus").Text.Contains("多帧"), "Single silently dropped extra frame");
                 Click(Named<Button>(form, "sendToBatch"));
-                Check(Named<TextBox>(form, "batchInput").Text == raw
+                Check(Named<TextBoxBase>(form, "batchInput").Text == raw
                     && Named<DataGridView>(form, "batchSummary").Rows.Count == 0, "Transfer changed or parsed data");
                 Batch(form);
                 Check(Named<DataGridView>(form, "batchSummary").Rows.Count == 2, "Transferred batch failed");
@@ -320,7 +349,7 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
-                Named<TextBox>(form, "batchInput").Text = Compact(Read645 + Local + Uplink);
+                Named<TextBoxBase>(form, "batchInput").Text = Compact(Read645 + Local + Uplink);
                 Batch(form);
                 form.Size = form.MinimumSize;
                 form.PerformLayout();
@@ -337,28 +366,95 @@ internal static class WindowFlowTests
                 Check(Named<DataGridView>(form, "batchSummary").Rows.Count == 3, "Resize lost frames");
             }
         });
-        RunTest("theme switches dark-light-dark without altering input or parsed results", delegate
+        RunTest("all multiline editors show scrollbars only for overflowing content", delegate
         {
             using (MainForm form = NewForm())
             {
-                Named<TextBox>(form, "rawInput").Text = Read645;
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                string[][] editors =
+                {
+                    new[] { "rawInput", "parseDiagnostics" },
+                    new[] { "batchInput", "batchSelectedFrame", "batchDiagnostics" },
+                    new[] { "businessInput", "builtFrame" }
+                };
+                for (int page = 0; page < editors.Length; page++)
+                {
+                    Named<TabControl>(form, "workspaceTabs").SelectedIndex = page;
+                    foreach (string name in editors[page])
+                    {
+                        TextBoxBase editor = Named<TextBoxBase>(form, name);
+                        editor.Text = "68 16";
+                        Application.DoEvents();
+                        Check((GetWindowLong(editor.Handle, -16) & 0x00300000) == 0, name + " shows scrollbars for short text");
+                        editor.Text = string.Join(Environment.NewLine, Enumerable.Repeat("68 16", 100));
+                        Application.DoEvents();
+                        Check((GetWindowLong(editor.Handle, -16) & 0x00200000) != 0, name + " hides overflowing vertical scrollbar");
+                        SendMessage(editor.Handle, 0x0115, (IntPtr)7, IntPtr.Zero); // WM_VSCROLL / SB_BOTTOM.
+                        Check((int)SendMessage(editor.Handle, 0x00CE, IntPtr.Zero, IntPtr.Zero) > 0, name + " cannot scroll to overflow text");
+                        editor.Clear();
+                        Application.DoEvents();
+                        Check((GetWindowLong(editor.Handle, -16) & 0x00300000) == 0, name + " keeps empty scrollbars");
+                    }
+                }
+            }
+        });
+        RunTest("editor resizing and wrapping update native scrollbar visibility", delegate
+        {
+            using (Form host = new Form())
+            using (WorkspaceTextBox editor = new WorkspaceTextBox { Size = new Size(240, 60), Font = new Font("Consolas", 10F) })
+            {
+                host.ShowInTaskbar = false;
+                host.StartPosition = FormStartPosition.Manual;
+                host.Location = new Point(-16000, -16000);
+                host.Controls.Add(editor);
+                host.Show();
+                editor.Text = string.Join(Environment.NewLine, Enumerable.Repeat("68 16", 10));
+                Application.DoEvents();
+                Check((GetWindowLong(editor.Handle, -16) & 0x00200000) != 0, "Missing vertical overflow scrollbar");
+                editor.Height = 300;
+                Application.DoEvents();
+                Check((GetWindowLong(editor.Handle, -16) & 0x00300000) == 0, "Resize kept unnecessary scrollbars");
+                editor.Height = 60;
+                editor.Text = new string('A', 400);
+                Application.DoEvents();
+                Check((GetWindowLong(editor.Handle, -16) & 0x00300000) == 0x00200000, "Wrapped input does not scroll vertically");
+                editor.WordWrap = false;
+                Application.DoEvents();
+                Check((GetWindowLong(editor.Handle, -16) & 0x00300000) == 0x00100000, "Unwrapped input does not scroll horizontally");
+                editor.Text = "68 16";
+                Application.DoEvents();
+                Check((GetWindowLong(editor.Handle, -16) & 0x00300000) == 0, "Shortened line kept scrollbars");
+            }
+        });
+        RunTest("theme switches light-dark-light without altering input or parsed results", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                Named<TextBoxBase>(form, "rawInput").Text = Read645;
                 Recognize(form);
-                Named<TextBox>(form, "batchInput").Text = Compact(Read645 + Local);
+                Named<TextBoxBase>(form, "batchInput").Text = Compact(Read645 + Local);
                 Batch(form);
                 DataGridView list = Named<DataGridView>(form, "batchSummary");
                 list.CurrentCell = list.Rows[1].Cells[0];
                 object selected = list.CurrentRow.Tag;
-                TextBox details = Named<TextBox>(form, "batchSelectedFrame");
+                TextBoxBase details = Named<TextBoxBase>(form, "batchSelectedFrame");
                 string original = details.Text;
                 Button theme = Named<Button>(form, "themeToggle");
-                Check(WorkspaceStyle.IsDark, "Default theme differs from reference");
+                Check(!WorkspaceStyle.IsDark, "Default theme is not light");
                 Click(theme);
-                Check(!WorkspaceStyle.IsDark && details.BackColor == WorkspaceStyle.Surface
-                    && list.CurrentRow.Tag == selected && details.Text == original && list.Rows.Count == 2, "Light switch lost data or selection");
-                Check(theme.AccessibleName.Contains("暗色"), "Wrong theme action");
+                Check(WorkspaceStyle.IsDark && details.BackColor == WorkspaceStyle.Surface
+                    && list.CurrentRow.Tag == selected && details.Text == original && list.Rows.Count == 2, "Dark switch lost data or selection");
+                Check(theme.AccessibleName.Contains("亮色"), "Wrong theme action");
                 Click(theme);
-                Check(WorkspaceStyle.IsDark && details.Text == original
-                    && Named<TextBox>(form, "rawInput").Text == Read645, "Dark switch changed input");
+                Check(!WorkspaceStyle.IsDark && details.Text == original
+                    && Named<TextBoxBase>(form, "rawInput").Text == Read645, "Light switch changed input");
             }
         });
         Console.WriteLine("WINDOW RESULT: " + Passed + " passed, " + failed + " failed");

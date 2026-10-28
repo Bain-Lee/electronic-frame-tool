@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace FrameTools
@@ -17,10 +18,8 @@ namespace FrameTools
         private readonly ToolTip themeTip = new ToolTip();
         private readonly BatchParserView batch;
         private readonly Label protocolLabel = new Label();
-        private readonly TextBox input = new TextBox();
-        private readonly TextBox formatted = new TextBox();
-        private readonly ComboBox streamParts = new ComboBox();
-        private readonly TextBox diagnostics = new TextBox();
+        private readonly WorkspaceTextBox input = new WorkspaceTextBox();
+        private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
         private readonly DataGridView fields = new DataGridView();
         private readonly Label status = new Label();
         private readonly TextBox control = new TextBox();
@@ -30,20 +29,20 @@ namespace FrameTools
         private readonly TextBox sequence = new TextBox();
         private readonly TextBox identifier = new TextBox();
         private readonly NumericUpDown preamble = new NumericUpDown();
-        private readonly TextBox payload = new TextBox();
-        private readonly TextBox output = new TextBox();
+        private readonly WorkspaceTextBox payload = new WorkspaceTextBox();
+        private readonly WorkspaceTextBox output = new WorkspaceTextBox();
         private readonly Label addressLabel = new Label();
         private readonly Label payloadLabel = new Label();
         private readonly Label builderHelp = new Label();
         private WorkspaceButton exportButton;
         private FrameResult current;
         private StreamParseResult parsedStream;
-        private int[] formattedStarts = new int[0];
+        private int[] inputDigits = new int[0];
 
         public MainForm()
         {
-            WorkspaceStyle.IsDark = true;
-            Text = "FrameTools 0.4.0 — 电力报文工具";
+            WorkspaceStyle.IsDark = false;
+            Text = "FrameTools 0.4.1 — 电力报文工具";
             Font = new Font("Microsoft YaHei UI", 9F);
             AutoScaleMode = AutoScaleMode.Font;
             MinimumSize = new Size(1020, 740);
@@ -70,7 +69,7 @@ namespace FrameTools
             Panel themePanel = new Panel { Dock = DockStyle.Right, Width = 34 };
             themePanel.Controls.Add(themeButton);
             heading.Controls.Add(themePanel);
-            heading.Controls.Add(new Label { Text = "v0.4.0", Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
+            heading.Controls.Add(new Label { Text = "v0.4.1", Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
             themePanel.SendToBack();
             shell.Controls.Add(heading, 0, 0);
             WorkspaceGroupBox protocolGroup = new WorkspaceGroupBox { Text = "规约选择", Dock = DockStyle.Fill, Padding = new Padding(7, 3, 7, 2), Margin = new Padding(0, 0, 0, 5) };
@@ -156,14 +155,13 @@ namespace FrameTools
             return new FlowLayoutPanel { Dock = DockStyle.Fill, WrapContents = false, AutoSize = true, Margin = new Padding(0) };
         }
 
-        private static void ConfigureHex(TextBox box, bool readOnly)
+        private static void ConfigureHex(WorkspaceTextBox box, bool readOnly)
         {
             box.Dock = DockStyle.Fill;
             box.Multiline = true;
             box.MaxLength = int.MaxValue;
             box.Font = new Font("Consolas", 10.5F);
             box.BorderStyle = BorderStyle.FixedSingle;
-            box.ScrollBars = ScrollBars.Vertical;
             box.ReadOnly = readOnly;
             box.BackColor = WorkspaceStyle.Surface;
             box.ForeColor = WorkspaceStyle.Text;
@@ -229,25 +227,13 @@ namespace FrameTools
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
             page.Controls.Add(layout);
-            TableLayoutPanel editors = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new Padding(0, 0, 0, 12) };
-            editors.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
-            editors.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             ConfigureHex(input, false);
             input.Name = "rawInput";
             input.AccessibleName = "待解析十六进制报文";
             input.TextChanged += delegate { InvalidateParsedInput(); };
             TableLayoutPanel sourcePane = EditorPane("原始报文", input);
-            sourcePane.Margin = new Padding(0, 0, 8, 0);
-            editors.Controls.Add(sourcePane, 0, 0);
-            ConfigureHex(formatted, true);
-            formatted.Name = "formattedStream";
-            formatted.AccessibleName = "自动整形报文流";
-            formatted.WordWrap = false;
-            formatted.ScrollBars = ScrollBars.Both;
-            TableLayoutPanel formattedPane = EditorPane("整形结果", formatted);
-            formattedPane.Margin = new Padding(8, 0, 0, 0);
-            editors.Controls.Add(formattedPane, 1, 0);
-            layout.Controls.Add(editors, 0, 0);
+            sourcePane.Margin = new Padding(0, 0, 0, 12);
+            layout.Controls.Add(sourcePane, 0, 0);
             FlowLayoutPanel actions = Toolbar();
             WorkspaceButton parseButton = Button(actions, "识别并解析", ParseInput);
             parseButton.Name = "parseFrames";
@@ -264,11 +250,6 @@ namespace FrameTools
             exportButton.Enabled = false;
             Button(actions, "转到多帧解析", delegate { batch.InputText = input.Text; tabs.SelectedIndex = 1; }).Name = "sendToBatch";
             layout.Controls.Add(actions, 0, 1);
-            streamParts.Name = "streamParts";
-            ConfigurePicker(streamParts);
-            streamParts.Visible = false;
-            streamParts.SelectedIndexChanged += delegate { ShowStreamPart(); };
-            page.Controls.Add(streamParts);
             status.Name = "parseStatus";
             status.Dock = DockStyle.Fill;
             status.TextAlign = ContentAlignment.MiddleLeft;
@@ -296,11 +277,12 @@ namespace FrameTools
                 FrameField field = fields.CurrentRow.DataBoundItem as FrameField;
                 if (field != null)
                 {
-                    int selected = streamParts.SelectedIndex;
-                    if (selected >= 0 && selected < formattedStarts.Length)
+                    int first = field.Offset * 2;
+                    int last = first + field.Length * 2 - 1;
+                    if (field.Length > 0 && last < inputDigits.Length)
                     {
-                        formatted.Select(formattedStarts[selected] + field.Offset * 3, Math.Max(0, field.Length * 3 - 1));
-                        formatted.ScrollToCaret();
+                        input.Select(inputDigits[first], inputDigits[last] - inputDigits[first] + 1);
+                        input.ScrollToCaret();
                     }
                 }
             };
@@ -314,7 +296,7 @@ namespace FrameTools
             layout.Controls.Add(EditorSurface(diagnostics), 0, 4);
         }
 
-        private TableLayoutPanel EditorPane(string title, TextBox editor)
+        private TableLayoutPanel EditorPane(string title, WorkspaceTextBox editor)
         {
             TableLayoutPanel pane = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
             pane.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
@@ -327,7 +309,7 @@ namespace FrameTools
             return pane;
         }
 
-        private static Panel EditorSurface(TextBox editor)
+        private static Panel EditorSurface(WorkspaceTextBox editor)
         {
             Panel surface = new WorkspaceEditor();
             editor.BorderStyle = BorderStyle.None;
@@ -405,7 +387,7 @@ namespace FrameTools
             builderHelp.Padding = new Padding(0, 8, 0, 0);
             layout.Controls.Add(builderHelp, 0, 6);
             control.TextChanged += delegate { UpdateAddressState(); output.Clear(); };
-            foreach (TextBox parameter in new[] { address, destination, afn, sequence, identifier, payload })
+            foreach (TextBoxBase parameter in new TextBoxBase[] { address, destination, afn, sequence, identifier, payload })
             {
                 parameter.TextChanged += delegate { output.Clear(); };
             }
@@ -529,9 +511,7 @@ namespace FrameTools
             current = null;
             parsedStream = null;
             fields.DataSource = null;
-            streamParts.Items.Clear();
-            formatted.Clear();
-            formattedStarts = new int[0];
+            inputDigits = new int[0];
             diagnostics.Clear();
             exportButton.Enabled = false;
         }
@@ -567,31 +547,15 @@ namespace FrameTools
                 diagnostics.Text = e.Message;
                 return;
             }
-            formatted.Text = parsedStream.FormattedText;
             if (parsedStream.Parts.Count > 1)
             {
                 status.Tag = "warning";
                 status.ForeColor = WorkspaceStyle.Warning;
                 status.Text = "检测到多条报文或多个数据片段，请点击“转到多帧解析”逐条查看。";
-                diagnostics.Text = "原始输入和整形结果已保留，单帧页不会只取第一条而忽略其余内容。";
+                diagnostics.Text = "原始输入已保留。转入多帧页后，点击“开始多帧解析”查看全部内容。";
                 return;
             }
             exportButton.Enabled = parsedStream.Parts.Count > 0 || parsedStream.PendingNibble.Length > 0;
-            formattedStarts = new int[parsedStream.Parts.Count];
-            int character = 0;
-            streamParts.BeginUpdate();
-            for (int i = 0; i < parsedStream.Parts.Count; i++)
-            {
-                StreamPart part = parsedStream.Parts[i];
-                formattedStarts[i] = character;
-                character += Math.Max(0, part.Bytes.Length * 3 - 1) + Environment.NewLine.Length;
-                string description = part.Kind == StreamPartKind.Frame
-                    ? ProtocolLabel(part.Protocol) + (part.Result.IsFrameValid ? " · 结构通过" : " · 结构错误")
-                    : part.Kind == StreamPartKind.Incomplete ? "未完整，等待后续字节"
-                    : part.Kind == StreamPartKind.Ambiguous ? "规约有歧义，请手动选择" : "未识别数据";
-                streamParts.Items.Add("第 " + (i + 1) + " 条 / 片段 · " + description + " · 源偏移 " + part.Offset + " · " + part.Bytes.Length + " 字节");
-            }
-            streamParts.EndUpdate();
             int frames = parsedStream.Parts.Count(p => p.Kind == StreamPartKind.Frame);
             int valid = parsedStream.Parts.Count(p => p.Result != null && p.Result.IsFrameValid);
             int unresolved = parsedStream.Parts.Count - frames;
@@ -602,7 +566,9 @@ namespace FrameTools
                 + " · 待定片段 " + unresolved + (parsedStream.PendingNibble.Length > 0 ? " · 末尾半字节待补全" : "");
             if (parsedStream.Parts.Count > 0)
             {
-                streamParts.SelectedIndex = 0;
+                inputDigits = Regex.Matches(input.Text, @"\b0[xX]|[0-9a-fA-F]").Cast<Match>()
+                    .Where(m => m.Length == 1).Select(m => m.Index).ToArray();
+                ShowSinglePart();
             }
             else
             {
@@ -615,16 +581,15 @@ namespace FrameTools
             return kind.HasValue ? protocol.Items[(int)kind.Value].ToString() : "规约未确定";
         }
 
-        private void ShowStreamPart()
+        private void ShowSinglePart()
         {
             current = null;
             fields.DataSource = null;
-            if (parsedStream == null || streamParts.SelectedIndex < 0)
+            if (parsedStream == null || parsedStream.Parts.Count != 1)
             {
                 return;
             }
-            int selected = streamParts.SelectedIndex;
-            StreamPart part = parsedStream.Parts[selected];
+            StreamPart part = parsedStream.Parts[0];
             current = part.Result;
             StringBuilder description = new StringBuilder();
             description.AppendLine(ProtocolLabel(part.Protocol) + "；源字节偏移 " + part.Offset + "；字段表偏移相对于本条报文。");
@@ -641,14 +606,9 @@ namespace FrameTools
                     description.AppendLine("说明：" + note);
                 }
             }
-            else
-            {
-                formatted.Select(formattedStarts[selected], Math.Max(0, part.Bytes.Length * 3 - 1));
-                formatted.ScrollToCaret();
-            }
             if (parsedStream.PendingNibble.Length > 0)
             {
-                description.AppendLine("流末尾保留半字节 " + parsedStream.PendingNibble + "，继续输入后自动补全。");
+                description.AppendLine("流末尾保留半字节 " + parsedStream.PendingNibble + "，补全后再次点击识别。");
             }
             diagnostics.Text = description.ToString();
         }
@@ -684,7 +644,7 @@ namespace FrameTools
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
                     StringBuilder report = new StringBuilder();
-                    report.AppendLine("FrameTools 0.4.0");
+                    report.AppendLine("FrameTools 0.4.1");
                     report.AppendLine(automaticProtocol.Checked ? "自动识别规约" : "手动规约：" + protocol.Text);
                     report.AppendLine(status.Text);
                     report.AppendLine("整形报文流：");

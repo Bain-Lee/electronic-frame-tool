@@ -236,7 +236,7 @@ internal static class ProtocolTests
             System.Windows.Forms.Application.EnableVisualStyles();
             using (MainForm form = new MainForm())
             {
-                Check(form.Text.StartsWith("FrameTools 0.4.0"), "Window title");
+                Check(form.Text.StartsWith("FrameTools 0.4.1"), "Window title");
                 Check(form.Controls.Count > 0, "Window contains no layout");
             }
         });
