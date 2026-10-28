@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -38,11 +39,45 @@ internal static class WindowFlowTests
     {
         MainForm form = new MainForm();
         form.BindingContext = new BindingContext();
-        // Create the test form and grid handles without showing a desktop window.
+        // Tab selection events require a native tab handle, as in a displayed production form.
         IntPtr formHandle = form.Handle;
+        IntPtr tabHandle = Named<TabControl>(form, "workspaceTabs").Handle;
         IntPtr gridHandle = Named<DataGridView>(form, "parsedFields").Handle;
-        Check(formHandle != IntPtr.Zero && gridHandle != IntPtr.Zero, "Window handles were not created");
+        Check(formHandle != IntPtr.Zero && tabHandle != IntPtr.Zero && gridHandle != IntPtr.Zero, "Window handles were not created");
         return form;
+    }
+
+    private static IEnumerable<Control> Descendants(Control parent)
+    {
+        foreach (Control child in parent.Controls)
+        {
+            yield return child;
+            foreach (Control descendant in Descendants(child))
+            {
+                yield return descendant;
+            }
+        }
+    }
+
+    private static void Click(Button button)
+    {
+        Check(button.Enabled, "Button is disabled: " + button.Text);
+        // Dispatch the actual Click handler without showing a desktop test window.
+        typeof(Button).GetMethod("OnClick", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(button, new object[] { EventArgs.Empty });
+        Application.DoEvents();
+    }
+
+    private static void Recognize(MainForm form)
+    {
+        Click(Named<Button>(form, "parseFrames"));
+    }
+
+    private static void CheckUnparsed(MainForm form, string message)
+    {
+        Check(Named<ComboBox>(form, "streamParts").Items.Count == 0
+            && Named<TextBox>(form, "formattedStream").TextLength == 0
+            && Data(Named<DataGridView>(form, "parsedFields")).Length == 0, message);
     }
 
     private static void WaitFor(Func<bool> condition, string message)
@@ -114,7 +149,7 @@ internal static class WindowFlowTests
         }
     }
 
-    private static void AutoRecognizes(string frame, int otherProtocol, string expectedField)
+    private static void AutoRecognizesOnClick(string frame, int otherProtocol, string expectedField)
     {
         using (MainForm form = NewForm())
         {
@@ -125,8 +160,11 @@ internal static class WindowFlowTests
             DataGridView grid = Named<DataGridView>(form, "parsedFields");
             ComboBox parts = Named<ComboBox>(form, "streamParts");
             raw.Text = Compact(frame);
+            PumpFor(450);
+            CheckUnparsed(form, "Pasting started recognition before the user clicked");
+            Recognize(form);
             WaitFor(delegate { return parts.Items.Count == 1 && formatted.Text == frame && HasField(grid, expectedField); },
-                "Pasted frame was not automatically detected and parsed");
+                "Click did not identify and parse the pasted frame");
             Check(raw.Text == Compact(frame), "Automatic formatting overwrote the raw input");
             Check(formatted.ReadOnly, "Formatted output must be read-only");
         }
@@ -136,17 +174,51 @@ internal static class WindowFlowTests
     {
         Passed = 0;
         failed = 0;
-        RunTest("window auto-detects pasted compact 645 despite manual uplink selection", delegate
+        RunTest("window startup stays empty without recognition", delegate
         {
-            AutoRecognizes(Read645, 2, "通信地址 A");
+            using (MainForm form = NewForm())
+            {
+                PumpFor(450);
+                Check(Named<TextBox>(form, "rawInput").TextLength == 0, "Startup loaded an unsolicited example");
+                CheckUnparsed(form, "Startup performed recognition or populated old results");
+            }
         });
-        RunTest("window auto-detects pasted compact local despite manual 645 selection", delegate
+        RunTest("window click identifies compact 645 despite manual uplink selection", delegate
         {
-            AutoRecognizes(Local, 0, "总长度 L");
+            AutoRecognizesOnClick(Read645, 2, "通信地址 A");
         });
-        RunTest("window auto-detects pasted compact uplink despite manual local selection", delegate
+        RunTest("window click identifies compact local despite manual 645 selection", delegate
         {
-            AutoRecognizes(Uplink, 1, "省地市区县码 A1");
+            AutoRecognizesOnClick(Local, 0, "总长度 L");
+        });
+        RunTest("window click identifies compact uplink despite manual local selection", delegate
+        {
+            AutoRecognizesOnClick(Uplink, 1, "省地市区县码 A1");
+        });
+        RunTest("window automatic mode disables manual parsing while builder selection remains usable", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                CheckBox automatic = Named<CheckBox>(form, "automaticProtocol");
+                ComboBox protocol = Named<ComboBox>(form, "protocol");
+                TabControl tabs = Named<TabControl>(form, "workspaceTabs");
+                Check(automatic.Checked && !protocol.Enabled, "Automatic parsing left manual protocol enabled");
+                automatic.Checked = false;
+                Check(protocol.Enabled, "Manual protocol did not become available");
+                automatic.Checked = true;
+                Check(!protocol.Enabled, "Automatic mode did not disable manual selection");
+                tabs.SelectedIndex = 1;
+                Check(protocol.Enabled && !automatic.Visible, "Builder protocol was blocked by automatic parsing mode");
+                protocol.SelectedIndex = 2;
+                Button generate = Descendants(form).OfType<Button>().Single(button => button.Text.StartsWith("生成报文", StringComparison.Ordinal));
+                Click(generate);
+                TextBox result = Named<TextBox>(form, "builtFrame");
+                Check(result.TextLength > 0 && FrameCodec.Parse(ProtocolKind.CsgUplink, result.Text).IsFrameValid,
+                    "Builder could not generate an uplink frame in automatic parsing mode");
+                tabs.SelectedIndex = 0;
+                Check(automatic.Checked && !protocol.Enabled, "Returning to parsing did not restore automatic mode");
+                CheckUnparsed(form, "Changing parsing or builder mode performed recognition");
+            }
         });
         RunTest("window spaces and compact HEX produce identical formatted output", delegate
         {
@@ -156,8 +228,11 @@ internal static class WindowFlowTests
                 TextBox formatted = Named<TextBox>(form, "formattedStream");
                 DataGridView grid = Named<DataGridView>(form, "parsedFields");
                 raw.Text = "  " + Local.ToLowerInvariant().Replace(" ", "\t ") + "\r\n";
+                Recognize(form);
                 WaitFor(delegate { return formatted.Text == Local && HasField(grid, "总长度 L"); }, "Spaced input not parsed");
                 raw.Text = Compact(Local);
+                CheckUnparsed(form, "Changing input retained the previous parsed result");
+                Recognize(form);
                 WaitFor(delegate { return formatted.Text == Local && HasField(grid, "总长度 L"); }, "Compact input differs");
                 Check(raw.Text == Compact(Local), "Raw compact text changed");
             }
@@ -166,10 +241,9 @@ internal static class WindowFlowTests
         {
             using (MainForm form = NewForm())
             {
+                Named<TabControl>(form, "workspaceTabs").SelectedIndex = 1;
                 Named<ComboBox>(form, "protocol").SelectedIndex = 2;
-                TabControl tabs = form.Controls.OfType<TableLayoutPanel>().Single().Controls.OfType<TabControl>().Single();
-                TextBox business = tabs.TabPages[1].Controls.OfType<TableLayoutPanel>().Single().Controls.OfType<TextBox>()
-                    .Single(box => box.AccessibleName == "组帧业务数据");
+                TextBox business = Named<TextBox>(form, "businessInput");
                 byte[] application = Enumerable.Repeat((byte)0xAA, 13334).ToArray();
                 string expected = Hex.Format(application);
                 byte[] frame = FrameCodec.BuildUplink(0x4B, Hex.Parse("06 01 44 01 00 00 01"), 0x0C, 0x60, application);
@@ -195,6 +269,7 @@ internal static class WindowFlowTests
                 DataGridView grid = Named<DataGridView>(form, "parsedFields");
                 string expected = Read645 + Environment.NewLine + Local + Environment.NewLine + Uplink;
                 raw.Text = Compact(Read645 + Local + Uplink);
+                Recognize(form);
                 WaitFor(delegate { return parts.Items.Count == 3 && formatted.Text == expected; }, "Mixed stream not split into three lines");
                 parts.SelectedIndex = 1;
                 WaitFor(delegate { return HasField(grid, "总长度 L"); }, "Second frame did not show local fields");
@@ -225,10 +300,14 @@ internal static class WindowFlowTests
                 string compactLocal = Compact(Local);
                 string partial = Compact(Read645) + compactLocal.Substring(0, 11);
                 raw.Text = partial;
+                Recognize(form);
                 WaitFor(delegate { return parts.Items.Count == 2 && Compact(formatted.Text) == partial; },
                     "Complete first frame or incomplete odd-nibble tail was lost");
                 Check(raw.Text == partial, "Partial raw text changed");
                 raw.AppendText(compactLocal.Substring(11));
+                PumpFor(450);
+                CheckUnparsed(form, "Appending a tail parsed without a click");
+                Recognize(form);
                 WaitFor(delegate { return parts.Items.Count == 2 && formatted.Text == Read645 + Environment.NewLine + Local; },
                     "Appending the tail did not complete the second frame");
                 parts.SelectedIndex = 1;
@@ -246,8 +325,13 @@ internal static class WindowFlowTests
                 DataGridView grid = Named<DataGridView>(form, "parsedFields");
                 Label status = Named<Label>(form, "parseStatus");
                 raw.Text = Compact(Read645);
+                Recognize(form);
                 WaitFor(delegate { return parts.Items.Count == 1 && HasField(grid, "通信地址 A"); }, "Valid baseline failed");
                 raw.Text = Compact(Read645) + "ZZ";
+                PumpFor(450);
+                CheckUnparsed(form, "Invalid edited text retained prior results");
+                Check(!status.Text.Contains("错误"), "Editing started format validation before recognition");
+                Recognize(form);
                 WaitFor(delegate
                 {
                     return parts.Items.Count == 0 && Data(grid).Length == 0 && formatted.Text.Length == 0
@@ -257,55 +341,28 @@ internal static class WindowFlowTests
                 Check(!status.Text.Contains("通过"), "Old successful status remained visible");
             }
         });
-        RunTest("window parses while uninterrupted chunks continue arriving", delegate
+        RunTest("window appended stream waits for click and then parses every frame", delegate
         {
             using (MainForm form = NewForm())
             {
                 TextBox raw = Named<TextBox>(form, "rawInput");
                 TextBox formatted = Named<TextBox>(form, "formattedStream");
                 ComboBox parts = Named<ComboBox>(form, "streamParts");
-                Label status = Named<Label>(form, "parseStatus");
                 raw.Clear();
-                bool appending = true;
-                int observedFramesDuringAppend = 0;
-                status.TextChanged += delegate
-                {
-                    if (appending && status.Text.StartsWith("识别 ", StringComparison.Ordinal))
-                    {
-                        observedFramesDuringAppend = Math.Max(observedFramesDuringAppend, parts.Items.Count);
-                    }
-                };
-                Stopwatch watch = Stopwatch.StartNew();
-                int chunks = 0;
-                long nextAppend = 0;
+                int chunks = 6;
                 string chunk = Compact(Read645);
-                // Every 80 ms is faster than the 350 ms parse interval, so debounce starvation would fail.
-                while (watch.ElapsedMilliseconds < 850)
+                for (int i = 0; i < chunks; i++)
                 {
-                    if (watch.ElapsedMilliseconds >= nextAppend)
-                    {
-                        raw.AppendText(chunk);
-                        chunks++;
-                        nextAppend += 80;
-                    }
-                    Application.DoEvents();
-                    Thread.Sleep(5);
+                    raw.AppendText(chunk);
+                    PumpFor(80);
+                    CheckUnparsed(form, "Appending automatically started recognition");
                 }
-                appending = false;
-                Check(observedFramesDuringAppend > 0, "Continuous input postponed every parse until input stopped");
                 string expectedRaw = string.Concat(Enumerable.Repeat(chunk, chunks));
-                bool finalParseCompleted = false;
-                while (watch.ElapsedMilliseconds < 1800)
-                {
-                    Application.DoEvents();
-                    if (parts.Items.Count == chunks && Compact(formatted.Text) == expectedRaw)
-                    {
-                        finalParseCompleted = true;
-                        break;
-                    }
-                    Thread.Sleep(10);
-                }
-                Check(finalParseCompleted, "The final continuous-input chunk was not parsed within the bound");
+                PumpFor(450);
+                CheckUnparsed(form, "The final appended stream parsed without recognition");
+                Recognize(form);
+                WaitFor(delegate { return parts.Items.Count == chunks && Compact(formatted.Text) == expectedRaw; },
+                    "Recognition did not parse every appended frame");
                 Check(raw.Text == expectedRaw, "Continuous appending changed or lost raw input");
             }
         });
@@ -323,6 +380,7 @@ internal static class WindowFlowTests
                     Hex.Identifier("E8000301"), new byte[128]);
                 string expected = Hex.Format(bytes);
                 raw.Text = Compact(expected);
+                Recognize(form);
                 WaitFor(delegate
                 {
                     return parts.Items.Count == 1 && formatted.Text == expected && Data(grid).Length == 0
@@ -330,8 +388,11 @@ internal static class WindowFlowTests
                 }, "Dual-valid frame was silently assigned a protocol");
                 protocol.SelectedIndex = 1;
                 automatic.Checked = false;
+                CheckUnparsed(form, "Manual protocol change implicitly resolved ambiguity");
+                Recognize(form);
                 WaitFor(delegate { return HasField(grid, "总长度 L"); }, "Manual local choice did not resolve ambiguity");
                 protocol.SelectedIndex = 0;
+                Recognize(form);
                 WaitFor(delegate { return HasField(grid, "通信地址 A"); }, "Manual 645 choice did not resolve ambiguity");
                 Check(raw.Text == Compact(expected), "Resolving ambiguity changed raw input");
             }
@@ -348,9 +409,12 @@ internal static class WindowFlowTests
                 automatic.Checked = false;
                 protocol.SelectedIndex = 1;
                 raw.Text = Compact(Local);
+                Recognize(form);
                 WaitFor(delegate { return HasField(grid, "总长度 L") && formatted.Text == Local; }, "Manual local parse failed");
                 protocol.SelectedIndex = 0;
-                PumpFor(600);
+                PumpFor(450);
+                CheckUnparsed(form, "Manual protocol switch started recognition without a click");
+                Recognize(form);
                 Check(!HasField(grid, "总长度 L"), "Manual 645 selection was overridden by local auto-detection");
                 Check(!automatic.Checked && raw.Text == Compact(Local), "Manual mode or input changed unexpectedly");
             }

@@ -231,12 +231,12 @@ internal static class ProtocolTests
         {
             Check(!Parse(ProtocolKind.Dlt645, Read645 + " " + Read645).IsFrameValid, "Multiple frames accepted");
         });
-        Run("WinForms constructor loads initial parsed example", delegate
+        Run("WinForms constructor initializes an empty workspace", delegate
         {
             System.Windows.Forms.Application.EnableVisualStyles();
             using (MainForm form = new MainForm())
             {
-                Check(form.Text.StartsWith("FrameTools 0.2.1"), "Window title");
+                Check(form.Text.StartsWith("FrameTools 0.3.0"), "Window title");
                 Check(form.Controls.Count > 0, "Window contains no layout");
             }
         });
