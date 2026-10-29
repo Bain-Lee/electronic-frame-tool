@@ -118,6 +118,50 @@ namespace FrameTools
         }
     }
 
+    internal sealed class WorkspaceAddressBox : TextBox
+    {
+        private string savedValue = "";
+
+        public string AddressValue
+        {
+            get
+            {
+                return ReadOnly ? savedValue : Text;
+            }
+            set
+            {
+                savedValue = value;
+                if (!ReadOnly)
+                {
+                    Text = value;
+                }
+            }
+        }
+
+        public void SetAvailable(bool available, string reason)
+        {
+            if (available)
+            {
+                if (ReadOnly)
+                {
+                    ReadOnly = false;
+                    Text = savedValue;
+                }
+            }
+            else
+            {
+                if (!ReadOnly)
+                {
+                    savedValue = Text;
+                }
+                ReadOnly = true;
+                Text = reason;
+            }
+            Tag = available ? null : "secondary";
+            ForeColor = available ? WorkspaceStyle.Text : WorkspaceStyle.Secondary;
+        }
+    }
+
     public sealed class WorkspaceTextBox : TextBox
     {
         private bool updatingScrollbars;

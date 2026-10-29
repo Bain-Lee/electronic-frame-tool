@@ -12,6 +12,7 @@ internal static class WindowFlowTests
 {
     private const string Read645 = "68 01 00 00 00 00 00 68 11 04 33 33 34 33 B3 16";
     private const string Local = "68 0C 00 40 03 01 01 03 00 E8 30 16";
+    private const string LocalVersion = "68 15 00 80 03 01 01 03 00 E8 41 42 43 44 28 10 26 34 12 1E 16";
     private const string Uplink = "68 10 00 10 00 68 4B 06 01 44 01 00 00 01 0C 60 01 01 00 00 01 00 07 16";
     private static int failed;
     public static int Passed { get; private set; }
@@ -33,6 +34,11 @@ internal static class WindowFlowTests
     private static T Named<T>(MainForm form, string name) where T : Control
     {
         return (T)form.Controls.Find(name, true).Single();
+    }
+
+    private static T Parameter<T>(MainForm form, string name) where T : Control
+    {
+        return (T)typeof(MainForm).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(form);
     }
 
     private static MainForm NewForm()
@@ -88,6 +94,13 @@ internal static class WindowFlowTests
     {
         DataGridViewRow row = grid.Rows.Cast<DataGridViewRow>().Single(r => ((FrameField)r.DataBoundItem).Name == name);
         grid.CurrentCell = row.Cells[0];
+        Application.DoEvents();
+    }
+
+    private static void FieldKey(DataGridView grid, Keys key)
+    {
+        grid.GetType().GetMethod("OnKeyDown", BindingFlags.Instance | BindingFlags.NonPublic)
+            .Invoke(grid, new object[] { new KeyEventArgs(key) });
         Application.DoEvents();
     }
 
@@ -493,6 +506,169 @@ internal static class WindowFlowTests
                 Click(theme);
                 Check(!WorkspaceStyle.IsDark && details.Text == original
                     && Named<TextBoxBase>(form, "rawInput").Text == Read645, "Light switch changed input");
+            }
+        });
+        RunTest("local field groups fold independently and preserve nested state and raw selection", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
+                raw.Text = LocalVersion;
+                Recognize(form);
+                DataGridView grid = Named<DataGridView>(form, "parsedFields");
+                Check(HasField(grid, "用户数据域") && HasField(grid, "应用数据域")
+                    && HasField(grid, "DIR") && HasField(grid, "厂商代码"), "Missing expanded field groups");
+                SelectField(grid, "控制域 C");
+                FieldKey(grid, Keys.Left);
+                Check(!HasField(grid, "DIR") && HasField(grid, "应用功能 AFN"), "Control collapse hid unrelated data");
+                Check(raw.SelectedText == "80", "Collapsed control lost original byte selection");
+                FieldKey(grid, Keys.Right);
+                Check(HasField(grid, "DIR"), "Control did not expand");
+                SelectField(grid, "数据标识内容");
+                FieldKey(grid, Keys.Left);
+                Check(!HasField(grid, "厂商代码") && HasField(grid, "数据标识 DI"), "Content collapse lost sibling DI");
+                SelectField(grid, "用户数据域");
+                FieldKey(grid, Keys.Left);
+                Check(!HasField(grid, "应用功能 AFN") && !HasField(grid, "应用数据域")
+                    && HasField(grid, "校验和 CS"), "User data collapse lost frame structure");
+                Check(raw.SelectedText == "03 01 01 03 00 E8 41 42 43 44 28 10 26 34 12", "Group byte range is wrong");
+                FieldKey(grid, Keys.Right);
+                Check(HasField(grid, "数据标识内容") && !HasField(grid, "厂商代码"), "Nested collapse state was reset");
+                Click(Named<Button>(form, "themeToggle"));
+                Check(!HasField(grid, "厂商代码"), "Theme change reset collapsed data");
+                SelectField(grid, "数据标识内容");
+                FieldKey(grid, Keys.Right);
+                SelectField(grid, "厂商代码");
+                Check(raw.SelectedText == "41 42" && raw.Text == LocalVersion, "Expanded field selection changed raw input");
+                Recognize(form);
+                Check(HasField(grid, "DIR") && HasField(grid, "厂商代码"), "New parse did not start expanded");
+            }
+        });
+        RunTest("645 data collapse retains control and checksum and restores prefixed HEX mapping", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
+                raw.Text = "0xFE:0xFE-" + string.Join(", ", Read645.Split(' ').Select(b => "0x" + b));
+                string original = raw.Text;
+                Recognize(form);
+                DataGridView grid = Named<DataGridView>(form, "parsedFields");
+                SelectField(grid, "数据域 DATA");
+                FieldKey(grid, Keys.Left);
+                Check(!HasField(grid, "数据标识 DI") && HasField(grid, "控制码 C")
+                    && HasField(grid, "校验和 CS"), "645 data did not collapse independently");
+                Check(Hex.Compact(raw.SelectedText) == "33333433", "645 group includes bytes outside DATA");
+                FieldKey(grid, Keys.Right);
+                SelectField(grid, "数据标识 DI");
+                Check(Hex.Compact(raw.SelectedText) == "33333433" && raw.Text == original, "645 mapping changed after expanding");
+            }
+        });
+        RunTest("batch field groups fold by arrow and switching frames restores complete details", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Named<TextBoxBase>(form, "batchInput").Text = Compact(Read645 + LocalVersion + Uplink);
+                Batch(form);
+                DataGridView list = Named<DataGridView>(form, "batchSummary");
+                DataGridView grid = Named<DataGridView>(form, "batchFields");
+                list.CurrentCell = list.Rows[1].Cells[0];
+                SelectField(grid, "用户数据域");
+                int row = grid.CurrentRow.Index;
+                grid.GetType().GetMethod("OnCellMouseClick", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(grid, new object[] { new DataGridViewCellMouseEventArgs(2, row, 8, 10,
+                        new MouseEventArgs(MouseButtons.Left, 1, 8, 10, 0)) });
+                Application.DoEvents();
+                Check(!HasField(grid, "应用功能 AFN") && HasField(grid, "校验和 CS"), "Arrow did not fold batch details");
+                list.CurrentCell = list.Rows[2].Cells[0];
+                Check(HasField(grid, "控制域 C") && HasField(grid, "首个数据标识 DI"), "Uplink children are not expanded");
+                SelectField(grid, "用户数据域");
+                FieldKey(grid, Keys.Left);
+                Check(!HasField(grid, "控制域 C") && HasField(grid, "校验和 CS"), "Uplink user data range is wrong");
+                FieldKey(grid, Keys.Right);
+                SelectField(grid, "首个数据标识 DI");
+                Check(Named<TextBoxBase>(form, "batchSelectedFrame").SelectedText == "00 00 01 00", "Uplink highlight changed");
+                list.CurrentCell = list.Rows[1].Cells[0];
+                Check(HasField(grid, "厂商代码") && HasField(grid, "DIR") && list.Rows.Count == 3, "Frame switch lost details or summaries");
+            }
+        });
+        RunTest("composer hides unsupported parameters and collapses their label rows for each protocol", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                Named<TabControl>(form, "workspaceTabs").SelectedIndex = 2;
+                string[][] visible =
+                {
+                    new[] { "control", "address", "identifier", "preamble" },
+                    new[] { "control", "address", "destination", "afn", "sequence", "identifier" },
+                    new[] { "control", "address", "afn", "sequence" }
+                };
+                for (int index = 0; index < visible.Length; index++)
+                {
+                    Named<ComboBox>(form, "protocol").SelectedIndex = index;
+                    Application.DoEvents();
+                    foreach (string name in new[] { "control", "address", "destination", "afn", "sequence", "identifier", "preamble" })
+                    {
+                        Control field = Parameter<Control>(form, name);
+                        bool expected = visible[index].Contains(name);
+                        Check(field.Visible == expected, "Wrong parameter visibility: " + index + " / " + name);
+                        TableLayoutPanel table = (TableLayoutPanel)field.Parent;
+                        int row = table.GetRow(field);
+                        Check(table.GetControlFromPosition(0, row).Visible == expected, "Parameter label visibility differs");
+                        if (!expected)
+                        {
+                            Check(table.RowStyles[row].Height == 0, "Hidden parameter left a blank row: " + name);
+                        }
+                        else if (index != 1 || (name != "address" && name != "destination"))
+                        {
+                            Check(field.Enabled && (!(field is TextBox) || !((TextBox)field).ReadOnly), "Visible input is locked: " + name);
+                        }
+                    }
+                    Click(Named<Button>(form, "composeFrame"));
+                    Check(FrameCodec.Parse((ProtocolKind)index, Named<TextBoxBase>(form, "builtFrame").Text).IsFrameValid, "Default composer failed after row changes");
+                }
+            }
+        });
+        RunTest("local address fields explain ADD state and retain entered addresses without transmitting hints", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                Named<TabControl>(form, "workspaceTabs").SelectedIndex = 2;
+                Named<ComboBox>(form, "protocol").SelectedIndex = 1;
+                TextBox code = Parameter<TextBox>(form, "control");
+                TextBox source = Parameter<TextBox>(form, "address");
+                TextBox destination = Parameter<TextBox>(form, "destination");
+                Check(source.ReadOnly && destination.ReadOnly && source.Text.Contains("ADD=0")
+                    && destination.Text.Contains("ADD=0"), "Inactive addresses still display example values");
+                code.Text = "60";
+                Check(!source.ReadOnly && !destination.ReadOnly && source.TextLength == 0
+                    && destination.TextLength == 0, "Address entry did not open blank");
+                source.Text = "112233445566";
+                destination.Text = "667788990011";
+                Click(Named<Button>(form, "composeFrame"));
+                FrameResult addressed = FrameCodec.Parse(ProtocolKind.CsgLocal, Named<TextBoxBase>(form, "builtFrame").Text);
+                Check(addressed.IsFrameValid && addressed.Fields.Single(field => field.Name == "源地址 ASRC").Meaning.StartsWith(source.Text)
+                    && addressed.Fields.Single(field => field.Name == "目的地址 ADST").Meaning.StartsWith(destination.Text), "Entered addresses were not composed");
+                code.Text = "40";
+                Check(source.ReadOnly && source.Text.Contains("ADD=0") && destination.ReadOnly, "ADD=0 did not restore explanations");
+                Click(Named<Button>(form, "themeToggle"));
+                Check(source.ForeColor == WorkspaceStyle.Secondary && destination.ForeColor == WorkspaceStyle.Secondary, "Hint colors were lost on theme change");
+                Click(Named<Button>(form, "composeFrame"));
+                FrameResult unaddressed = FrameCodec.Parse(ProtocolKind.CsgLocal, Named<TextBoxBase>(form, "builtFrame").Text);
+                Check(unaddressed.IsFrameValid && unaddressed.Bytes.Length == 12, "Explanation text leaked into a frame");
+                code.Text = "60";
+                Check(source.Text == "112233445566" && destination.Text == "667788990011", "ADD toggle lost entered addresses");
+                code.Text = "6";
+                Check(source.ReadOnly && destination.ReadOnly && source.Text.Contains("控制码"), "Incomplete C has no inline explanation");
+                code.Text = "60";
+                Check(!source.ReadOnly && source.Text == "112233445566" && destination.Text == "667788990011", "Incomplete C lost address values");
             }
         });
         Console.WriteLine("WINDOW RESULT: " + Passed + " passed, " + failed + " failed");

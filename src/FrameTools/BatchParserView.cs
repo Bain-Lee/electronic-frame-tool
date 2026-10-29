@@ -15,7 +15,7 @@ namespace FrameTools
         private readonly WorkspaceTextBox selectedFrame = new WorkspaceTextBox();
         private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
         private readonly DataGridView summary = new DataGridView();
-        private readonly DataGridView fields = new DataGridView();
+        private readonly FrameFieldGrid fields = new FrameFieldGrid();
         private readonly Label status = new Label();
         private readonly WorkspaceButton export = new WorkspaceButton();
         private StreamParseResult parsed;
@@ -103,6 +103,7 @@ namespace FrameTools
             fields.Name = "batchFields";
             WorkspaceStyle.ConfigureGrid(fields);
             WorkspaceStyle.AddFieldColumns(fields);
+            fields.Columns[2].Width = 185;
             fields.CurrentCellChanged += delegate
             {
                 if (fields.CurrentRow == null)
@@ -235,7 +236,7 @@ namespace FrameTools
             text.AppendLine(part.Message);
             if (part.Result != null)
             {
-                fields.DataSource = part.Result.Fields;
+                fields.ShowFields(part.Result, part.Protocol);
                 foreach (string error in part.Result.Errors)
                 {
                     text.AppendLine("错误：" + error);

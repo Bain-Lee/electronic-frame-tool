@@ -22,6 +22,7 @@
     <Compile Include="MainForm.cs" />
     <Compile Include="WorkspaceStyle.cs" />
     <Compile Include="BatchParserView.cs" />
+    <Compile Include="FrameFieldGrid.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="BusinessDecoder.cs" />
     <Compile Include="FrameStream.cs" />

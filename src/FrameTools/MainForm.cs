@@ -20,11 +20,11 @@ namespace FrameTools
         private readonly Label protocolLabel = new Label();
         private readonly WorkspaceTextBox input = new WorkspaceTextBox();
         private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
-        private readonly DataGridView fields = new DataGridView();
+        private readonly FrameFieldGrid fields = new FrameFieldGrid();
         private readonly Label status = new Label();
         private readonly TextBox control = new TextBox();
-        private readonly TextBox address = new TextBox();
-        private readonly TextBox destination = new TextBox();
+        private readonly WorkspaceAddressBox address = new WorkspaceAddressBox();
+        private readonly WorkspaceAddressBox destination = new WorkspaceAddressBox();
         private readonly TextBox afn = new TextBox();
         private readonly TextBox sequence = new TextBox();
         private readonly TextBox identifier = new TextBox();
@@ -32,8 +32,14 @@ namespace FrameTools
         private readonly WorkspaceTextBox payload = new WorkspaceTextBox();
         private readonly WorkspaceTextBox output = new WorkspaceTextBox();
         private readonly Label addressLabel = new Label();
+        private readonly Label identifierLabel = new Label();
         private readonly Label payloadLabel = new Label();
         private readonly Label builderHelp = new Label();
+        private readonly TableLayoutPanel composerParameters = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 7, ColumnCount = 4 };
+        private readonly Label composerHint = new Label
+        {
+            Dock = DockStyle.Fill, ForeColor = WorkspaceStyle.Secondary, Tag = "secondary", Padding = new Padding(24, 5, 0, 0)
+        };
         private WorkspaceButton exportButton;
         private FrameResult current;
         private StreamParseResult parsedStream;
@@ -185,7 +191,7 @@ namespace FrameTools
         private static void ConfigurePicker(ComboBox box)
         {
             box.DropDownStyle = ComboBoxStyle.DropDownList;
-            box.FlatStyle = FlatStyle.Flat;
+            box.FlatStyle = FlatStyle.Standard;
             box.BackColor = WorkspaceStyle.Surface;
             box.DrawMode = DrawMode.OwnerDrawFixed;
             box.ItemHeight = Math.Max(20, box.Font.Height + 3);
@@ -206,7 +212,6 @@ namespace FrameTools
                 TextRenderer.DrawText(e.Graphics, box.Items[e.Index].ToString(), e.Font, textBounds,
                     !box.Enabled ? WorkspaceStyle.Secondary : selected ? Color.White : WorkspaceStyle.Text,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
-                e.DrawFocusRectangle();
             };
         }
 
@@ -285,7 +290,7 @@ namespace FrameTools
             fields.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
             fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Offset", HeaderText = "帧内偏移", Width = 85 });
             fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Length", HeaderText = "字节数", Width = 65 });
-            fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Name", HeaderText = "字段", Width = 175 });
+            fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Name", HeaderText = "字段", Width = 215 });
             fields.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Raw", HeaderText = "原始字节", Width = 245 });
             fields.Columns[3].DefaultCellStyle.Font = new Font("Consolas", 10F);
             fields.Columns.Add(new DataGridViewTextBoxColumn
@@ -357,7 +362,7 @@ namespace FrameTools
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 60));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 68));
             page.Controls.Add(layout);
-            TableLayoutPanel parameters = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 7, ColumnCount = 4 };
+            TableLayoutPanel parameters = composerParameters;
             parameters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200));
             parameters.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 55));
             parameters.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 145));
@@ -365,20 +370,15 @@ namespace FrameTools
             AddParameter(parameters, 0, "控制码 C", control);
             addressLabel.Text = "地址";
             AddParameter(parameters, 1, addressLabel, address);
-            AddParameter(parameters, 2, "目的地址（本地 ADD=1）", destination);
+            AddParameter(parameters, 2, "目的地址（高字节先写）", destination);
             AddParameter(parameters, 3, "应用功能 AFN（HEX）", afn);
             AddParameter(parameters, 4, "帧序列 SEQ（HEX）", sequence);
-            AddParameter(parameters, 5, "数据标识 DI（645 可空）", identifier);
+            AddParameter(parameters, 5, identifierLabel, identifier);
             AddParameter(parameters, 6, "前导 FE 数量（645）", preamble);
             preamble.Maximum = 4;
-            Label hint = new Label
-            {
-                Text = "C / AFN / SEQ 均按十六进制输入。\n\n645：DI 单独填写，其他明文字节放入业务数据区。\n\n本地：ADD 位决定是否携带地址。\n\n上行：业务区按传输顺序填写完整的 DA / DI / 数据 / 可选 PW / Tp。",
-                Dock = DockStyle.Fill, ForeColor = WorkspaceStyle.Secondary, Tag = "secondary", Padding = new Padding(24, 5, 0, 0)
-            };
-            parameters.Controls.Add(hint, 2, 0);
-            parameters.SetColumnSpan(hint, 2);
-            parameters.SetRowSpan(hint, 7);
+            parameters.Controls.Add(composerHint, 2, 0);
+            parameters.SetColumnSpan(composerHint, 2);
+            parameters.SetRowSpan(composerHint, 7);
             layout.Controls.Add(parameters, 0, 0);
             payloadLabel.Dock = DockStyle.Fill;
             payloadLabel.TextAlign = ContentAlignment.MiddleLeft;
@@ -448,18 +448,24 @@ namespace FrameTools
             bool is645 = SelectedProtocol == ProtocolKind.Dlt645;
             bool local = SelectedProtocol == ProtocolKind.CsgLocal;
             control.Text = is645 ? "11" : local ? "40" : "4B";
-            address.Text = is645 ? "000000000001" : local ? "440106000001" : "06 01 44 01 00 00 01";
-            destination.Text = "000000000001";
+            address.AddressValue = is645 ? "000000000001" : local ? "" : "06 01 44 01 00 00 01";
+            destination.AddressValue = "";
             afn.Text = local ? "03" : "0C";
             sequence.Text = local ? "01" : "60";
             identifier.Text = is645 ? "00010000" : local ? "E8000301" : "";
             preamble.Value = is645 ? 4 : 0;
-            afn.Enabled = !is645;
-            sequence.Enabled = !is645;
-            identifier.Enabled = is645 || local;
-            preamble.Enabled = is645;
+            SetParameterVisible(destination, local);
+            SetParameterVisible(afn, !is645);
+            SetParameterVisible(sequence, !is645);
+            SetParameterVisible(identifier, is645 || local);
+            SetParameterVisible(preamble, is645);
+            ((TableLayoutPanel)composerParameters.Parent).RowStyles[0].Height = composerParameters.RowStyles.Cast<RowStyle>().Sum(row => row.Height) + 4;
             payload.Text = is645 || local ? "" : "01 01 00 00 01 00";
             addressLabel.Text = is645 ? "表地址（高字节先写）" : local ? "源地址（高字节先写）" : "地址 A（7 字节传输顺序）";
+            identifierLabel.Text = is645 ? "数据标识 DI（可空）" : "数据标识 DI";
+            composerHint.Text = is645 ? "C 按十六进制填写。\n\nDI 单独填写，其他明文字节放入业务数据区。\n\nFE 数量可填写 0…4。"
+                : local ? "C / AFN / SEQ 均按十六进制填写。\n\nADD=1 时填写源、目的地址。例如 C 从 40 改为 60。\n\nDI 单独填写，业务数据不包含 DI。"
+                : "C / AFN / SEQ 均按十六进制填写。\n\n地址按 A1(3) + A2(3) + A3(1) 的传输顺序填写。\n\n业务区填写完整的 DA / DI / 数据 / 可选 PW / Tp。";
             payloadLabel.Text = is645 ? "业务数据 HEX（DI 之后的明文字节，自动加 33H）"
                 : local ? "数据标识内容 HEX（不含 DI，不做 ±33H）" : "完整应用业务区 HEX（含 DA / DI / 数据 / 可选 PW / Tp；不做 ±33H）";
             builderHelp.Text = is645 ? "自动处理地址字节序、DI 字节序、数据域 +33H、L 和 CS。读地址时 C=13，DI 清空。写数据的密码及操作者代码由使用者按标准填入。"
@@ -469,27 +475,39 @@ namespace FrameTools
             output.Clear();
         }
 
+        private void SetParameterVisible(Control field, bool visible)
+        {
+            int row = composerParameters.GetRow(field);
+            composerParameters.GetControlFromPosition(0, row).Visible = visible;
+            field.Visible = visible;
+            composerParameters.RowStyles[row].Height = visible ? 38 : 0;
+        }
+
         private void UpdateAddressState()
         {
             bool local = SelectedProtocol == ProtocolKind.CsgLocal;
             if (!local)
             {
-                address.Enabled = true;
-                destination.Enabled = false;
+                address.SetAvailable(true, "");
                 return;
             }
             bool addressed = false;
+            string reason = "请先输入完整的1字节控制码 C";
             try
             {
                 byte[] bytes = Hex.Parse(control.Text);
-                addressed = bytes.Length == 1 && (bytes[0] & 0x20) != 0;
+                if (bytes.Length == 1)
+                {
+                    addressed = (bytes[0] & 0x20) != 0;
+                    reason = "ADD=0，不携带地址；D5=1 后可填写";
+                }
             }
             catch (FormatException)
             {
-                // Keep address inputs disabled while the control byte is incomplete.
+                // Explain why address entry is unavailable while C is incomplete.
             }
-            address.Enabled = !local || addressed;
-            destination.Enabled = local && addressed;
+            address.SetAvailable(addressed, reason);
+            destination.SetAvailable(addressed, reason);
         }
 
         private static byte OneByte(TextBox box, string name)
@@ -510,16 +528,16 @@ namespace FrameTools
             if (SelectedProtocol == ProtocolKind.Dlt645)
             {
                 byte[] di = string.IsNullOrWhiteSpace(identifier.Text) ? new byte[0] : Hex.Identifier(identifier.Text);
-                frame = FrameCodec.Build645(address.Text, c, di.Concat(data).ToArray(), (int)preamble.Value);
+                frame = FrameCodec.Build645(address.AddressValue, c, di.Concat(data).ToArray(), (int)preamble.Value);
             }
             else if (SelectedProtocol == ProtocolKind.CsgLocal)
             {
-                frame = FrameCodec.BuildLocal(c, address.Text, destination.Text, OneByte(afn, "AFN"),
+                frame = FrameCodec.BuildLocal(c, address.AddressValue, destination.AddressValue, OneByte(afn, "AFN"),
                     OneByte(sequence, "SEQ"), Hex.Identifier(identifier.Text), data);
             }
             else
             {
-                frame = FrameCodec.BuildUplink(c, Hex.Parse(address.Text), OneByte(afn, "AFN"), OneByte(sequence, "SEQ"), data);
+                frame = FrameCodec.BuildUplink(c, Hex.Parse(address.AddressValue), OneByte(afn, "AFN"), OneByte(sequence, "SEQ"), data);
             }
             output.Text = Hex.Format(frame);
         }
@@ -623,7 +641,7 @@ namespace FrameTools
             description.AppendLine(part.Message);
             if (current != null)
             {
-                fields.DataSource = current.Fields;
+                fields.ShowFields(current, part.Protocol);
                 foreach (string error in current.Errors)
                 {
                     description.AppendLine("错误：" + error);
