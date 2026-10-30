@@ -242,10 +242,16 @@ internal static class ProtocolTests
         });
         failed += BusinessTests.Run();
         passed += BusinessTests.Passed;
+        failed += ProtocolCatalogTests.Run();
+        passed += ProtocolCatalogTests.Passed;
+        failed += CatalogIntegrationTests.Run();
+        passed += CatalogIntegrationTests.Passed;
         failed += StreamTests.Run();
         passed += StreamTests.Passed;
         failed += WindowFlowTests.Run();
         passed += WindowFlowTests.Passed;
+        failed += PurposeComposerTests.Run();
+        passed += PurposeComposerTests.Passed;
         Console.WriteLine("RESULT: " + passed + " passed, " + failed + " failed");
         return failed == 0 ? 0 : 1;
     }

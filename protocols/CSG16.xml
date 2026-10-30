@@ -1,0 +1,3104 @@
+<?xml version='1.0' encoding='utf-8'?>
+<config protocol="csg-local" version="试行（独立版次未确认）" region="南网" schema="FrameTools-1">
+    <source title="计量自动化终端本地通信模块接口协议（试行）" file="13 中国南方电网有限责任公司计量自动化终端本地通信模块接口协议.doc" />
+    <note>本文件按本机原文重建，仅发布数据定义及出处引用。完整正文和源表保留在本机核对资料中；ready为明确可执行布局，raw为未形成消费规则，ambiguous为原文待确认。</note>
+    <frame start="68" end="16" length="整帧总长度，2字节BIN小端" address="ADD=1时ASRC(6)+ADST(6)" sequence="8位完整序号" checksum="从C至数据末尾模256累加">
+        <layout>68 L(2) C [ASRC(6) ADST(6)] AFN SEQ DI(4) DATA CS 16</layout>
+    </frame>
+    <dataItem id="E8000203" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询未完成任务数</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 02 03：查询未完成任务数</note>
+        <note>无数据标识内容。用于查询模块中尚未执行完毕的任务数。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000203" protocol="csg-local" region="南网" afn="02" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询未完成任务数</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 01 03：查询未完成任务数</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询未完成任务数数据标识内容格式</note>
+        <note>1）未完成任务数：表示已经下发到模块，模块已缓存但尚未执行或正在执行的任务。模块上报任务结果后，集中器回确认帧，模块可将已完成任务删除。</note>
+        <sourceRef table="28" role="数据内容" />
+        <note>正文标题误写E8000103；按功能总表和任务编码表的E8000203关联，原始标题保留在sourceText。</note>
+        <length>2</length>
+        <splitByLength>
+            <name>未完成任务数</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000206" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询剩余可分配任务数</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 02 06：查询剩余可分配任务数</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000206" protocol="csg-local" region="南网" afn="02" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询剩余可分配任务数</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 02 06：查询剩余可分配任务数</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询剩余可分配任务数数据标识内容格式</note>
+        <note>模块上电进行模块识别时，集中器可读取模块剩余可分配任务数作为参考，进行任务管理初始化，在分配任务时也可作为参考。</note>
+        <note>一个典型任务的大小为24字节，模块结合自身可用存储空间的大小，计算剩余可分配的任务数。模块至少能缓存100个典型任务。</note>
+        <note>剩余可分配任务数仅为集中器管理任务提供参考，当集中器添加任务的长度超过模块剩余存储空间时，模块回复否认。</note>
+        <sourceRef table="32" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>剩余可分配任务数</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000301" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询厂商代码和版本信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 01：查询厂商代码和版本信息</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000301" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询厂商代码和版本信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 01：查询厂商代码和版本信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>厂商代码和版本信息数据标识内容格式</note>
+        <sourceRef table="45" role="数据内容" />
+        <length>9</length>
+        <splitByLength>
+            <name>厂商代码</name>
+            <length>2</length>
+            <type>ASCII</type>
+        </splitByLength>
+        <splitByLength>
+            <name>芯片代码</name>
+            <length>2</length>
+            <type>ASCII</type>
+        </splitByLength>
+        <splitByLength>
+            <name>版本时间</name>
+            <length>3</length>
+            <type>BCD</type>
+            <time>DDMMYY</time>
+        </splitByLength>
+        <splitByLength>
+            <name>版本</name>
+            <length>2</length>
+            <type>BCD</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000302" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询本地通信模块运行模式信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 02：查询本地通信模块运行模式信息</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000302" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询本地通信模块运行模式信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 02：查询本地通信模块运行模式信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>本地通信模块运行模式信息数据标识内容格式</note>
+        <note>通信方式：1表示“窄带电力线载波通信”，2表示“宽带电力线载波通信”，3表示“微功率无线通信”，4表示”窄带+微功率无线”，5表示”宽带+微功率无线”，其它取值保留。</note>
+        <note>最大支持的协议报文长度：可以正确接收的协议报文最大长度。</note>
+        <note>文件传输支持的最大单个数据包长度：在AFN07H“传输文件”中支持的最大“文件段长度”大小。最大长度的值应在64、128、256、512、1024中选择。</note>
+        <note>升级操作等待时间：终端发送完最后一个升级数据包且文件已经生效之后，需要等待模块完成升级的时间长度。单位为分钟。</note>
+        <note>主节点地址：本地通信模块的主节点地址。</note>
+        <note>支持的最大从节点数量：主节点模块支持的最大从节点下装数量。</note>
+        <note>当前从节点数量：主节点模块当前下装的从节点数量。</note>
+        <note>单次读写从节点信息的最大数量：添加/删除/查询从节点等读写从节点信息时，一次支持最大的从节点数量。</note>
+        <note>通信模块接口协议发布日期：BCD编码，YYMMDD日期格式。本标准发布日期为170801。本次协议新增任务建议超时时间、多表集抄、相位识别、台区识别等内容。</note>
+        <note>通信模块厂商代码及版本信息：与AFN=03H-DI=E8 00 03 01查询“厂商代码及版本信息”返回内容相同。</note>
+        <sourceRef table="46" role="数据内容" />
+        <length>30</length>
+        <splitByLength>
+            <name>本地通信模式字</name>
+            <length>1</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>最大支持的协议报文长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件传输支持的最大单包长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>升级操作等待时间</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>主节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>支持的最大从节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前从节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>支持单次读写从节点信息的最大数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>通信模块接口协议发布日期</name>
+            <length>3</length>
+            <type>BCD</type>
+            <time>DDMMYY</time>
+        </splitByLength>
+        <splitByLength>
+            <name>厂商代码和版本信息</name>
+            <length>9</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000303" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询主节点地址</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 03：查询主节点地址</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000303" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询主节点地址</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 03：查询主节点地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>主节点地址数据标识内容格式</note>
+        <sourceRef table="47" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>主节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000305" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点数量</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 05：查询从节点数量</note>
+        <note>无数据标识内容。查询主模块记录的从节点数量。仅限于查询通过“添加从节点”命令下发的从节点数量。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000305" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点数量</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 05：查询从节点数量</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点数量数据单元格式</note>
+        <sourceRef table="49" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>从节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000307" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点主动注册进度</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 07：查询从节点主动注册进度</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000307" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点主动注册进度</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 07：查询从节点主动注册进度</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点主动注册数据标识内容格式</note>
+        <note>从节点主动注册工作标示：0为从节点停止主动注册，1为从节点正在主动注册。</note>
+        <sourceRef table="51" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>从节点主动注册工作标示</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000309" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询映射表从节点数量</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 09：查询映射表从节点数量</note>
+        <note>无数据标识内容。查询主模块记录的从节点数量。仅限于查询通过“添加从节点通信地址映射表”命令下发的从节点数量。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000309" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询映射表从节点数量</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 09：查询映射表从节点数量</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询映射表从节点数量数据单元格式</note>
+        <sourceRef table="53" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>映射表从节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E800030B" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询任务建议超时时间</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 0B：查询任务建议超时时间</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E800030B" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询任务建议超时时间</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 0B：查询任务建议超时时间</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>任务建议超时时间数据标识内容格式</note>
+        <note>超时时间：单位s，最长为65535s，约18小时。</note>
+        <note>建议集中器每下发20个任务，至少查询一次模块的建议超时时间。两次查询之间的时间间隔不得超过20分钟。集中器根据模块的建议超时时间动态调整抄表策略，提高抄表效率。</note>
+        <note>模块需根据当前通信网络状态、未执行任务数量等信息，向集中器提供后续任务的建议超时时间。由于集中器每下发20个任务均需查询一次建议超时时间，因此模块可在执行20个任务的假设下，计算建议超时时间。</note>
+        <sourceRef table="57" role="数据内容" />
+        <length>8</length>
+        <splitByLength>
+            <name>优先级0的任务建议超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>优先级1的任务建议超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>优先级2的任务建议超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>优先级3的任务建议超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E80003B0" protocol="csg-local" region="南网" afn="03" dir="1" status="ambiguous" source="第6章功能总表与逐项内容">
+        <name>查询邻居主节点地址</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 03 B0：返回邻居主节点地址</note>
+        <note>返回邻居节点地址据标识内容格式</note>
+        <sourceRef table="70" role="数据内容" />
+        <note>原文总表与正文存在编码或内容冲突；不自动选择其中一种业务布局，参见sourceText。</note>
+    </dataItem>
+    <dataItem id="E8000703" protocol="csg-local" region="南网" afn="07" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询文件信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 07 03：查询文件信息</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000703" protocol="csg-local" region="南网" afn="07" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询文件信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 07 03：查询文件信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询文件信息数据标识内容格式</note>
+        <note>文件性质；</note>
+        <note>00H：清除下装文件；</note>
+        <note>01H：本地通信模块文件；</note>
+        <note>02H: 从节点模块文件；</note>
+        <note>03H：采集器文件。</note>
+        <note>文件ID：用来区分不同的文件。</note>
+        <note>目的地址：文件传输的目的地址，99 99 99 99 99 99为广播地址。</note>
+        <note>文件总段数n：文件传输内容的总帧数。</note>
+        <note>文件大小：文件的总长度，单位字节。</note>
+        <note>文件总校验：文件所有内容的CRC16校验和。</note>
+        <note>成功接收文件段数：文件接收方已经成功接收到的文件段数，范围为1~n。n为文件总段数。如果为0表示尚未开始传输，为n表示传输已完成，为m表示段号0~m-1的帧已传输完成，可以从段号为m的帧开始续传。</note>
+        <sourceRef table="97" role="数据内容" />
+        <length>18</length>
+        <splitByLength>
+            <name>文件性质</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件ID</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>目的地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总段数n</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件大小</name>
+            <length>4</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总校验</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>已成功接收文件段数m</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8000704" protocol="csg-local" region="南网" afn="07" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询文件处理进度</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 07 04：查询文件处理进度</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8000704" protocol="csg-local" region="南网" afn="07" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询文件处理进度</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 00 07 04：查询文件处理进度</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询文件处理进度数据标识内容格式</note>
+        <note>文件处理进度：0全部成功，可以接收新文件；1正在处理，不能接收新文件；2未全部成功，存在失败节点。</note>
+        <note>处理未完成的文件ID：当文件处理进度为1-正在处理或2-未全部成功时有效，表示当前处理未完成的文件ID。</note>
+        <note>失败的节点数量：当文件处理进度为2-处理未全部成功成功时有效，表示失败的节点数量。</note>
+        <sourceRef table="98" role="数据内容" />
+        <length>4</length>
+        <splitByLength>
+            <name>文件处理进度</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>处理未完成的文件ID</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>失败的节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8010001" protocol="csg-local" region="南网" afn="00" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>确认</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 01 00 01：确认</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>等待时间：该确认帧对应的命令的执行时间，单位为秒。</note>
+        <note>确认数据标识内容格式</note>
+        <sourceRef table="17" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>等待时间</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>秒</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8010001" protocol="csg-local" region="南网" afn="00" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>确认</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 01 00 01：确认</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>等待时间：该确认帧对应的命令的执行时间，单位为秒。</note>
+        <note>确认数据标识内容格式</note>
+        <sourceRef table="17" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>等待时间</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>秒</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8010002" protocol="csg-local" region="南网" afn="00" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>否认</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 01 00 02：否认</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>否认数据标识内容格式</note>
+        <note>错误状态字：0为通信超时，1为无效数据标识内容，2为长度错误，3为校验错误，4为数据标识编码不存在，5为格式错误， 6为表号重复，7为表号不存在，8为电表应用层无应答，9为主节点忙，10主节点不支持此命令，11为从节点不应答，12为从节点不在网内，13为添加任务时剩余可分配任务数不足，14为上报任务数据时任务不存在,15为任务ID重复，16为查询任务时模块没有此任务，17为任务ID不存在，FFH其他。</note>
+        <note>初始化模块（AFN=01H）</note>
+        <sourceRef table="18" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>错误状态字</name>
+            <length>1</length>
+            <type>BIN</type>
+            <value key="0">通信超时</value>
+            <value key="1">无效数据标识内容</value>
+            <value key="2">长度错误</value>
+            <value key="3">校验错误</value>
+            <value key="4">数据标识编码不存在</value>
+            <value key="5">格式错误</value>
+            <value key="6">表号重复</value>
+            <value key="7">表号不存在</value>
+            <value key="8">电表应用层无应答</value>
+            <value key="9">主节点忙</value>
+            <value key="10">主节点不支持此命令</value>
+            <value key="11">从节点不应答</value>
+            <value key="12">从节点不在网内</value>
+            <value key="13">剩余可分配任务数不足</value>
+            <value key="14">上报任务不存在</value>
+            <value key="15">任务ID重复</value>
+            <value key="16">查询任务不存在</value>
+            <value key="17">任务ID不存在</value>
+            <value key="255">其他</value>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8010002" protocol="csg-local" region="南网" afn="00" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>否认</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 01 00 02：否认</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>否认数据标识内容格式</note>
+        <note>错误状态字：0为通信超时，1为无效数据标识内容，2为长度错误，3为校验错误，4为数据标识编码不存在，5为格式错误， 6为表号重复，7为表号不存在，8为电表应用层无应答，9为主节点忙，10主节点不支持此命令，11为从节点不应答，12为从节点不在网内，13为添加任务时剩余可分配任务数不足，14为上报任务数据时任务不存在,15为任务ID重复，16为查询任务时模块没有此任务，17为任务ID不存在，FFH其他。</note>
+        <note>初始化模块（AFN=01H）</note>
+        <sourceRef table="18" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>错误状态字</name>
+            <length>1</length>
+            <type>BIN</type>
+            <value key="0">通信超时</value>
+            <value key="1">无效数据标识内容</value>
+            <value key="2">长度错误</value>
+            <value key="3">校验错误</value>
+            <value key="4">数据标识编码不存在</value>
+            <value key="5">格式错误</value>
+            <value key="6">表号重复</value>
+            <value key="7">表号不存在</value>
+            <value key="8">电表应用层无应答</value>
+            <value key="9">主节点忙</value>
+            <value key="10">主节点不支持此命令</value>
+            <value key="11">从节点不应答</value>
+            <value key="12">从节点不在网内</value>
+            <value key="13">剩余可分配任务数不足</value>
+            <value key="14">上报任务不存在</value>
+            <value key="15">任务ID重复</value>
+            <value key="16">查询任务不存在</value>
+            <value key="17">任务ID不存在</value>
+            <value key="255">其他</value>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020101" protocol="csg-local" region="南网" afn="01" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>复位硬件</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 01 01：复位硬件</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020102" protocol="csg-local" region="南网" afn="01" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>初始化档案</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 01 02：初始化档案</note>
+        <note>无数据标识内容。</note>
+        <note>清除模块保存的档案信息。</note>
+        <note>清除模块保存的从节点通信地址映射表。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020103" protocol="csg-local" region="南网" afn="01" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>初始化任务</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 01 03：初始化任务</note>
+        <note>无数据标识内容。</note>
+        <note>清除模块保存的任务信息。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020201" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>添加任务</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 01：添加任务</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>添加任务数据标识内容格式</note>
+        <note>任务ID：区分不同任务的任务标识。本标准的任务ID取值范围为0x0000-0xEFFF，   其他取值保留。任务ID号必须在取值范围内循环使用，同一个任务ID号不能连续用在不同的任务中。</note>
+        <note>任务优先级：0~3，0表示最高优先级，3表示最低优先级。由集中器指定任务的优先级，模块保证高优先级的任务得到优先执行。</note>
+        <note>任务响应标识：该任务是否需要返回数据，0-不需要数据返回，1-需要数据返回。由集中器指定，广播校时等任务为0，抄表任务为1。若任务响应标识为0，则模块只向集中器上报任务状态，不上报任务数据。</note>
+        <note>超时时间：集中器指定任务执行的超时时间，单位为秒。超时时间从模块正确接收完集中器下发任务时开始计时，超时时间结束，集中器删除自己保存的任务，再按需决定是否重新下发；模块在超时时间结束时，若未完成任务，应上报任务状态不成功。</note>
+        <note>报文长度：当组合多帧抄读标志为0时，报文长度字节数为1；当组合多帧标志为1时，报文长度字节数为2。</note>
+        <note>报文内容：当组合多帧抄读标志为0时，内容为原始报文数据，当组合多帧标志为1时，内容组合格式见下表。</note>
+        <note>组合多帧报文内容格式</note>
+        <sourceRef table="21" role="数据内容" />
+        <sourceRef table="22" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>任务模式字</name>
+            <length>1</length>
+            <type>BIN</type>
+            <splitbit>
+                <bit id="0-3">
+                    <name>任务优先级</name>
+                    <value key="0">最高优先级</value>
+                    <value key="1">优先级1</value>
+                    <value key="2">优先级2</value>
+                    <value key="3">最低优先级</value>
+                </bit>
+                <bit id="4">
+                    <name>组合多帧标志</name>
+                    <value key="0">原始报文</value>
+                    <value key="1">组合多帧</value>
+                </bit>
+                <bit id="5-6">
+                    <name>保留</name>
+                </bit>
+                <bit id="7">
+                    <name>任务响应标识</name>
+                    <value key="0">不需要数据返回</value>
+                    <value key="1">需要数据返回</value>
+                </bit>
+            </splitbit>
+        </splitByLength>
+        <splitByLength>
+            <name>超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>秒</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>1</length>
+            <type>BIN</type>
+            <lengthIf field="任务模式字" mask="16" equals="16">2</lengthIf>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+        <note>D4=1时，报文内容为报文条数及逐报文长度/内容的组合；按外层明确长度定位，子报文布局见对应sourceRef。</note>
+    </dataItem>
+    <dataItem id="E8020201" protocol="csg-local" region="南网" afn="02" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>添加任务</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 01：添加任务</note>
+        <note>添加任务的上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8020202" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>删除任务</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 02：删除任务</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>删除任务数据标识内容格式</note>
+        <note>1）任务ID：区分不同任务的任务标识。本标准的任务ID取值范围为0x0000-0xEFFF，其他取值保留。</note>
+        <sourceRef table="23" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020202" protocol="csg-local" region="南网" afn="02" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>删除任务</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 02：删除任务</note>
+        <note>删除任务的上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8020207" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>添加多播任务（选配）</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 07：添加多播任务（选配）</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>添加多播任务数据标识内容格式</note>
+        <note>任务ID：区分不同任务的任务标识。</note>
+        <note>任务优先级：0~3,0表示最高优先级，3表示最低优先级。由集中器来指定任务的优先级，模块保证高优先级的任务得到优先执行。</note>
+        <note>任务响应标识：该任务是否需要返回数据，0-不需要数据返回，1-数据返回。由集中器指定，广播校时等任务为0，抄表任务为1。若任务响应标识为0，则模块只向集中器上报任务状态，不上报任务数据。</note>
+        <note>超时时间：集中器指定任务执行的超时时间，单位为秒。超时时间从模块正确接收完集中器下发任务时开始计时，超时时间结束，集中器删除自己保存的任务，再按需决定是否重新下发；模块在超时时间结束时，若未完成任务，应上报任务状态不成功。</note>
+        <note>从节点数量：多播抄表的数量。数量0xFFFF表示向所有从模块传输任务报文。</note>
+        <note>从节点地址：多播抄表的地址。从节点数量为n时，表示多播同时抄读n个地址的某个数据项。若节点数量为0xFFFF，则无从节点地址域。</note>
+        <note>报文长度：当组合多帧抄读标志为0时，报文长度字节数为1；当组合多帧标志为1时，报文长度字节数为2。</note>
+        <note>报文内容：当组合多帧抄读标志为0时，内容为原始报文数据，当组合多帧标志为1时，内容组合格式见下表。</note>
+        <note>组合多帧报文内容格式</note>
+        <note>多播任务需要数据返回，则按照单播任务上报任务数据的格式上报集中器。</note>
+        <sourceRef table="26" role="数据内容" />
+        <sourceRef table="27" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>任务模式字</name>
+            <length>1</length>
+            <type>BIN</type>
+            <splitbit>
+                <bit id="0-3">
+                    <name>任务优先级</name>
+                    <value key="0">最高优先级</value>
+                    <value key="1">优先级1</value>
+                    <value key="2">优先级2</value>
+                    <value key="3">最低优先级</value>
+                </bit>
+                <bit id="4">
+                    <name>组合多帧标志</name>
+                    <value key="0">原始报文</value>
+                    <value key="1">组合多帧</value>
+                </bit>
+                <bit id="5-6">
+                    <name>保留</name>
+                </bit>
+                <bit id="7">
+                    <name>任务响应标识</name>
+                    <value key="0">不需要数据返回</value>
+                    <value key="1">需要数据返回</value>
+                </bit>
+            </splitbit>
+        </splitByLength>
+        <splitByLength>
+            <name>从节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <repeat count="从节点数量" skipValue="65535">
+            <name>目的节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+        <note>从节点数量FFFF时无地址域，按repeat的skipValue省略地址列表。</note>
+        <splitByLength>
+            <name>超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>秒</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>1</length>
+            <type>BIN</type>
+            <lengthIf field="任务模式字" mask="16" equals="16">2</lengthIf>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+        <note>D4=1时，报文内容为报文条数及逐报文长度/内容的组合；按外层明确长度定位，子报文布局见对应sourceRef。</note>
+    </dataItem>
+    <dataItem id="E8020207" protocol="csg-local" region="南网" afn="02" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>添加多播任务（选配）</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 07：添加多播任务（选配）</note>
+        <note>添加任务的上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8020208" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>启动任务</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 08：启动任务</note>
+        <note>无数据标识内容。</note>
+        <note>模块上电后，默认处于任务暂停状态，需要集中器下发启动任务。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020208" protocol="csg-local" region="南网" afn="02" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>启动任务</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 08：启动任务</note>
+        <note>启动任务的上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8020209" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>暂停任务</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 09：暂停任务</note>
+        <note>无数据标识内容。</note>
+        <note>需要插入立即执行的任务时，可以先“暂停任务”，然后通过“添加任务”增加高优先级的任务，再“启动任务”。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020209" protocol="csg-local" region="南网" afn="02" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>暂停任务</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 02 09：暂停任务</note>
+        <note>暂停任务的上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8020401" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>设置主节点地址</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 01：设置主节点地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>设置主节点地址数据标识内容格式</note>
+        <sourceRef table="72" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>主节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020402" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>添加从节点</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 02：添加从节点</note>
+        <note>数据标识内容格式下表。</note>
+        <note>该命令只用于添加不带采集器地址且表地址为6字节的电能表。</note>
+        <note>添加从节点数据标识内容格式</note>
+        <sourceRef table="73" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="从节点数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8020403" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>删除从节点</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 03：删除从节点</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>删除从节点数据标识内容格式</note>
+        <sourceRef table="74" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="从节点数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8020404" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>允许/禁止上报从节点事件</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 04：允许/禁止上报从节点事件</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>允许/禁止上报从节点事件数据标识内容格式</note>
+        <note>事件上报状态标志：0禁止，1允许。该标识含义为是否允许从节点事件上报，上电后默认为允许，禁止后，电能表端的事件不再上报给集中器，且在下次下发允许或初始化前一直保持在禁止状态。</note>
+        <sourceRef table="75" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>事件上报开关</name>
+            <length>1</length>
+            <type>BIN</type>
+            <value key="0">禁止上报</value>
+            <value key="1">允许上报</value>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020405" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>激活从节点主动注册</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 05：激活从节点主动注册</note>
+        <note>无数据标识内容。集中器激活从节点主动注册，要求主模块收集从模块下接电能表信息并上报集中器。主模块使用E8 05 05 03上报从节点信息。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020406" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>终止从节点主动注册</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 06：终止从节点主动注册</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8020407" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>添加从节点通信地址映射表</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 07：添加从节点通信地址映射表</note>
+        <note>数据标识内容格式下表。</note>
+        <note>添加从节点通信地址映射表数据标识内容格式</note>
+        <note>注：每个从节点通信映射地址（18字节）组成：通信地址（6字节）+00 00 00 00 00 00H（6字节）+表地址（6字节）。</note>
+        <note>例：某台电表的地址为12 34 56 78 90 12，采集器地址为34 56 78 90 12 34，则映射表数据如下</note>
+        <sourceRef table="76" role="数据内容" />
+        <sourceRef table="77" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次添加从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次添加从节点数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>通信地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>表计地址</name>
+                <length>12</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E80204A0" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>设置即插即用功能开关</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 A0：设置即插即用功能开关</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>设置即插即用功能开关数据标识内容格式</note>
+        <note>即插即用功能开关：0关闭，1开启。</note>
+        <sourceRef table="78" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>即插即用开关</name>
+            <length>1</length>
+            <type>BIN</type>
+            <value key="0">关闭</value>
+            <value key="1">开启</value>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E80204A1" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>添加黑名单节点</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 A1：添加黑名单节点</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>添加黑名单节点数据标识内容格式</note>
+        <sourceRef table="79" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>黑名单节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="黑名单节点数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E80204A2" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>删除黑名单节点</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 A2：删除黑名单节点</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>删除黑名单节点数据标识内容格式</note>
+        <note>注：当删除黑名单节点的数量为1且地址为全FF时，删除全部黑名单列表信息。</note>
+        <sourceRef table="80" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>黑名单节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="黑名单节点数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E80204A3" protocol="csg-local" region="南网" afn="04" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>设置CCO时钟</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 04 A3：设置CCO时钟</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>设置CCO时间数据标识内容格式</note>
+        <note>设置CCO时钟E8060601请求集中器时间内容一致。</note>
+        <sourceRef table="81" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>当前时间—秒</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—分</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—时</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—日</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—月</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—年（低字节）</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020701" protocol="csg-local" region="南网" afn="07" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>启动文件传输</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 07 01：启动文件传输</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>启动文件传输数据标识内容格式</note>
+        <note>文件性质；</note>
+        <note>00H：清除下装文件；文件ID为FFH时，表示清除模块所有已接收且可以被清除的文件。文件ID不为FFH时，表示清除指定文件ID的文件，且该文件可以被清除。</note>
+        <note>01H：集中器本地通信模块文件；</note>
+        <note>02H: 从节点模块文件；</note>
+        <note>03H: 采集器文件</note>
+        <note>文件ID：用来区分不同的文件。</note>
+        <note>目的地址：文件传输的目的地址，99 99 99 99 99 99为广播地址。</note>
+        <note>文件总段数n：文件传输内容的总段数。</note>
+        <note>文件大小：文件的总长度，单位字节。</note>
+        <note>文件总校验：文件所有内容的CRC16校验和。CRC16校验生成多项式采用CRC16-CCITT（0x1021），x16+x12+x5+1，初始值0x0000，低位在前，高位在后，结果与0x0000异或。</note>
+        <note>文件传输超时时间：模块如果无法在超时时间内完成文件传输，则不再向从模块传输文件。集中器查询文件处理进度时，模块返回未全部成功，存在失败节点。单位为分钟。</note>
+        <note>文件传输采用串行方式，不允许并行传输文件。模块可根据自身存储容量存储多个文件。</note>
+        <note>模块在未接收完文件时，若该文件不存在或者可以清除，则回复确认；若无法删除则回复否认。</note>
+        <sourceRef table="94" role="数据内容" />
+        <length>17</length>
+        <splitByLength>
+            <name>文件性质</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件ID</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>目的地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总段数n</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件大小</name>
+            <length>4</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总校验</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件传输超时时间</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020701" protocol="csg-local" region="南网" afn="07" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>启动文件传输</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 07 01：启动文件传输</note>
+        <note>上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8020702" protocol="csg-local" region="南网" afn="07" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>传输文件内容</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 07 02：传输文件内容</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>传输文件内容数据标识内容格式</note>
+        <note>文件段号：文件内容的传输帧序号，取值范围0至n-1(n为文件总段数)</note>
+        <note>文件段长度L：该帧文件内容长度；文件段长度不大于模块所支持的最大长度，长度值应在64、128、256、512、1024中选择。除了最后一个文件段，其他文件段的长度必须相同。</note>
+        <note>文件段内容：该帧传输的文件内容，长度为L字节。</note>
+        <note>文件段校验：该帧文件内容的CRC16校验和。CRC16校验生成多项式采用CRC16-CCITT（0x1021），x16+x12+x5+1，初始值0x0000，低位在前，高位在后，结果与0x0000异或。</note>
+        <sourceRef table="95" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>文件段号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件段长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件段内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>文件段长度</lengthrule>
+        </splitByLength>
+        <splitByLength>
+            <name>文件段校验</name>
+            <length>2</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8020702" protocol="csg-local" region="南网" afn="07" dir="1" status="raw" source="第6章功能总表与逐项内容">
+        <name>传输文件内容</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 02 07 02：传输文件内容</note>
+        <note>上行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+        <note>该命令的应答使用确认/否认DI，不能把原命令DI的上行节点当作独立数据应答。</note>
+    </dataItem>
+    <dataItem id="E8021014" protocol="csg-local" region="南网" afn="10" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>触发指定节点网络维护</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 02 10 14：触发指定节点网络维护</note>
+        <note>本命令用于触发指定节点探测与邻居节点的链路信号质量。主节点接收到此命令之后，对指定的从节点逐一发起网络维护。</note>
+        <note>数据标识编码定义见下表</note>
+        <note>触发指定节点网络维护数据标识内容格式</note>
+        <note>探测方案：0表示在当前主路径上探测与父节点的通信链路质量；</note>
+        <note>1表示中心节点寻找可与从节点通信的邻居节点，再探测该从节点与各邻居节点的通信链路质量，最后更新从节点的邻居表；</note>
+        <note>2表示暂停指定节点网络维护。</note>
+        <note>通信信道：0表示默认；1表示在公共信道低频点上探测；2表示在公共信道高频点上探测；3表示在私有信道低频点上探测；4表示在私有信道高频点上探测。</note>
+        <note>超时时间：探测所有从节点的持续时间，单位：秒；默认时间为 ∑t1×从节点n邻居节点从节点数量：取值范围1~16，其它值无效。</note>
+        <sourceRef table="133" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>探测方案</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>通信信道</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>超时时间</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <repeat count="从节点数量">
+            <name>从节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8021016" protocol="csg-local" region="南网" afn="10" dir="0" status="raw" source="第6章功能总表与逐项内容">
+        <name>恢复通信速率和信道</name>
+        <length>unknown</length>
+        <sourceRef table="12" role="功能总表" />
+    </dataItem>
+    <dataItem id="E8030204" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询未完成任务列表</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 02 04：查询未完成任务列表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询未完成任务列表数据标识内容格式</note>
+        <note>起始任务序号m：任务的起始序号，表示在任务列表中的第m个任务，序号从0开始。</note>
+        <note>本次查询的任务数量n：本次查询的任务个数，起始序号为m，任务数量为n，表示查询任务列表中的第m,m+1，……，m+n-1个任务，n≥1。</note>
+        <sourceRef table="24" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>起始任务序号m</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>本次查询的任务数量n</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030205" protocol="csg-local" region="南网" afn="02" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询未完成任务详细信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 02 05：查询未完成任务详细信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询未完成任务详细信息数据标识内容格式</note>
+        <note>a）任务ID：区分不同任务的任务标识。</note>
+        <sourceRef table="25" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030304" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询通信延时时长</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 04：查询通信延时时长</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询通信延时时长数据标识内容格式</note>
+        <note>a）通信目的地址，其中，99 99 99 99 99 99表示广播地址。</note>
+        <note>b）报文长度L：需要计算通信下行延时的报文长度。</note>
+        <sourceRef table="34" role="数据内容" />
+        <length>7</length>
+        <splitByLength>
+            <name>通信目的地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文长度L</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030306" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 06：查询从节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点信息数据标识内容格式</note>
+        <note>a）从节点起始序号m：表示在从节点列表中的第m个从节点，序号从0开始。</note>
+        <note>b）从节点数量n：从节点起始序号为m，从节点数量为n，表示查询从节点列表中的第m,m+1，……，m+n-1个从节点，n≥1。</note>
+        <sourceRef table="35" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030308" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点的父节点</name>
+        <sourceRef table="9" role="功能总表" />
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 03 03 08：查询从节点的父节点</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点的父节点数据标识内容格式</note>
+        <sourceRef table="36" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>从节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E803030A" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点通信地址映射表</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 0A：查询从节点通信地址映射表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点通信地址映射表数据标识内容格式</note>
+        <note>a）映射表记录起始序号m：表示在从节点通信地址映射记录在列表中的第m个从节点，序号从0开始。</note>
+        <sourceRef table="37" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E803030C" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点相位信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 0C：查询从节点相位信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点相位信息数据标识内容格式</note>
+        <note>a）从节点数量n需满足：0&lt;n≤16。</note>
+        <sourceRef table="38" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次查询从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次查询从节点数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E803030D" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>批量查询从节点相位信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 0D：批量查询从节点相位信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>批量查询从节点相位信息数据标识内容格式</note>
+        <note>a）从节点起始序号m：表示在从节点列表中的第m个从节点，序号从0开始。</note>
+        <note>b）从节点数量n：从节点起始序号为m，从节点数量为n，表示查询从节点列表中的第m,m+1，……，m+n-1个从节点，n≥1。</note>
+        <sourceRef table="39" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E803030E" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询表档案的台区识别结果</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 0E：查询表档案的台区识别结果</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询表档案的台区识别结果数据标识内容格式</note>
+        <note>a）从节点起始序号m：表示在从节点列表中的第m个从节点，序号从0开始。</note>
+        <note>b）从节点数量n：从节点起始序号为m，从节点数量为n，表示查询从节点列表中的第m,m+1，……，m+n-1个从节点，n≥1。</note>
+        <sourceRef table="40" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E803030F" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询多余节点的台区识别结果</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 0F：查询多余节点的台区识别结果</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询多余节点的台区识别结果数据标识内容格式</note>
+        <note>a）从节点起始序号m：表示在从节点列表中的第m个从节点，序号从0开始。</note>
+        <note>b）从节点数量n：从节点起始序号为m，从节点数量为n，表示查询从节点列表中的第m,m+1，……，m+n-1个从节点，n≥1。</note>
+        <sourceRef table="41" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030315" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>批量查询模块特征信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 15：批量查询模块特征信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>批量查询模块特征信息数据标识内容格式</note>
+        <note>a）节点起始序号m：表示在节点列表中的第m个节点，序号0开始，0表示CCO，1表示第 1个从节点，2表示第2个从节点，以此类推。</note>
+        <note>b）节点数量n：节点起始序号为m，节点数量为n，表示查询节点列表中的第m,m+1，……，m+n-1个节点，n大于0。</note>
+        <sourceRef table="42" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030316" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询指定模块特征读信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 16：查询指定模块特征信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询指定从节点支持多帧抄读信息数据标识内容格式</note>
+        <note>a）从节点数量n需满足：0&lt;n≤16。</note>
+        <note>b) 请求地址为CCO主节点地址时返回CCO支持状态。</note>
+        <sourceRef table="43" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次查询从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次查询从节点数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E80303A0" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询即插即用功能开关</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 A0：查询即插即用功能开关</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E80303A1" protocol="csg-local" region="南网" afn="03" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询黑名单节点信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 03 03 A1：查询黑名单节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询黑名单节点信息数据标识内容格式</note>
+        <note>a）黑名单节点起始序号m：表示在黑名单节点列表中的第m个黑名单节点，序号从0开始。</note>
+        <note>b）黑名单节点数量n：黑名单节点起始序号为m，黑名单节点数量为n，表示查询黑名单节点列表中的第m,m+1，……，m+n-1个黑名单节点，n≥1。</note>
+        <sourceRef table="44" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8030704" protocol="csg-local" region="南网" afn="07" dir="0" status="ambiguous" source="第6章功能总表与逐项内容">
+        <name>查询文件传输失败节点</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>原文总表与正文存在编码或内容冲突；不自动选择其中一种业务布局，参见sourceText。</note>
+    </dataItem>
+    <dataItem id="E8031010" protocol="csg-local" region="南网" afn="10" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询从节点邻居表</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 03 10 10：查询从节点邻居表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点邻居表数据标识内容格式</note>
+        <note>开始邻居节点指针：指从节点邻居表中的指针位置，0为第一个指针。</note>
+        <sourceRef table="130" role="数据内容" />
+        <length>8</length>
+        <splitByLength>
+            <name>从节点地址</name>
+            <length>6</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>开始邻居节点指针</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>读取邻居节点数量（≤16）</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8031011" protocol="csg-local" region="南网" afn="10" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询主节点状态</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 03 10 11：查询主节点状态</note>
+        <note>无数据内容</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8031012" protocol="csg-local" region="南网" afn="10" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>读取入网节点信息</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 03 10 12：读取入网节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>读取入网节点信息数据标识内容格式</note>
+        <sourceRef table="131" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8031013" protocol="csg-local" region="南网" afn="10" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>读取未入网节点信息</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 03 10 13：读取未入网节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>读取未入网节点信息数据标识内容格式</note>
+        <sourceRef table="132" role="数据内容" />
+        <length>3</length>
+        <splitByLength>
+            <name>从节点起始序号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>查询数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8031015" protocol="csg-local" region="南网" afn="10" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求切换通信速率和信道</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 03 10 15：请求切换通信速率和信道</note>
+        <note>本命令用于掌机向主节点请求切换通信速率和通信信道。掌机在公共信道上发送此命令。</note>
+        <note>请求切换通信速率和信道数据标识内容格式</note>
+        <note>通信速率：0:10kbps；1:50kbps；2：100kbps。</note>
+        <note>通信信道：0：主节点模块当前使用的私有信道组；33为维护信道组组；其他值保留。</note>
+        <note>维护信道空闲恢复时间：恢复时间超时之后，自行恢复到原有的工作信道与通信速率。单位为分，默认值为10。范围为1~10。如果通信信道为0，则恢复时间填充0。</note>
+        <note>E8 02 10 16 恢复通信速率和信道</note>
+        <note>无数据内容</note>
+        <sourceRef table="134" role="数据内容" />
+        <length>5</length>
+        <splitByLength>
+            <name>通信速率</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>通信信道</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>维护信道空闲恢复时间</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>保留</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8040204" protocol="csg-local" region="南网" afn="02" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询未完成任务列表</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 02 04：返回查询未完成任务列表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回查询未完成任务列表数据标识内容格式</note>
+        <note>由于任务执行状态可能产生变化，模块上报的任务数量必须小于或等于集中器查询的任务数量。上报的任务数量n≥0。</note>
+        <sourceRef table="29" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次上报任务数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次上报任务数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>任务ID</name>
+                <length>2</length>
+                <type>BIN</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8040205" protocol="csg-local" region="南网" afn="02" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询未完成任务详细信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 02 05：返回查询未完成任务详细信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询未完成任务详细信息数据标识内容格式</note>
+        <note>任务ID：区分不同任务的任务标识。</note>
+        <note>任务优先级：0~3,0表示最高优先级，3表示最低优先级。由集中器来指定任务的优先级，模块保证高优先级的任务得到优先执行。</note>
+        <note>任务响应标识：该任务是否需要返回数据，0-不需要数据返回，1-需要数据返回。由集中器指定，广播校时等任务为0，抄表任务为1。</note>
+        <note>任务目的地址个数：任务下发的目的地址个数。普通任务时n=1，多播任务n&gt;1。</note>
+        <note>任务目的地址：任务下发的从节点地址。</note>
+        <note>报文长度：当组合多帧抄读标志为0时，报文长度字节数为1；当组合多帧标志为1时，报文长度字节数为2。</note>
+        <note>报文内容：当组合多帧抄读标志为0时，内容为原始报文数据，当组合多帧标志为1时，内容组合格式见下表。</note>
+        <note>组合多帧报文内容格式</note>
+        <note>若任务已执行完毕或者任务ID不存在，则回复否认（任务ID不存在）。</note>
+        <sourceRef table="30" role="数据内容" />
+        <sourceRef table="31" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>任务模式字</name>
+            <length>1</length>
+            <type>BIN</type>
+            <splitbit>
+                <bit id="0-3">
+                    <name>任务优先级</name>
+                    <value key="0">最高优先级</value>
+                    <value key="1">优先级1</value>
+                    <value key="2">优先级2</value>
+                    <value key="3">最低优先级</value>
+                </bit>
+                <bit id="4">
+                    <name>组合多帧标志</name>
+                    <value key="0">原始报文</value>
+                    <value key="1">组合多帧</value>
+                </bit>
+                <bit id="5-6">
+                    <name>保留</name>
+                </bit>
+                <bit id="7">
+                    <name>任务响应标识</name>
+                    <value key="0">不需要数据返回</value>
+                    <value key="1">需要数据返回</value>
+                </bit>
+            </splitbit>
+        </splitByLength>
+        <splitByLength>
+            <name>任务目的地址个数</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <repeat count="任务目的地址个数">
+            <name>目的节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>1</length>
+            <type>BIN</type>
+            <lengthIf field="任务模式字" mask="16" equals="16">2</lengthIf>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+        <note>D4=1时，报文内容为报文条数及逐报文长度/内容的组合；按外层明确长度定位，子报文布局见对应sourceRef。</note>
+    </dataItem>
+    <dataItem id="E8040304" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询通信延时时长</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 04：返回查询通信延时时长</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>通信延时时长数据标识内容格式</note>
+        <note>通信目的从节点地址，其中，99 99 99 99 99 99表示广播地址。</note>
+        <note>通信延时时长：代表预计该长度报文在当前通信环境需要的具体通信延时，单位秒。</note>
+        <note>报文长度L：当前计算通信下行延时的报文长度。</note>
+        <sourceRef table="48" role="数据内容" />
+        <length>9</length>
+        <splitByLength>
+            <name>通信目的地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>通信延时时长</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文长度L</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8040306" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询从节点信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 06：返回查询从节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回查询从节点信息数据单元格式</note>
+        <sourceRef table="50" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8040308" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询从节点的父节点</name>
+        <sourceRef table="9" role="功能总表" />
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 04 03 08：返回查询从节点的父节点</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询从节点的父节点数据标识内容格式</note>
+        <note>a）链路质量：从节点与其父节点之间通信链路的链路质量。范围为0~31。31最佳，0最差。</note>
+        <sourceRef table="52" role="数据内容" />
+        <length>13</length>
+        <splitByLength>
+            <name>从节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>父节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>链路质量</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E804030A" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询从节点通信地址映射表</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 0A：返回查询从节点通信地址映射表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回查询节点通信地址映射表数据标识内容格式</note>
+        <note>注1：每个从节点通信映射地址（18字节）组成：通信地址（6字节）+表计地址（12字节）。</note>
+        <note>注2：对于指定采集器地址的电能表，每个从节点通信映射地址组成：通信地址（6字节）+00 00 00 00 00 00H（6字节）+电能表地址（6字节）。</note>
+        <note>注3：对于水气热表，每个从节点通信映射地址组成：通信地址（6字节）+00 00 00 00H（4字节）+水气热表地址（8字节）</note>
+        <note>例1：某台电表的地址为12 34 56 78 90 12，采集器地址为34 56 78 90 12 34，则映射表数据如下</note>
+        <note>例2：某台水表的地址为12 34 56 78 90 12 34 56，通信地址为45 67 89 01 23 45，则映射表数据如下</note>
+        <sourceRef table="54" role="数据内容" />
+        <sourceRef table="55" role="数据内容" />
+        <sourceRef table="56" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>映射表记录节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>通信地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>表计地址</name>
+                <length>12</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E804030C" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询从节点相位信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 0C：返回查询从节点相位信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回查询从节点相位信息数据标识内容格式</note>
+        <sourceRef table="58" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>相位信息</name>
+                <length>2</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E804030D" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回批量查询从节点相位信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 0D：返回批量查询从节点相位信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回批量查询从节点相位信息数据标识内容格式</note>
+        <note>从节点相位信息格式</note>
+        <note>相线特征：0：支持相线识别；1：不支持相线识别；2：相线不确定；其他值：保留。若相线特征非0，则相线标识填充0。</note>
+        <note>相线标识：D0、D1、D2分别表示从节点是否接于A、B、C相线上，1表示连接相线，0表示未连接相线。</note>
+        <note>规约类型：00：未知规约；01H=DLT/645-1997；02H=DLT/645-2007；03：CJ/T188；其他值保留。</note>
+        <note>采集器下接单相电能表的相线特征及和相线标识以采集器自身的相线特征和相线标识代替。</note>
+        <sourceRef table="59" role="数据内容" />
+        <sourceRef table="60" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>相位信息</name>
+                <length>2</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E804030E" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询表档案的台区识别结果</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 0E：返回查询表档案的台区识别结果</note>
+        <note>返回查询表档案的台区识别结果数据标识内容格式</note>
+        <note>返回结果中的从节点为通过“添加从节点”设置的从节点。</note>
+        <note>台区识别结果：0表示该节点属于本台区；1表示该节点不属于本台区；2表示该节点无法通信；3表示未知；4表示不支持台区识别功能，适用于微功率无线通信方案；其他值保留。</note>
+        <sourceRef table="61" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>台区识别结果</name>
+                <length>1</length>
+                <type>BIN</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E804030F" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询多余节点的台区识别结果</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 0F：返回查询多余节点的台区识别结果</note>
+        <note>返回查询多余节点的台区识别结果数据标识内容格式</note>
+        <note>返回结果中的从节点指与主节点处于同一台区且能与主节点通信的从节点。</note>
+        <note>节点属性格式</note>
+        <note>节点属性格式</note>
+        <sourceRef table="62" role="数据内容" />
+        <sourceRef table="63" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>节点属性</name>
+                <length>8</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8040315" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>批量返回查询模块特征信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 15：批量返回查询模块特征信息</note>
+        <note>批量返回查询模块特征信息数据标识内容格式</note>
+        <note>模块特征信息见下表：</note>
+        <note>保留字段用于其它从节点特征信息扩展使用，默认为0。</note>
+        <note>载波多帧支持标识STA是否支持载波多帧与长帧报文。</note>
+        <note>数据有效标志为0时代表节点离线，数据无效。</note>
+        <sourceRef table="64" role="数据内容" />
+        <sourceRef table="65" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>模块特征信息</name>
+                <length>8</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8040316" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询指定模块特征信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 16：返回查询指定模块特征信息</note>
+        <note>返回查询指定模块特征信息数据标识内容格式</note>
+        <note>模块特征信息见下表：</note>
+        <note>保留字段用于其它从节点特征信息扩展使用，默认为0。</note>
+        <note>载波多帧支持标识STA是否支持载波多帧与长帧报文。</note>
+        <note>数据有效标志为0时代表节点离线，数据无效。</note>
+        <sourceRef table="66" role="数据内容" />
+        <sourceRef table="67" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>模块特征信息</name>
+                <length>8</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E80403A0" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回即插即用功能开关</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 A0：返回即插即用功能开关</note>
+        <note>返回查询即插即用功能开关数据标识内容格式</note>
+        <note>即采功能开关标示：0为关闭即插即用功能，1为开启即插即用功能。</note>
+        <sourceRef table="68" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>即插即用开关</name>
+            <length>1</length>
+            <type>BIN</type>
+            <value key="0">关闭</value>
+            <value key="1">开启</value>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E80403A1" protocol="csg-local" region="南网" afn="03" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询黑名单节点信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 04 03 A1：返回查询黑名单节点信息</note>
+        <note>返回查询黑名单数据标识内容格式</note>
+        <sourceRef table="69" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>黑名单节点总数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8040704" protocol="csg-local" region="南网" afn="07" dir="1" status="ambiguous" source="第6章功能总表与逐项内容">
+        <name>返回查询文件传输失败节点</name>
+        <length>unknown</length>
+        <sourceRef table="9" role="功能总表" />
+        <note>原文总表与正文存在编码或内容冲突；不自动选择其中一种业务布局，参见sourceText。</note>
+    </dataItem>
+    <dataItem id="E8041010" protocol="csg-local" region="南网" afn="10" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回查询从节点邻居表</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 04 10 10：返回查询从节点邻居表</note>
+        <note>数据标识内容格式见下表</note>
+        <note>返回查询从节点邻居表数据标识内容格式</note>
+        <note>邻居节点信息：</note>
+        <note>中继深度：0：中心节点；1~7：子节点；0x0F：未入网节点。</note>
+        <note>侦听次数：每收集一次邻居节点为计数单位，取值范围0~15。</note>
+        <note>节点类型：0：中心节点；1：I型采集器节点；2：II型采集器节点；3：无线电能表节点；4：485电表；5：未知类型；7：其他。</note>
+        <note>信号质量：取值范围0~31，31最佳，0最差。</note>
+        <sourceRef table="135" role="数据内容" />
+        <sourceRef table="136" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>从节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>侦听邻居节点总数量</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>本帧邻居节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <repeat count="本帧邻居节点数量">
+            <name>邻居节点</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>信息</name>
+                <length>2</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8041011" protocol="csg-local" region="南网" afn="10" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回主节点状态</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 04 10 11：查询主节点状态</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询主节点状态数据标识编码定义</note>
+        <note>网络状态字定义：</note>
+        <note>状态字中，1表示主节点处于该状态中；0表示主节点不处于该状态中。</note>
+        <note>保留位填充0。</note>
+        <note>若网络处于信标转发状态，则不执行指定网络维护。</note>
+        <note>当前状态持续时间：单位为分钟。当网络维护和任务传输并存时，显示网络维护的持续时间；文件传输和任务传输不能并存。</note>
+        <sourceRef table="137" role="数据内容" />
+        <sourceRef table="138" role="数据内容" />
+        <sourceRef table="139" role="数据内容" />
+        <sourceRef table="140" role="数据内容" />
+        <sourceRef table="141" role="数据内容" />
+        <length>10</length>
+        <splitByLength>
+            <name>入网节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>未入网节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>网络状态字</name>
+            <length>4</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前状态持续时间</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8041012" protocol="csg-local" region="南网" afn="10" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回入网节点信息</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 04 10 12：读取入网节点信息</note>
+        <note>数据标识编码定义见下表。</note>
+        <note>读取入网节点信息数据标识编码定义</note>
+        <note>从节点信息定义如下：</note>
+        <sourceRef table="142" role="数据内容" />
+        <sourceRef table="143" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>入网从节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>从节点信息</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8041013" protocol="csg-local" region="南网" afn="10" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回未入网节点信息</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 04 10 13：读取未入网节点信息</note>
+        <note>数据标识编码定义见下表。</note>
+        <note>读取未入网节点信息数据标识编码定义</note>
+        <sourceRef table="144" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>未入网从节点数量</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <splitByLength>
+            <name>本次应答数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8041015" protocol="csg-local" region="南网" afn="10" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>响应切换通信速率和信道</name>
+        <sourceRef table="12" role="功能总表" />
+        <note>E8 04 10 15：响应切换通信速率和信道</note>
+        <note>主节点在公共信道上发送此应答。掌机根据主节点的应答切换到相应的通信速率和通信信道。</note>
+        <note>响应切换通信速率和信道数据标识编码定义</note>
+        <note>通信速率：0:10kbps，1:50kbps，2：100kbps。</note>
+        <note>通信信道：1~32：主节点模块当前使用的私有信道组；为规范中定义的信道组；其它值无效；</note>
+        <note>维护信道空闲恢复时间：恢复时间超时之后，自行恢复到原有的工作信道与通信速率。单位为分，默认值为10。范围为1~10。如果通信信道为0，则恢复时间填充0。</note>
+        <sourceRef table="145" role="数据内容" />
+        <length>5</length>
+        <splitByLength>
+            <name>通信速率</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>通信信道</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>空闲恢复时间</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>保留</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8050501" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报任务数据</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 01：上报任务数据</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>上报任务数据数据标识内容格式</note>
+        <note>任务ID：用于区分不同任务的任务标识，每一个抄表任务对应一块表的一个数据项。</note>
+        <note>报文长度L：通信协议的原始报文数据总长度。</note>
+        <note>报文内容：通信协议的原始报文数据。</note>
+        <sourceRef table="83" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8050502" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报从节点事件</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 02：上报从节点事件</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>上报从节点事件数据标识内容格式</note>
+        <note>报文长度L：通信协议的状态字原始报文数据总长度。</note>
+        <note>报文内容：通信协议的状态字原始报文数据。</note>
+        <sourceRef table="84" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8050503" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报从节点信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 03：上报从节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>上报从节点信息数据标识内容格式</note>
+        <note>上报从节点的数量n≥1。</note>
+        <sourceRef table="85" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>上报从节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="上报从节点数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8050504" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报从节点注册结束</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 04：上报从节点主动注册结束</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E8050505" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报任务状态</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 05：上报任务状态</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>任务执行失败或成功时使用该命令上报。</note>
+        <note>上报任务失败数据标识内容格式</note>
+        <note>任务ID：区分不同任务的任务标识。</note>
+        <note>从节点地址：失败从节点的地址。</note>
+        <note>任务状态：0为成功，1为从节点无响应，2为数据不合法，FF为其他错误。</note>
+        <sourceRef table="86" role="数据内容" />
+        <length>9</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>从节点地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>任务状态</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8050511" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报组合任务数据</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 11：上报组合多帧任务数据</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>上报组合多帧任务数据数据标识内容格式</note>
+        <note>任务ID：用于区分不同任务的任务标识，每一个抄表任务对应一块表的一个数据项。</note>
+        <note>报文长度：通信协议的原始报文数据总长度。</note>
+        <note>报文内容格式见下表：</note>
+        <note>组合多帧报文内容格式</note>
+        <sourceRef table="88" role="数据内容" />
+        <sourceRef table="89" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>任务ID</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8050512" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报从节点事件扩展</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 12：上报从节点事件扩展</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>上报从节点事件扩展数据标识内容格式</note>
+        <note>报文长度L：通信协议的状态字原始报文数据总长度。</note>
+        <note>报文内容：通信协议的状态字原始报文数据。</note>
+        <sourceRef table="90" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E80505A0" protocol="csg-local" region="南网" afn="05" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>上报未识别节点信息</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 05 05 A0：上报未识别节点信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>上报未识别节点信息数据标识内容格式</note>
+        <note>上报未识别节点的数量n≥1。</note>
+        <sourceRef table="87" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>未识别节点数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="未识别节点数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>设备类型</name>
+                <length>1</length>
+                <type>BIN</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="E8060601" protocol="csg-local" region="南网" afn="06" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求集中器时间</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 06 06 01：请求集中器时间</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求集中器时间数据标识内容格式</note>
+        <sourceRef table="92" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>当前时间—秒</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—分</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—时</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—日</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—月</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+        <splitByLength>
+            <name>当前时间—年（低字节）</name>
+            <length>1</length>
+            <type>BCD</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="E8060601" protocol="csg-local" region="南网" afn="06" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求集中器时间</name>
+        <sourceRef table="9" role="功能总表" />
+        <note>E8 06 06 01：请求集中器时间</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA002301" protocol="csg-local" region="南网" afn="23" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询厂商代码和版本信息</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 00 23 01：查询厂商代码和版本信息</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA002301" protocol="csg-local" region="南网" afn="23" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询厂商代码和版本信息</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 00 23 01：查询厂商代码和版本信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>厂商代码和版本信息数据标识内容格式</note>
+        <sourceRef table="121" role="数据内容" />
+        <length>9</length>
+        <splitByLength>
+            <name>厂商代码</name>
+            <length>2</length>
+            <type>ASCII</type>
+        </splitByLength>
+        <splitByLength>
+            <name>芯片代码</name>
+            <length>2</length>
+            <type>ASCII</type>
+        </splitByLength>
+        <splitByLength>
+            <name>版本时间</name>
+            <length>3</length>
+            <type>BCD</type>
+            <time>DDMMYY</time>
+        </splitByLength>
+        <splitByLength>
+            <name>版本</name>
+            <length>2</length>
+            <type>BCD</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA010001" protocol="csg-local" region="南网" afn="00" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>确认</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 01 00 01：确认</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>等待时间：该确认帧对应的命令的执行时间，单位为秒。</note>
+        <note>确认数据标识内容格式</note>
+        <sourceRef table="101" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>等待时间</name>
+            <length>2</length>
+            <type>BIN</type>
+            <unit>秒</unit>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA010002" protocol="csg-local" region="南网" afn="00" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>否认</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 01 00 02：否认</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>否认数据标识内容格式</note>
+        <note>错误状态字：0为通信超时，1为无效数据标识内容，2为长度错误，3为校验错误，4为数据标识编码不存在，5为格式错误， 6为表号重复，7为表号不存在，8为电表应用层无应答，FFH其他。</note>
+        <note>管理电表（AFN=21H）</note>
+        <sourceRef table="102" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>错误状态字</name>
+            <length>1</length>
+            <type>BIN</type>
+            <value key="0">通信超时</value>
+            <value key="1">无效数据标识内容</value>
+            <value key="2">长度错误</value>
+            <value key="3">校验错误</value>
+            <value key="4">数据标识编码不存在</value>
+            <value key="5">格式错误</value>
+            <value key="6">表号重复</value>
+            <value key="7">表号不存在</value>
+            <value key="8">电表应用层无应答</value>
+            <value key="255">其他</value>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA032102" protocol="csg-local" region="南网" afn="21" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回表地址</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 03 21 02：返回表地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回表地址数据标识内容格式</note>
+        <sourceRef table="108" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次应答表地址数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答表地址数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="EA032201" protocol="csg-local" region="南网" afn="22" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>透传上行数据到采集器应答</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 03 22 01：透传上行数据到采集器应答</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>透传上行数据到采集器应答数据标识内容格式</note>
+        <sourceRef table="119" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA033102" protocol="csg-local" region="南网" afn="31" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>返回映射表地址</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 03 31 02：返回映射表通信地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>返回映射表通信地址数据标识内容格式</note>
+        <sourceRef table="115" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>本次应答表计数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="本次应答表计数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>通信地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="EA042102" protocol="csg-local" region="南网" afn="21" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求表地址</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 04 21 02：请求表地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求表地址数据标识内容格式</note>
+        <note>起始表序号：从第几块电表开始读，范围0~（表地址个数-1）</note>
+        <note>表个数：本次读几块表的通信地址：范围1~32</note>
+        <sourceRef table="104" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>起始表序号</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>表个数</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA042201" protocol="csg-local" region="南网" afn="22" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>透传上行数据到采集器</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 04 22 01：透传上行数据到采集器</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>透传上行数据到采集器数据标识内容格式</note>
+        <sourceRef table="118" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>报文长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>报文内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>报文长度</lengthrule>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA043102" protocol="csg-local" region="南网" afn="31" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求映射表地址</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 04 31 02：请求映射表通信地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求映射表通信地址数据标识内容格式</note>
+        <note>起始表序号：从第几块表计开始读，范围0~（表地址个数-1）</note>
+        <note>表计个数：本次读几块表的通信地址：范围1~16</note>
+        <sourceRef table="112" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>起始表计序号</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>表计个数</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA052104" protocol="csg-local" region="南网" afn="21" dir="0" status="raw" source="第6章功能总表与逐项内容">
+        <name>电表探测列表</name>
+        <length>unknown</length>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 05 21 04：电表探测列表</note>
+        <note>下行为确认/否认帧</note>
+    </dataItem>
+    <dataItem id="EA052104" protocol="csg-local" region="南网" afn="21" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>电表探测列表</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 05 21 04：电表探测列表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>电表探测列表数据标识内容格式</note>
+        <note>a）表个数：需要采集器尝试探测的表地址个数：范围1~16。</note>
+        <sourceRef table="105" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>表数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="表数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="EA052401" protocol="csg-local" region="南网" afn="24" dir="0" status="raw" source="第6章功能总表与逐项内容">
+        <name>启动文件传输</name>
+        <length>unknown</length>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 05 24 01：启动文件传输</note>
+        <note>下行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+    </dataItem>
+    <dataItem id="EA052401" protocol="csg-local" region="南网" afn="24" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>启动文件传输</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 05 24 01：启动文件传输</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>启动文件传输数据标识内容格式</note>
+        <note>文件ID：用来区分不同的文件。</note>
+        <note>目的地址：文件传输的目的地址，99 99 99 99 99 99H为广播地址。</note>
+        <note>文件总段数n：文件传输内容的总段数。</note>
+        <note>文件大小：文件的总长度，单位字节。</note>
+        <note>文件总校验：文件所有内容的CRC16校验和。CRC16校验生成多项式采用CRC16-CCITT（0x1021），x16+x12+x5+1，初始值0x0000，低位在前，高位在后，结果与0x0000异或。</note>
+        <sourceRef table="123" role="数据内容" />
+        <length>15</length>
+        <splitByLength>
+            <name>文件ID</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>目的地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总段数n</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件大小</name>
+            <length>4</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总校验</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA052402" protocol="csg-local" region="南网" afn="24" dir="0" status="raw" source="第6章功能总表与逐项内容">
+        <name>传输文件内容</name>
+        <length>unknown</length>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 05 24 02：传输文件内容</note>
+        <note>下行报文为确认∕否认报文，详见“确认/否认”报文格式。</note>
+    </dataItem>
+    <dataItem id="EA052402" protocol="csg-local" region="南网" afn="24" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>传输文件内容</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 05 24 02：传输文件内容</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>传输文件内容数据标识内容格式</note>
+        <note>文件段号：文件内容的传输段序号，取值范围0至n-1(n为文件总段数)</note>
+        <note>文件段长度L：该帧文件内容长度；文件段长度不大于180字节。除了最后一个文件段，其他文件段的长度必须相同。</note>
+        <note>文件段内容：该帧传输的文件内容，长度为L字节。</note>
+        <note>文件段校验：该帧文件内容的CRC16校验和。</note>
+        <sourceRef table="124" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>文件段号</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件段长度</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件段内容</name>
+            <length>unknown</length>
+            <type>RAW</type>
+            <lengthrule>文件段长度</lengthrule>
+        </splitByLength>
+        <splitByLength>
+            <name>文件段校验</name>
+            <length>2</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA053104" protocol="csg-local" region="南网" afn="31" dir="0" status="raw" source="第6章功能总表与逐项内容">
+        <name>映射探测列表</name>
+        <length>unknown</length>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 05 31 04：映射探测列表</note>
+        <note>下行为确认/否认帧。</note>
+    </dataItem>
+    <dataItem id="EA053104" protocol="csg-local" region="南网" afn="31" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>映射探测列表</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 05 31 04：映射探测列表</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>映射探测列表数据标识内容格式</note>
+        <note>a） 表计数量：需要转换器尝试探测的表计个数：范围1~8</note>
+        <sourceRef table="113" role="数据内容" />
+        <length>unknown</length>
+        <splitByLength>
+            <name>表计数量</name>
+            <length>1</length>
+            <type>BIN</type>
+            <unit>个</unit>
+        </splitByLength>
+        <repeat count="表计数量">
+            <name>记录</name>
+            <splitByLength>
+                <name>通信地址</name>
+                <length>6</length>
+                <type>RAW</type>
+            </splitByLength>
+            <splitByLength>
+                <name>表计地址</name>
+                <length>12</length>
+                <type>RAW</type>
+            </splitByLength>
+        </repeat>
+    </dataItem>
+    <dataItem id="EA062101" protocol="csg-local" region="南网" afn="21" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求表地址个数</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 01：请求表地址个数</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求表地址个数数据标识内容格式</note>
+        <note>表地址总数量取值范围为0~32，其他值保留。</note>
+        <sourceRef table="107" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>表地址总数量</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA062101" protocol="csg-local" region="南网" afn="21" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求表地址个数</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 01：请求表地址个数</note>
+        <note>无数据标识内容格式</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA062103" protocol="csg-local" region="南网" afn="21" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求采集器地址</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 03：请求采集器地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求采集器地址数据标识内容格式</note>
+        <sourceRef table="109" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>采集器地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA062103" protocol="csg-local" region="南网" afn="21" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求采集器地址</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 03：请求采集器地址</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA062105" protocol="csg-local" region="南网" afn="21" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>电表探测状态</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 05：电表探测状态</note>
+        <note>电表探测状态数据标识内容格式</note>
+        <note>1）电表探测状态：0完成探测，1正在探测。采集器需在10分钟内完成最多16个电表的探测。</note>
+        <sourceRef table="110" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>电表探测状态</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA062105" protocol="csg-local" region="南网" afn="21" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>电表探测状态</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 05：电表探测状态</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA062106" protocol="csg-local" region="南网" afn="21" dir="0" status="ambiguous" source="第6章功能总表与逐项内容">
+        <name>请求采集器绑定地址</name>
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 06：请求采集器地址</note>
+        <note>无数据标识内容。</note>
+        <note>管理映射表表计（AFN=31H）</note>
+        <note>EA 06 21 06：请求采集器绑定地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求采集器绑定地址数据标识内容格式</note>
+        <note>此地址为采集器或者采集器模块正在使用的通信地址。</note>
+        <note>无线维护接口应用数据报文结构</note>
+        <note>无线维护接口与集中器接口相同的数据标识报文结构参见5.8。下面对与集中器接口不同的数据标识报文结构进行定义和说明。</note>
+        <note>维护命令（AFN=10H）</note>
+        <sourceRef table="129" role="数据内容" />
+        <length>6</length>
+        <splitByLength>
+            <name>采集器绑定地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <note>原文总表与正文存在编码或内容冲突；不自动选择其中一种业务布局，参见sourceText。</note>
+    </dataItem>
+    <dataItem id="EA062106" protocol="csg-local" region="南网" afn="21" dir="1" status="ambiguous" source="第6章功能总表与逐项内容">
+        <name>请求采集器绑定地址</name>
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 21 06：请求模块当前通信地址</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求模块当前通信地址数据标识内容格式</note>
+        <sourceRef table="106" role="数据内容" />
+        <note>EA 06 21 06：请求采集器绑定地址</note>
+        <note>无数据标识内容。</note>
+        <length>6</length>
+        <splitByLength>
+            <name>采集器地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <note>原文总表与正文存在编码或内容冲突；不自动选择其中一种业务布局，参见sourceText。</note>
+    </dataItem>
+    <dataItem id="EA062403" protocol="csg-local" region="南网" afn="24" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求文件信息</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 06 24 03：请求文件信息</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求文件信息数据标识内容格式</note>
+        <note>文件ID：用来区分不同的文件。</note>
+        <note>目的地址：文件传输的目的地址，99 99 99 99 99 99为广播地址。</note>
+        <note>文件总段数n：文件传输内容的总帧数。</note>
+        <note>文件大小：文件的总长度，单位字节。</note>
+        <note>文件总校验：文件所有内容的CRC16校验和。</note>
+        <note>成功接收文件段数：文件接收方已经成功接收到的文件段数，范围为1~n。n为文件总段数。如果为0表示尚未开始传输，为n表示传输已完成，为m表示段号0~m-1的帧已传输完成，可以从段号为m的帧开始续传。</note>
+        <sourceRef table="125" role="数据内容" />
+        <length>17</length>
+        <splitByLength>
+            <name>文件ID</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>目的地址</name>
+            <length>6</length>
+            <type>RAW</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总段数n</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件大小</name>
+            <length>4</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>文件总校验</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>已成功接收文件段数m</name>
+            <length>2</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA062403" protocol="csg-local" region="南网" afn="24" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求文件信息</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 06 24 03：请求文件信息</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA062404" protocol="csg-local" region="南网" afn="24" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求文件处理进度</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 06 24 04：请求文件处理进度</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求文件处理进度数据标识内容格式</note>
+        <note>a）文件处理进度：0全部成功，可以接收新文件；1正在处理，不能接收新文件。</note>
+        <note>b）处理未完成的文件ID：当文件处理进度为1-正在处理时有效，表示当前处理未完成的文件ID。</note>
+        <sourceRef table="126" role="数据内容" />
+        <length>2</length>
+        <splitByLength>
+            <name>文件处理进度</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+        <splitByLength>
+            <name>处理未完成的文件ID</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA062404" protocol="csg-local" region="南网" afn="24" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求文件处理进度</name>
+        <sourceRef table="10" role="功能总表" />
+        <note>EA 06 24 04：请求文件处理进度</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA062501" protocol="csg-local" region="南网" afn="25" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询设备类型</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 0625 01：查询设备类型</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>查询设备类型数据标识内容格式</note>
+        <note>a）设备类型：0采集器，1转换器，其他值保留。</note>
+        <note>采集器红外接口应用数据报文结构</note>
+        <note>采集器红外接口与采集器接口相同的数据标识报文结构参见5.9。下面对与采集器接口不同的数据标识报文结构进行定义和说明。</note>
+        <note>管理电表（AFN=21H）</note>
+        <sourceRef table="128" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>设备类型</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA062501" protocol="csg-local" region="南网" afn="25" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>查询设备类型</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 25 01：查询设备类型</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA063101" protocol="csg-local" region="南网" afn="31" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求映射表地址个数</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 31 01：请求映射表通信地址个数</note>
+        <note>数据标识内容格式见下表。</note>
+        <note>请求映射表通信地址个数数据标识内容格式</note>
+        <sourceRef table="114" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>映射表通信地址总数量</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA063101" protocol="csg-local" region="南网" afn="31" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>请求映射表地址个数</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 31 01：请求映射表通信地址个数</note>
+        <note>无数据标识内容格式</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="EA063105" protocol="csg-local" region="南网" afn="31" dir="0" status="ready" source="第6章功能总表与逐项内容">
+        <name>映射探测状态</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 31 05：映射探测状态</note>
+        <note>映射探测状态数据标识内容格式</note>
+        <note>a）映射探测状态：0完成探测，1正在探测。转换器需在10分钟内完成最多8个表计的探测。</note>
+        <note>转发数据（AFN=22H）</note>
+        <sourceRef table="116" role="数据内容" />
+        <length>1</length>
+        <splitByLength>
+            <name>映射探测状态</name>
+            <length>1</length>
+            <type>BIN</type>
+        </splitByLength>
+    </dataItem>
+    <dataItem id="EA063105" protocol="csg-local" region="南网" afn="31" dir="1" status="ready" source="第6章功能总表与逐项内容">
+        <name>映射探测状态</name>
+        <sourceRef table="10" role="功能总表" />
+        <sourceRef table="11" role="功能总表" />
+        <note>EA 06 31 05：映射探测状态</note>
+        <note>无数据标识内容。</note>
+        <length>0</length>
+        <type>RAW</type>
+    </dataItem>
+    <dataItem id="E80003B0" protocol="csg-local" region="南网" afn="03" dir="0" status="ambiguous" source="功能总表与读参数下行正文">
+        <name>查询邻居主节点地址</name>
+        <length>unknown</length>
+        <sourceRef table="9" />
+        <note>下行正文标题使用E80303B0，与总表E80003B0不一致，不静默选择。</note>
+    </dataItem>
+    <issues>
+        <issue id="E8000203">应答小节标题写E8000103；功能总表和管理任务表写E8000203。</issue>
+        <issue id="E80003B0">总表/上行正文为E80003B0；下行正文标题写E80303B0。</issue>
+        <issue id="E8030704,E8040704">文件失败节点查询总表/编码表末字节04，详细正文末字节05。</issue>
+        <issue id="EA062106">正文同时描述请求模块当前地址与请求采集器绑定地址，内容和方向需确认。</issue>
+    </issues>
+</config>

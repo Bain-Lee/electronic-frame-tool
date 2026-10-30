@@ -14,6 +14,8 @@ namespace FrameTools
         private readonly ComboBox protocol = new ComboBox();
         private readonly CheckBox automaticProtocol = new CheckBox();
         private readonly TabControl tabs = new WorkspaceTabs();
+        private readonly TabControl composerModes = new WorkspaceTabs();
+        private PurposeComposerView purposeComposer;
         private readonly ThemeButton themeButton = new ThemeButton();
         private readonly ToolTip themeTip = new ToolTip();
         private readonly BatchParserView batch;
@@ -125,6 +127,7 @@ namespace FrameTools
                 }
                 configuredProtocol = (ProtocolKind)protocol.SelectedIndex;
                 SetDefaults();
+                purposeComposer.SetProtocol(SelectedProtocol);
                 InvalidateParsedInput();
                 batch.InvalidateResults();
             };
@@ -146,7 +149,14 @@ namespace FrameTools
                     e.SuppressKeyPress = true;
                     if (tabs.SelectedIndex == 2)
                     {
-                        Guard(Compose);
+                        if (composerModes.SelectedIndex == 0)
+                        {
+                            purposeComposer.Generate();
+                        }
+                        else
+                        {
+                            Guard(Compose);
+                        }
                     }
                     else if (tabs.SelectedIndex == 1)
                     {
@@ -188,7 +198,7 @@ namespace FrameTools
             box.HideSelection = false;
         }
 
-        private static void ConfigurePicker(ComboBox box)
+        internal static void ConfigurePicker(ComboBox box)
         {
             box.DropDownStyle = ComboBoxStyle.DropDownList;
             box.FlatStyle = FlatStyle.Standard;
@@ -349,9 +359,22 @@ namespace FrameTools
 
         private void BuildComposerTab()
         {
-            TabPage page = new TabPage("报文组装") { BackColor = BackColor, Padding = new Padding(8) };
+            TabPage workspace = new TabPage("报文组装") { BackColor = BackColor, Padding = new Padding(4) };
+            tabs.TabPages.Add(workspace);
+            composerModes.Name = "composerModes";
+            composerModes.Dock = DockStyle.Fill;
+            workspace.Controls.Add(composerModes);
+            TabPage purposePage = new TabPage("按用途组帧") { Padding = new Padding(8) };
+            purposeComposer = new PurposeComposerView(delegate(string hex)
+            {
+                input.Text = hex;
+                tabs.SelectedIndex = 0;
+            });
+            purposePage.Controls.Add(purposeComposer);
+            composerModes.TabPages.Add(purposePage);
+            TabPage page = new TabPage("原始 HEX") { BackColor = BackColor, Padding = new Padding(8) };
             page.AutoScroll = true;
-            tabs.TabPages.Add(page);
+            composerModes.TabPages.Add(page);
             TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Top, RowCount = 7, ColumnCount = 1, Height = 660, MinimumSize = new Size(0, 660) };
             page.ClientSizeChanged += delegate { layout.Height = Math.Max(660, page.ClientSize.Height - page.Padding.Vertical); };
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 270));
@@ -417,6 +440,7 @@ namespace FrameTools
                 parameter.TextChanged += delegate { output.Clear(); };
             }
             preamble.ValueChanged += delegate { output.Clear(); };
+            composerModes.SelectedIndex = 0;
         }
 
         private static void AddParameter(TableLayoutPanel table, int row, string text, Control field)

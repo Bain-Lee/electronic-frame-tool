@@ -36,62 +36,6 @@ namespace FrameTools
             }
         }
 
-        // Local module protocol, functional tables 6-2 through 6-4.
-        private static readonly Dictionary<string, string> LocalNames = new Dictionary<string, string>
-        {
-            { "E8010001", "确认" }, { "E8010002", "否认" },
-            { "E8020101", "复位硬件" }, { "E8020102", "初始化档案" }, { "E8020103", "初始化任务" },
-            { "E8020201", "添加任务" }, { "E8020202", "删除任务" },
-            { "E8000203", "查询未完成任务数" }, { "E8030204", "查询未完成任务列表" },
-            { "E8040204", "返回查询未完成任务列表" }, { "E8030205", "查询未完成任务详细信息" },
-            { "E8040205", "返回查询未完成任务详细信息" }, { "E8000206", "查询剩余可分配任务数" },
-            { "E8020207", "添加多播任务（选配）" }, { "E8020208", "启动任务" }, { "E8020209", "暂停任务" },
-            { "E8000301", "查询厂商代码和版本信息" }, { "E8000302", "查询本地通信模块运行模式信息" },
-            { "E8000303", "查询主节点地址" }, { "E8030304", "查询通信延时时长" },
-            { "E8040304", "返回查询通信延时时长" }, { "E8000305", "查询从节点数量" },
-            { "E8030306", "查询从节点信息" }, { "E8040306", "返回查询从节点信息" },
-            { "E8000307", "查询从节点主动注册进度" }, { "E8030308", "查询从节点的父节点" },
-            { "E8040308", "返回查询从节点的父节点" }, { "E8000309", "查询映射表从节点数量" },
-            { "E803030A", "查询从节点通信地址映射表" }, { "E804030A", "返回查询从节点通信地址映射表" },
-            { "E800030B", "查询任务建议超时时间" }, { "E803030C", "查询从节点相位信息" },
-            { "E804030C", "返回查询从节点相位信息" }, { "E803030D", "批量查询从节点相位信息" },
-            { "E804030D", "返回批量查询从节点相位信息" }, { "E803030E", "查询表档案的台区识别结果" },
-            { "E804030E", "返回查询表档案的台区识别结果" }, { "E803030F", "查询多余节点的台区识别结果" },
-            { "E804030F", "返回查询多余节点的台区识别结果" }, { "E8030315", "批量查询模块特征信息" },
-            { "E8040315", "批量返回查询模块特征信息" }, { "E8030316", "查询指定模块特征信息" },
-            { "E8040316", "返回查询指定模块特征信息" }, { "E80303A0", "查询即插即用功能开关" },
-            { "E80403A0", "返回即插即用功能开关" }, { "E80303A1", "查询黑名单节点信息" },
-            { "E80403A1", "返回查询黑名单节点信息" }, { "E80003B0", "查询邻居主节点地址" },
-            { "E8020401", "设置主节点地址" }, { "E8020402", "添加从节点" }, { "E8020403", "删除从节点" },
-            { "E8020404", "允许/禁止上报从节点事件" }, { "E8020405", "激活从节点主动注册" },
-            { "E8020406", "终止从节点主动注册" }, { "E8020407", "添加从节点通信地址映射表" },
-            { "E80204A0", "设置即插即用功能开关" }, { "E80204A1", "添加黑名单节点" },
-            { "E80204A2", "删除黑名单节点" }, { "E80204A3", "设置CCO时钟" },
-            { "E8050501", "上报任务数据" }, { "E8050502", "上报从节点事件" },
-            { "E8050503", "上报从节点信息" }, { "E8050504", "上报从节点注册结束" },
-            { "E8050505", "上报任务状态" }, { "E80505A0", "上报未识别节点信息" },
-            { "E8050511", "上报组合任务数据" }, { "E8050512", "上报从节点事件扩展" },
-            { "E8060601", "请求集中器时间" }, { "E8020701", "启动文件传输" },
-            { "E8020702", "传输文件内容" }, { "E8000703", "查询文件信息" },
-            { "E8000704", "查询文件处理进度" }, { "E8030704", "查询文件传输失败节点" },
-            { "E8040704", "返回查询文件传输失败节点" },
-            { "EA010001", "确认" }, { "EA010002", "否认" }, { "EA062101", "请求表地址个数" },
-            { "EA042102", "请求表地址" }, { "EA032102", "返回表地址" }, { "EA062103", "请求采集器地址" },
-            { "EA052104", "电表探测列表" }, { "EA062105", "电表探测状态" }, { "EA062106", "请求采集器绑定地址" },
-            { "EA042201", "透传上行数据到采集器" }, { "EA032201", "透传上行数据到采集器应答" },
-            { "EA002301", "查询厂商代码和版本信息" }, { "EA052401", "启动文件传输" },
-            { "EA052402", "传输文件内容" }, { "EA062403", "请求文件信息" }, { "EA062404", "请求文件处理进度" },
-            { "EA063101", "请求映射表地址个数" }, { "EA043102", "请求映射表地址" },
-            { "EA033102", "返回映射表地址" }, { "EA053104", "映射探测列表" },
-            { "EA063105", "映射探测状态" }, { "EA062501", "查询设备类型" },
-            { "E8031010", "查询从节点邻居表" }, { "E8041010", "返回查询从节点邻居表" },
-            { "E8031011", "查询主节点状态" }, { "E8041011", "返回主节点状态" },
-            { "E8031012", "读取入网节点信息" }, { "E8041012", "返回入网节点信息" },
-            { "E8031013", "读取未入网节点信息" }, { "E8041013", "返回未入网节点信息" },
-            { "E8021014", "触发指定节点网络维护" }, { "E8031015", "请求切换通信速率和信道" },
-            { "E8041015", "响应切换通信速率和信道" }, { "E8021016", "恢复通信速率和信道" }
-        };
-
         private static readonly string[] EnergyNames =
         {
             "组合有功", "正向有功", "反向有功", "组合无功1", "组合无功2", "第一象限无功",
@@ -445,9 +389,9 @@ namespace FrameTools
 
         public static string DescribeLocalDi(string di)
         {
-            string name;
-            LocalNames.TryGetValue(di, out name);
             byte[] id = Hex.Parse(di);
+            string name = ProtocolCatalog.Name(ProtocolKind.CsgLocal, id[2], true, di)
+                ?? ProtocolCatalog.Name(ProtocolKind.CsgLocal, id[2], false, di);
             string peer = id[0] == 0xE8 ? "集中器与本地模块" : id[0] == 0xEA ? "采集器与本地模块" : "未定义通信双方类型";
             string[] types = { "下行无数据，上行有数据", "双向数据格式一致", "仅下行，回复确认/否认",
                 "下行请求，对应04上行", "上行返回，对应03下行", "仅上行，下行确认/否认", "上行无数据，下行有数据" };
@@ -462,12 +406,12 @@ namespace FrameTools
             {
                 return "AFN 与 DI1 不一致，保留数据而不解码";
             }
-            string name;
-            if (!LocalNames.TryGetValue(di, out name))
-            {
-                return "未收录的数据项，原始数据保留";
-            }
             bool up = (control & 0x80) != 0;
+            string name = ProtocolCatalog.Name(ProtocolKind.CsgLocal, afn, up, di);
+            if (name == null)
+            {
+                return "当前规约未定义此数据项或方向，原始数据保留";
+            }
             bool noData = id[1] == 0 && !up || id[1] == 6 && up
                 || di == "E8020101" || di == "E8020102" || di == "E8020103" || di == "E8020208" || di == "E8020209";
             if (noData)
@@ -634,6 +578,12 @@ namespace FrameTools
                 case "EA063101":
                     return Exact(result, di, data, 1) ? "地址数量：" + AddBin(result, offset, data, 0, 1, "地址数量", "个") : LengthMessage(data, 1);
             }
+            string xmlMeaning;
+            int consumed;
+            if (ProtocolCatalog.TryDecode(result, offset, ProtocolKind.CsgLocal, afn, up, di, data, false, out xmlMeaning, out consumed))
+            {
+                return xmlMeaning;
+            }
             return name + "；" + (data.Length == 0 ? "无数据内容" : "复杂业务布局未解码，原始数据保留");
         }
 
@@ -777,7 +727,8 @@ namespace FrameTools
                 case "E000010A": return "TCP/UDP通信方式";
                 case "E000010B": return "通信压缩方式";
             }
-            return MeterName(di, true);
+            return ProtocolCatalog.Name(ProtocolKind.CsgUplink, afn, true, di)
+                ?? ProtocolCatalog.Name(ProtocolKind.CsgUplink, afn, false, di) ?? MeterName(di, true);
         }
 
         public static string DecodeUplinkFirst(FrameResult result, int offset, int length, byte control, byte afn)
@@ -865,7 +816,30 @@ namespace FrameTools
             }
             else
             {
-                meaning = item != null ? Issue(result, di, LengthMessage(data, item.Length)) : name + "；业务布局未解码，原始值保留";
+                string xmlMeaning;
+                int consumed;
+                if (item != null)
+                {
+                    meaning = Issue(result, di, LengthMessage(data, item.Length));
+                }
+                else if ((afn == 0x0A || afn == 0x0C) && ProtocolCatalog.TryDecode(result, offset + 6,
+                    ProtocolKind.CsgUplink, afn, (control & 0x80) != 0, di, data, true, out xmlMeaning, out consumed))
+                {
+                    meaning = xmlMeaning;
+                    if (consumed > 0)
+                    {
+                        content.Length = consumed;
+                        content.Raw = Hex.Format(data.Take(consumed).ToArray());
+                        if (data.Length > consumed)
+                        {
+                            meaning += "；其余 " + (data.Length - consumed) + " 字节保留，不推断后续信息体或认证域";
+                        }
+                    }
+                }
+                else
+                {
+                    meaning = name + "；业务布局未解码，原始值保留";
+                }
             }
             content.Meaning = meaning;
             return "首个信息体：" + meaning;

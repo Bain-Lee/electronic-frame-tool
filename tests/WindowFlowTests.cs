@@ -31,7 +31,7 @@ internal static class WindowFlowTests
         }
     }
 
-    private static T Named<T>(MainForm form, string name) where T : Control
+    private static T Named<T>(Control form, string name) where T : Control
     {
         return (T)form.Controls.Find(name, true).Single();
     }
@@ -44,6 +44,7 @@ internal static class WindowFlowTests
     private static MainForm NewForm()
     {
         MainForm form = new MainForm();
+        Named<TabControl>(form, "composerModes").SelectedIndex = 1;
         form.BindingContext = new BindingContext();
         IntPtr window = form.Handle;
         IntPtr tabs = Named<TabControl>(form, "workspaceTabs").Handle;
@@ -118,6 +119,17 @@ internal static class WindowFlowTests
     {
         Check(Data(Named<DataGridView>(form, "parsedFields")).Length == 0
             && Named<DataGridView>(form, "batchSummary").Rows.Count == 0, "Recognition happened without click");
+    }
+
+    private static void Purpose(MainForm form, int protocol, string key)
+    {
+        Named<TabControl>(form, "workspaceTabs").SelectedIndex = 2;
+        Named<TabControl>(form, "composerModes").SelectedIndex = 0;
+        Named<ComboBox>(form, "protocol").SelectedIndex = protocol;
+        PurposeCommand command = PurposeComposer.GetCommands((ProtocolKind)protocol).Single(item => item.Key == key);
+        Named<ListBox>(form, "purposeCategory").SelectedItem = command.Category;
+        Named<ComboBox>(form, "purposeCommand").SelectedItem = command;
+        Application.DoEvents();
     }
 
     private static void RunTest(string name, Action action)
@@ -669,6 +681,180 @@ internal static class WindowFlowTests
                 Check(source.ReadOnly && destination.ReadOnly && source.Text.Contains("控制码"), "Incomplete C has no inline explanation");
                 code.Text = "60";
                 Check(!source.ReadOnly && source.Text == "112233445566" && destination.Text == "667788990011", "Incomplete C lost address values");
+            }
+        });
+        RunTest("purpose composer is primary and all protocols generate and transfer without parsing", delegate
+        {
+            using (MainForm form = new MainForm())
+            {
+                Check(Named<TabControl>(form, "composerModes").SelectedIndex == 0, "Purpose mode is not primary");
+                string[] keys = { "645.read", "local.E8000301", "up.current" };
+                for (int protocol = 0; protocol < keys.Length; protocol++)
+                {
+                    Purpose(form, protocol, keys[protocol]);
+                    Click(Named<Button>(form, "composePurpose"));
+                    string hex = Named<TextBoxBase>(form, "purposePreview").Text;
+                    Check(FrameCodec.Parse((ProtocolKind)protocol, hex).IsFrameValid, "Purpose UI failed for protocol " + protocol);
+                    Click(Named<Button>(form, "purposeToParser"));
+                    Check(Named<TextBoxBase>(form, "rawInput").Text == hex && Named<TabControl>(form, "workspaceTabs").SelectedIndex == 0, "Transfer did not reach parser");
+                    CheckUnparsed(form);
+                }
+            }
+        });
+        RunTest("purpose ordinary task modes replace points with editable type groups and keep times", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 2, "up.task.set");
+                DateTime time = new DateTime(2026, 10, 30, 10, 52, 0);
+                Named<DateTimePicker>(form, "purpose_reportTime").Value = time;
+                Named<ComboBox>(form, "purpose_mode").SelectedIndex = 4;
+                Check(form.Controls.Find("purpose_points", true).Length == 0, "Unavailable point field retained");
+                DataGridView grid = Named<DataGridView>(form, "purpose_typeGroups");
+                Check(grid.Columns.Count == 2 && !grid.ReadOnly, "No editable type selectors");
+                grid.Rows[0].Cells[0].Value = "3";
+                grid.Rows[0].Cells[1].Value = "7";
+                Click(Named<Button>(form, "composePurpose"));
+                Check(Named<TextBoxBase>(form, "purposePreview").Text.EndsWith("01 07 03 01 00 01 01 02"), "Type group edits not composed");
+                Check(!Named<Button>(form, "purposeToParser").Enabled && Named<Label>(form, "purposeStatus").Text.Contains("参数明文"), "Plaintext treated as complete frame");
+                Named<ComboBox>(form, "purpose_mode").SelectedIndex = 0;
+                Check(form.Controls.Find("purpose_typeGroups", true).Length == 0 && form.Controls.Find("purpose_points", true).Length == 1, "Mode did not restore points");
+                Check(Named<DateTimePicker>(form, "purpose_reportTime").Value == time, "Mode switch reset time");
+            }
+        });
+        RunTest("purpose parameter choice resets incompatible editors and defaults", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 2, "up.parameter.set");
+                Named<NumericUpDown>(form, "purpose_value").Value = 45;
+                Named<ComboBox>(form, "purpose_parameter").SelectedIndex = 2;
+                Check(Named<TextBoxBase>(form, "purpose_value").Text == "CMNET", "Heartbeat leaked into APN");
+                Named<ComboBox>(form, "purpose_parameter").SelectedIndex = 3;
+                Check(Named<ComboBox>(form, "purpose_value").SelectedIndex == 0, "APN leaked into transport selector");
+                Named<ComboBox>(form, "purpose_parameter").SelectedIndex = 1;
+                Check(form.Controls.Find("purpose_value", true).Length == 0 && form.Controls.Find("purpose_time", true).Length == 1, "Clock retains irrelevant input");
+                Click(Named<Button>(form, "composePurpose"));
+                Check(Named<TextBoxBase>(form, "purposePreview").TextLength > 0 && !Named<Button>(form, "purposeToParser").Enabled, "Parameter editing failed");
+            }
+        });
+        RunTest("purpose task mode switch cannot turn invalid type-cell text into valid parameters", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 2, "up.task.set");
+                Named<ComboBox>(form, "purpose_mode").SelectedIndex = 4;
+                Named<DataGridView>(form, "purpose_typeGroups").Rows[0].Cells[0].Value = "3:7";
+                Named<ComboBox>(form, "purpose_mode").SelectedIndex = 0;
+                Named<ComboBox>(form, "purpose_mode").SelectedIndex = 4;
+                Click(Named<Button>(form, "composePurpose"));
+                Check((string)Named<Label>(form, "purposeStatus").Tag == "error"
+                    && Named<TextBoxBase>(form, "purposePreview").TextLength == 0, "Invalid type input was composed");
+            }
+        });
+        RunTest("purpose event range folds time fields and restores their values", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 2, "up.events");
+                DateTime start = new DateTime(2026, 10, 30, 10, 52, 0);
+                Named<DateTimePicker>(form, "purpose_from").Value = start;
+                Named<DateTimePicker>(form, "purpose_to").Value = start.AddHours(1);
+                Named<ComboBox>(form, "purpose_rangeMode").SelectedIndex = 1;
+                Check(form.Controls.Find("purpose_from", true).Length == 0 && form.Controls.Find("purpose_to", true).Length == 0, "Recent ten keeps time inputs");
+                Click(Named<Button>(form, "composePurpose"));
+                Check(Named<TextBoxBase>(form, "purposePreview").Text.Contains(string.Join(" ", Enumerable.Repeat("FF", 12))), "Recent-ten range not generated");
+                Named<ComboBox>(form, "purpose_rangeMode").SelectedIndex = 0;
+                Check(Named<DateTimePicker>(form, "purpose_from").Value == start, "Range mode lost time");
+            }
+        });
+        RunTest("purpose local multicast all-nodes mode removes address rows and restores input", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 1, "local.E8020207");
+                Named<TextBoxBase>(form, "purpose_nodes").Text = "112233445566";
+                Named<TextBoxBase>(form, "purpose_packets").Text = "68 01 16";
+                Named<ComboBox>(form, "purpose_combined").SelectedIndex = 1;
+                Named<ComboBox>(form, "purpose_allNodes").SelectedIndex = 1;
+                Check(form.Controls.Find("purpose_nodes", true).Length == 0, "All-node multicast retained address list");
+                Click(Named<Button>(form, "composePurpose"));
+                Check(FrameCodec.Parse(ProtocolKind.CsgLocal, Named<TextBoxBase>(form, "purposePreview").Text).IsFrameValid, "Combined multicast UI failed");
+                Named<ComboBox>(form, "purpose_allNodes").SelectedIndex = 0;
+                Check(Named<TextBoxBase>(form, "purpose_nodes").Text == "112233445566", "Target toggle lost node addresses");
+            }
+        });
+        RunTest("purpose protocol reflection preserves command fields and generated output", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 2, "up.current");
+                Named<TextBoxBase>(form, "purpose_points").Text = "3";
+                Click(Named<Button>(form, "composePurpose"));
+                string built = Named<TextBoxBase>(form, "purposePreview").Text;
+                Named<TabControl>(form, "workspaceTabs").SelectedIndex = 0;
+                Named<TextBoxBase>(form, "rawInput").Text = Local;
+                Recognize(form);
+                Named<TabControl>(form, "workspaceTabs").SelectedIndex = 2;
+                Check(Named<ComboBox>(form, "protocol").SelectedIndex == 2 && ((PurposeCommand)Named<ComboBox>(form, "purposeCommand").SelectedItem).Key == "up.current", "Recognition changed purpose protocol or command");
+                Check(Named<TextBoxBase>(form, "purpose_points").Text == "3" && Named<TextBoxBase>(form, "purposePreview").Text == built, "Recognition reset purpose values");
+            }
+        });
+        RunTest("purpose invalid input clears stale output inline and Ctrl-Enter uses active mode", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                Purpose(form, 2, "up.current");
+                typeof(MainForm).GetMethod("OnKeyDown", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .Invoke(form, new object[] { new KeyEventArgs(Keys.Control | Keys.Enter) });
+                Check(Named<TextBoxBase>(form, "purposePreview").TextLength > 0 && Named<TextBoxBase>(form, "builtFrame").TextLength == 0, "Ctrl-Enter used raw composer");
+                Named<TextBoxBase>(form, "purpose_points").Text = "2033";
+                Check(Named<TextBoxBase>(form, "purposePreview").TextLength == 0 && !Named<Button>(form, "copyPurpose").Enabled, "Input edit retained stale frame");
+                Click(Named<Button>(form, "composePurpose"));
+                Check((string)Named<Label>(form, "purposeStatus").Tag == "error", "No inline validation");
+            }
+        });
+        RunTest("XML identifier picker retains checked items across name searches", delegate
+        {
+            Type type = typeof(MainForm).Assembly.GetType("FrameTools.IdentifierPicker", true);
+            PurposeCommand command = PurposeComposer.GetCommands(ProtocolKind.CsgUplink).Single(item => item.Key == "up.current");
+            using (Form dialog = (Form)Activator.CreateInstance(type, new object[] { command, PurposeComposer.Defaults(command), "02010100" }))
+            {
+                TextBox filter = Named<TextBox>(dialog, "identifierFilter");
+                CheckedListBox list = Named<CheckedListBox>(dialog, "identifierChoices");
+                Check(list.Items.Count <= 200, "Too many items loaded into control");
+                filter.Text = "02010200";
+                Check(list.Items.Count == 1, "Exact DI search failed");
+                list.SetItemChecked(0, true);
+                filter.Text = "02010100";
+                Check(list.Items.Count == 1 && list.GetItemChecked(0), "Previous checked item lost");
+                Check(Named<Label>(dialog, "identifierSelection").Text.Contains("已选2项"), "Selection list not maintained");
+            }
+        });
+        RunTest("purpose minimum layout and themes preserve visible controls and values", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Size = form.MinimumSize;
+                form.Show();
+                Purpose(form, 2, "up.history");
+                Click(Named<Button>(form, "composePurpose"));
+                string built = Named<TextBoxBase>(form, "purposePreview").Text;
+                Control view = Named<Control>(form, "purposeComposer");
+                foreach (string name in new[] { "composePurpose", "copyPurpose", "purposeToParser", "purposePreview", "purposeStatus" })
+                {
+                    Control child = Named<Control>(form, name);
+                    Rectangle bounds = view.RectangleToClient(child.RectangleToScreen(child.ClientRectangle));
+                    Check(child.Visible && view.ClientRectangle.Contains(bounds), "Purpose control clipped at minimum size: " + name);
+                }
+                Check(Named<Panel>(form, "purposeFieldsScroll").VerticalScroll.Visible, "Long form has no scrollbar");
+                Click(Named<Button>(form, "themeToggle"));
+                Check(Named<TextBoxBase>(form, "purposePreview").BackColor == WorkspaceStyle.Surface, "Dark preview theme missing");
+                Click(Named<Button>(form, "themeToggle"));
+                Check(Named<TextBoxBase>(form, "purposePreview").Text == built, "Theme switch changed frame");
             }
         });
         Console.WriteLine("WINDOW RESULT: " + Passed + " passed, " + failed + " failed");

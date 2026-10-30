@@ -27,10 +27,18 @@ namespace FrameTools
         {
             root.BackColor = root.Parent == null ? Background : root.Parent.BackColor;
             root.ForeColor = Text;
-            if (root is TextBoxBase || root is ComboBox || root is NumericUpDown || root is TabPage
+            if (root is TextBoxBase || root is ComboBox || root is ListBox || root is NumericUpDown || root is TabPage
                 || root is WorkspaceGroupBox || root is WorkspaceEditor)
             {
                 root.BackColor = Surface;
+            }
+            DateTimePicker time = root as DateTimePicker;
+            if (time != null)
+            {
+                time.CalendarMonthBackground = Surface;
+                time.CalendarForeColor = Text;
+                time.CalendarTitleBackColor = Header;
+                time.CalendarTitleForeColor = Text;
             }
             DataGridView grid = root as DataGridView;
             if (grid != null)

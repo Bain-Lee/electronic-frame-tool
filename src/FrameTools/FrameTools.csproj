@@ -16,6 +16,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Compile Include="Program.cs" />
@@ -25,8 +26,17 @@
     <Compile Include="FrameFieldGrid.cs" />
     <Compile Include="Protocol.cs" />
     <Compile Include="BusinessDecoder.cs" />
+    <Compile Include="ProtocolCatalog.cs" />
+    <Compile Include="PurposeComposer.cs" />
+    <Compile Include="PurposeComposerView.cs" />
     <Compile Include="FrameStream.cs" />
     <None Include="app.manifest" />
+    <EmbeddedResource Include="..\..\protocols\CSG13.xml">
+      <LogicalName>FrameTools.Protocols.CSG13.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\protocols\CSG16.xml">
+      <LogicalName>FrameTools.Protocols.CSG16.xml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
