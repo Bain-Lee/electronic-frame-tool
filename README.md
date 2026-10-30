@@ -1,10 +1,10 @@
 # FrameTools 电力报文工具
 
-Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.6.0**，包含规约XML字典和三规约按用途可视化组帧，详见 [版本说明](docs/release-v0.6.0.md)。
+Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.7.0**，三规约统一维护XML字典，并提供按用途可视化组帧，详见 [版本说明](docs/release-v0.7.0.md)。
 
 ## 运行
 
-构建产物：`artifacts/FrameTools.exe`；本次发布副本另存为 `artifacts/FrameTools-v0.6.0.exe`。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.6.0` 标签定位。
+构建产物：`artifacts/FrameTools.exe`；本次发布副本另存为 `artifacts/FrameTools-v0.7.0.exe`。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.7.0` 标签定位。
 
 - 目标环境：安装了 **.NET Framework 4.8** 的 Windows 10 / 11。
 - EXE 为 AnyCPU 托管程序，不包含 .NET Framework 运行时。
@@ -87,7 +87,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 
 ## 构建与测试
 
-本机上行、本地规约现已整理为 [CSG13.xml](protocols/CSG13.xml) 和 [CSG16.xml](protocols/CSG16.xml)，并接入业务解码。字典包含明确的字段结构、原文出处和未确认状态；名称和记录数量不等于完整业务支持。格式与范围见 [规约XML说明](protocols/README.md) 和 [接入说明](docs/protocol-xml.md)。
+三规约现已整理为 [DLT645.xml](protocols/DLT645.xml)、[CSG13.xml](protocols/CSG13.xml) 和 [CSG16.xml](protocols/CSG16.xml)，共用字典读取及明确字段解释。645名称、检索、费率/需量块及状态位等已从硬编码迁入XML，依据与参考差异见 [645规范对齐](docs/dlt645-alignment.md)。字典包含明确字段、原文出处和未确认状态；名称和记录数量不等于完整业务支持。格式与范围见 [规约XML说明](protocols/README.md) 和 [接入说明](docs/protocol-xml.md)。
 
 构建会将XML嵌入EXE，仍以单个程序交付；修改XML后重新构建，不在输入或解析时轮询、重载文件。
 
@@ -105,7 +105,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -Test
 ```
 
-最终构建通过192项测试，验证情况见 [验证记录](docs/verification.md)，本次审查见 [XML与用途组帧 Code Review](docs/code-review-2026-10-30.md)。
+最终构建通过209项测试，验证情况见 [验证记录](docs/verification.md)，本次审查见 [0.7.0 Code Review](docs/code-review-v0.7.0.md)。
 
 ## 标准与设计
 

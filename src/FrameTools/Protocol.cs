@@ -220,10 +220,15 @@ namespace FrameTools
             {
                 string di = Hex.ReverseDisplay(plain.Take(4).ToArray());
                 r.Add(s + 10, 4, "数据标识 DI", BusinessDecoder.DescribeMeterDi(di, false) + "（减33H，DI0先传）");
-                // Only decode an ordinary read response with an exact known data length.
+                // Only decode a complete ordinary read response.
                 if ((control & 0x80) != 0 && function == 0x11)
                 {
-                    dataField.Meaning += "；" + BusinessDecoder.DecodeMeter(r, s + 14, di, plain.Skip(4).ToArray(), false);
+                    dataField.Meaning += (control & 0x20) != 0 ? "；有后续数据帧，本程序尚未重组，数据保留原值"
+                        : "；" + BusinessDecoder.DecodeMeter(r, s + 14, di, plain.Skip(4).ToArray());
+                }
+                else if ((control & 0x80) != 0 && function == 0x12)
+                {
+                    dataField.Meaning += "；后续数据帧，本程序尚未重组，数据保留原值";
                 }
                 else
                 {

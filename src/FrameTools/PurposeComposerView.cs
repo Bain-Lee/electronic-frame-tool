@@ -596,17 +596,7 @@ namespace FrameTools
             loading = true;
             list.BeginUpdate();
             list.Items.Clear();
-            ProtocolDataItem[] items;
-            if (command.Protocol == ProtocolKind.Dlt645)
-            {
-                string[] ids = { "00000000", "00010000", "00020000", "02010100", "02010200", "02010300", "02020100", "02020200", "02020300", "02030000", "02060000", "02800002", "04000101", "04000102" };
-                items = ids.Select(id => new ProtocolDataItem { Id = id, Name = BusinessDecoder.DescribeMeterDi(id, false).Substring(11) })
-                    .Where(item => (item.Id + " " + item.Name).IndexOf(filter.Text.Trim(), StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
-            }
-            else
-            {
-                items = ProtocolCatalog.Search(command.Protocol, PurposeComposer.IdentifierAfns(command, values), filter.Text);
-            }
+            ProtocolDataItem[] items = ProtocolCatalog.Search(command.Protocol, PurposeComposer.IdentifierAfns(command, values), filter.Text);
             foreach (ProtocolDataItem item in items)
             {
                 list.Items.Add(item, selected.Contains(item.Id));

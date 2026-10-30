@@ -831,6 +831,24 @@ internal static class WindowFlowTests
                 Check(Named<Label>(dialog, "identifierSelection").Text.Contains("已选2项"), "Selection list not maintained");
             }
         });
+        RunTest("645 XML picker finds tariff prices and keeps a single readable selection", delegate
+        {
+            Type type = typeof(MainForm).Assembly.GetType("FrameTools.IdentifierPicker", true);
+            PurposeCommand command = PurposeComposer.GetCommands(ProtocolKind.Dlt645).Single(item => item.Key == "645.read");
+            using (Form dialog = (Form)Activator.CreateInstance(type, new object[] { command, PurposeComposer.Defaults(command), "02010100" }))
+            {
+                TextBox filter = Named<TextBox>(dialog, "identifierFilter");
+                CheckedListBox list = Named<CheckedListBox>(dialog, "identifierChoices");
+                filter.Text = "第一套费率电价63";
+                Check(list.Items.Count == 1 && list.Items[0].ToString().Contains("0405013F"), "645 picker is still using its old fixed list");
+                list.SetItemChecked(0, true);
+                filter.Text = "02010100";
+                Check(list.Items.Count == 1 && !list.GetItemChecked(0), "645 selection retained more than one DI");
+                Check(Named<Label>(dialog, "identifierSelection").Text.Contains("已选1项：0405013F"), "645 selection changed across searches");
+                filter.Text = "04000C01";
+                Check(list.Items.Count == 0, "Write-only password exposed in the read picker");
+            }
+        });
         RunTest("purpose minimum layout and themes preserve visible controls and values", delegate
         {
             using (MainForm form = NewForm())

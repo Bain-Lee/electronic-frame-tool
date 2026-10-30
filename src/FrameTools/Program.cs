@@ -11,7 +11,7 @@ namespace FrameTools
 {
     internal static class Program
     {
-        internal const string Version = "0.6.0";
+        internal const string Version = "0.7.0";
 
         [STAThread]
         private static void Main()

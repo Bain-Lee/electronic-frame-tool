@@ -31,6 +31,9 @@
     <Compile Include="PurposeComposerView.cs" />
     <Compile Include="FrameStream.cs" />
     <None Include="app.manifest" />
+    <EmbeddedResource Include="..\..\protocols\DLT645.xml">
+      <LogicalName>FrameTools.Protocols.DLT645.xml</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="..\..\protocols\CSG13.xml">
       <LogicalName>FrameTools.Protocols.CSG13.xml</LogicalName>
     </EmbeddedResource>

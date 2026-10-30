@@ -367,6 +367,10 @@ namespace FrameTools
 
         internal static byte[] IdentifierAfns(PurposeCommand command, IDictionary<string, string> input)
         {
+            if (command.Protocol == ProtocolKind.Dlt645)
+            {
+                return new byte[] { 0x11 };
+            }
             if (command.Key == "up.parameters")
             {
                 return new byte[] { 0x0A };
@@ -536,6 +540,15 @@ namespace FrameTools
                     if (ids.Length != 1)
                     {
                         throw new FormatException("645一次读取一个数据项。");
+                    }
+                    if (ProtocolCatalog.MeterRequestNeedsParameters(ids[0]))
+                    {
+                        throw new FormatException("该负荷记录DI需要记录数量/起始时间等附加参数，请按标准使用原始HEX入口。");
+                    }
+                    if (ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x11, false, ids[0]) == null
+                        && ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x14, false, ids[0]) != null)
+                    {
+                        throw new FormatException("该DI在标准中仅支持写入，不能生成读取请求。");
                     }
                     data = Hex.Identifier(ids[0]);
                     break;

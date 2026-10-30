@@ -8,3 +8,4 @@ artifacts/
 .vs/
 *.user
 *.suo
+__pycache__/

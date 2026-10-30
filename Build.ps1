@@ -18,7 +18,8 @@ $sources = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\FrameTools') 
 $manifest = Join-Path $projectRoot 'src\FrameTools\app.manifest'
 $uplinkCatalog = Join-Path $projectRoot 'protocols\CSG13.xml'
 $localCatalog = Join-Path $projectRoot 'protocols\CSG16.xml'
-& $compiler /nologo /codepage:65001 /langversion:5 /warn:4 /warnaserror /optimize+ /target:winexe /platform:anycpu "/out:$app" "/win32manifest:$manifest" /reference:System.dll /reference:System.Core.dll /reference:System.Xml.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll "/resource:$uplinkCatalog,FrameTools.Protocols.CSG13.xml" "/resource:$localCatalog,FrameTools.Protocols.CSG16.xml" $sources
+$meterCatalog = Join-Path $projectRoot 'protocols\DLT645.xml'
+& $compiler /nologo /codepage:65001 /langversion:5 /warn:4 /warnaserror /optimize+ /target:winexe /platform:anycpu "/out:$app" "/win32manifest:$manifest" /reference:System.dll /reference:System.Core.dll /reference:System.Xml.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll "/resource:$uplinkCatalog,FrameTools.Protocols.CSG13.xml" "/resource:$localCatalog,FrameTools.Protocols.CSG16.xml" "/resource:$meterCatalog,FrameTools.Protocols.DLT645.xml" $sources
 if ($LASTEXITCODE -ne 0)
 {
     throw 'Application compilation failed.'

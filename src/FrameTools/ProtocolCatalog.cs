@@ -26,7 +26,7 @@ namespace FrameTools
         {
             public XmlElement Node;
             public string Name;
-            public byte[] Afns;
+            public byte[] Functions;
             public bool[] Directions;
         }
 
@@ -45,6 +45,7 @@ namespace FrameTools
             Dictionary<ProtocolKind, Dictionary<string, List<Definition>>> catalogs = new Dictionary<ProtocolKind, Dictionary<string, List<Definition>>>();
             catalogs.Add(ProtocolKind.CsgUplink, LoadResource("CSG13.xml"));
             catalogs.Add(ProtocolKind.CsgLocal, LoadResource("CSG16.xml"));
+            catalogs.Add(ProtocolKind.Dlt645, LoadResource("DLT645.xml"));
             return catalogs;
         }
 
@@ -73,7 +74,7 @@ namespace FrameTools
                     {
                         Node = element,
                         Name = Text(element, "name"),
-                        Afns = element.GetAttribute("afn").Split(',').Where(value => value.Trim().Length > 0)
+                        Functions = element.GetAttribute(element.HasAttribute("afn") ? "afn" : "function").Split(',').Where(value => value.Trim().Length > 0)
                             .Select(value => byte.Parse(value.Trim(), NumberStyles.HexNumber, CultureInfo.InvariantCulture)).ToArray(),
                         Directions = element.GetAttribute("dir").Split(',').Where(value => value.Trim().Length > 0)
                             .Select(value => value.Trim() == "1").ToArray()
@@ -91,7 +92,7 @@ namespace FrameTools
             {
                 return new List<Definition>();
             }
-            return entries.Where(entry => entry.Afns.Contains(afn) && entry.Directions.Contains(up)).ToList();
+            return entries.Where(entry => entry.Functions.Contains(afn) && entry.Directions.Contains(up)).ToList();
         }
 
         public static string Name(ProtocolKind protocol, byte afn, bool up, string di)
@@ -113,7 +114,7 @@ namespace FrameTools
                 .Select(pair => new
                 {
                     Id = pair.Key,
-                    Entries = pair.Value.Where(entry => entry.Afns.Any(afn => afns.Contains(afn))
+                    Entries = pair.Value.Where(entry => entry.Functions.Any(afn => afns.Contains(afn))
                         && entry.Directions.Contains(false) && entry.Node.GetAttribute("status") != "ambiguous").ToArray()
                 })
                 .Where(item => item.Entries.Length > 0 && (item.Id.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0
@@ -121,6 +122,11 @@ namespace FrameTools
                 .Take(200)
                 .Select(item => new ProtocolDataItem { Id = item.Id, Name = string.Join(" / ", item.Entries.Select(entry => entry.Name).Distinct()) })
                 .ToArray();
+        }
+
+        public static bool MeterRequestNeedsParameters(string di)
+        {
+            return Find(ProtocolKind.Dlt645, 0x11, false, di).Any(entry => entry.Node["request"] != null);
         }
 
         public static bool TryDecode(FrameResult result, int offset, ProtocolKind protocol, byte afn, bool up,
@@ -179,7 +185,20 @@ namespace FrameTools
                     if (child.Name == "repeat")
                     {
                         decimal number;
-                        if (!values.TryGetValue(child.GetAttribute("count"), out number) || number < 0 || number > int.MaxValue || number != decimal.Truncate(number))
+                        bool remaining = child.GetAttribute("count") == "remaining";
+                        if (remaining)
+                        {
+                            int stride = int.Parse(child.GetAttribute("itemLength"), CultureInfo.InvariantCulture);
+                            int minimum = int.Parse(child.GetAttribute("minimum"), CultureInfo.InvariantCulture);
+                            int maximum = int.Parse(child.GetAttribute("maximum"), CultureInfo.InvariantCulture);
+                            int bytesLeft = data.Length - position;
+                            if (bytesLeft % stride != 0 || bytesLeft / stride < minimum || bytesLeft / stride > maximum)
+                            {
+                                throw new FormatException("实际数据长度与总量及已配置费率数不符");
+                            }
+                            number = bytesLeft / stride;
+                        }
+                        else if (!values.TryGetValue(child.GetAttribute("count"), out number) || number < 0 || number > int.MaxValue || number != decimal.Truncate(number))
                         {
                             return false;
                         }
@@ -192,7 +211,9 @@ namespace FrameTools
                         {
                             int previous = position;
                             Dictionary<string, decimal> recordValues = new Dictionary<string, decimal>(values, StringComparer.Ordinal);
-                            if (!Read(child, data, ref position, recordValues, fields, prefix + Text(child, "name") + (index + 1) + ".") || position == previous)
+                            string label = child.HasAttribute("first") ? index == 0 ? child.GetAttribute("first") : Text(child, "name") + index
+                                : Text(child, "name") + (index + 1);
+                            if (!Read(child, data, ref position, recordValues, fields, prefix + label + ".") || position == previous)
                             {
                                 return false;
                             }
@@ -233,7 +254,12 @@ namespace FrameTools
             bool numeric = false;
             if (time.Length > 0)
             {
-                if (!Clock(bytes, time, out meaning))
+                meaning = null;
+                if (node["value"] != null && Number(bytes, true, false, out numberValue))
+                {
+                    meaning = EnumValue(node, numberValue);
+                }
+                if (meaning == null && !Clock(bytes, time, out meaning))
                 {
                     return false;
                 }
@@ -398,7 +424,8 @@ namespace FrameTools
             value = null;
             string normalized = format.Replace("dd", "DD");
             if (normalized != "ssmmhhDDMMYY" && normalized != "mmhhDDMMYY" && normalized != "DDMMYY"
-                && normalized != "ssmmhh" && normalized != "mmhh")
+                && normalized != "ssmmhh" && normalized != "mmhh" && normalized != "WWDDMMYY"
+                && normalized != "mmhhDDMM" && normalized != "hhDD")
             {
                 return false;
             }
@@ -420,17 +447,30 @@ namespace FrameTools
             int minute = parts.ContainsKey("mm") ? parts["mm"] : 0;
             int second = parts.ContainsKey("ss") ? parts["ss"] : 0;
             if (month < 1 || month > 12 || day < 1 || day > DateTime.DaysInMonth(year, month)
-                || hour > 23 || minute > 59 || second > 59)
+                || hour > 23 || minute > 59 || second > 59 || parts.ContainsKey("WW") && parts["WW"] > 6)
             {
                 throw new FormatException("无效 BCD 日期时间");
             }
             DateTime date = new DateTime(year, month, day, hour, minute, second);
             string pattern = parts.ContainsKey("YY") ? "yy-MM-dd" : "";
+            if (normalized == "mmhhDDMM")
+            {
+                pattern = "MM-dd";
+            }
+            if (normalized == "hhDD")
+            {
+                value = day + "日 " + hour.ToString("D2", CultureInfo.InvariantCulture) + "时";
+                return true;
+            }
             if (parts.ContainsKey("hh"))
             {
                 pattern += (pattern.Length > 0 ? " " : "") + (parts.ContainsKey("ss") ? "HH:mm:ss" : "HH:mm");
             }
             value = date.ToString(pattern, CultureInfo.InvariantCulture);
+            if (parts.ContainsKey("WW"))
+            {
+                value += " 星期" + "日一二三四五六"[parts["WW"]];
+            }
             return true;
         }
 

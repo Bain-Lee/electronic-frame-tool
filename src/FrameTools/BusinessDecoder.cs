@@ -42,7 +42,7 @@ namespace FrameTools
             "第二象限无功", "第三象限无功", "第四象限无功", "正向视在", "反向视在"
         };
 
-        private static MeterItem MeterDefinition(string di, bool uplink)
+        private static MeterItem UplinkMeterDefinition(string di)
         {
             uint id = uint.Parse(di, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
             int category = (int)(id >> 24);
@@ -57,12 +57,12 @@ namespace FrameTools
             }
             if (category == 2 && period == 0)
             {
-                if (group == 1 && part >= 1 && part <= (uplink ? 9 : 3))
+                if (group == 1 && part >= 1 && part <= 9)
                 {
                     string[] names = { "", "A相电压", "B相电压", "C相电压", "AB线电压", "BC线电压", "CA线电压", "A/AB相基波电压", "B相基波电压", "C/CA相基波电压" };
                     return new MeterItem(names[part], 2, 1, "V");
                 }
-                if (group == 2 && part >= 1 && part <= (uplink ? 6 : 3))
+                if (group == 2 && part >= 1 && part <= 6)
                 {
                     string[] names = { "", "A相电流", "B相电流", "C相电流", "A相基波电流", "B相基波电流", "C相基波电流" };
                     return new MeterItem(names[part], 3, 3, "A", true);
@@ -74,10 +74,9 @@ namespace FrameTools
                     return new MeterItem(name, group == 6 ? 2 : 3, group == 6 ? 3 : 4,
                         group == 3 ? "kW" : group == 4 ? "kvar" : group == 5 ? "kVA" : "", true);
                 }
-                if (group == 7 && part >= 1 && part <= (uplink ? 6 : 3))
+                if (group == 7 && part >= 1 && part <= 6)
                 {
-                    string name = uplink ? new[] { "", "Ua/Uab相位角", "Ub相位角", "Uc相位角", "Ia相位角", "Ib相位角", "Ic相位角" }[part]
-                        : new[] { "", "A相相角", "B相相角", "C相相角" }[part];
+                    string name = new[] { "", "Ua/Uab相位角", "Ub相位角", "Uc相位角", "Ia相位角", "Ib相位角", "Ic相位角" }[part];
                     return new MeterItem(name, 2, 1, "°");
                 }
                 if ((group == 8 || group == 9) && part >= 1 && part <= 3)
@@ -86,10 +85,10 @@ namespace FrameTools
                 }
             }
             if (category == 2 && (group == 10 || group == 11) && part >= 1 && part <= 3
-                && (uplink ? period == 0 || period >= 2 && period <= 21 : period >= 1 && period <= 21))
+                && (period == 0 || period >= 2 && period <= 21))
             {
                 string name = new[] { "", "A相", "B相", "C相" }[part] + (group == 10 ? "电压" : "电流")
-                    + (period == 0 ? "总谐波含有率" : period + "次谐波" + (uplink ? "含有率" : "含量"));
+                    + (period == 0 ? "总谐波含有率" : period + "次谐波含有率");
                 return new MeterItem(name, 2, 2, "%");
             }
             if (category == 2 && group == 0x80 && part == 0 && period >= 1 && period <= 11)
@@ -112,30 +111,15 @@ namespace FrameTools
             return null;
         }
 
-        private static string[] MeterBlock(string di)
-        {
-            byte[] id = Hex.Parse(di);
-            if (id[0] == 0 && id[1] < EnergyNames.Length && id[2] == 255 && id[3] <= 12)
-            {
-                return Enumerable.Range(0, 64).Select(n => "00" + id[1].ToString("X2") + n.ToString("X2") + id[3].ToString("X2")).ToArray();
-            }
-            if (id[0] == 2 && id[1] >= 1 && id[1] <= 9 && id[2] == 255 && id[3] == 0)
-            {
-                int first = id[1] >= 3 && id[1] <= 6 ? 0 : 1;
-                return Enumerable.Range(first, first == 0 ? 4 : 3).Select(n => "02" + id[1].ToString("X2") + n.ToString("X2") + "00").ToArray();
-            }
-            return null;
-        }
-
         private static string MeterName(string di, bool uplink)
         {
-            MeterItem item = MeterDefinition(di, uplink);
-            if (item != null)
+            if (!uplink)
             {
-                return item.Name;
+                return ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x11, true, di)
+                    ?? ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x14, false, di) ?? "未收录的数据项";
             }
-            string[] block = MeterBlock(di);
-            return block == null ? "未收录的数据项" : MeterDefinition(block[0], uplink).Name + "等数据块";
+            MeterItem item = UplinkMeterDefinition(di);
+            return item == null ? "未收录的数据项" : item.Name;
         }
 
         public static string DescribeMeterDi(string di, bool uplink)
@@ -143,31 +127,15 @@ namespace FrameTools
             return di + " — " + MeterName(di, uplink);
         }
 
-        public static string DecodeMeter(FrameResult result, int offset, string di, byte[] data, bool uplink)
+        public static string DecodeMeter(FrameResult result, int offset, string di, byte[] data)
         {
-            MeterItem item = MeterDefinition(di, uplink);
-            if (item != null)
+            string meaning;
+            int consumed;
+            if (ProtocolCatalog.TryDecode(result, offset, ProtocolKind.Dlt645, 0x11, true, di, data, false, out meaning, out consumed))
             {
-                return DecodeValue(result, offset, di, data, item);
+                return meaning;
             }
-            string[] block = uplink ? null : MeterBlock(di);
-            if (block != null)
-            {
-                int size = MeterDefinition(block[0], false).Length;
-                bool variable = di.StartsWith("00", StringComparison.Ordinal);
-                int count = data.Length / size;
-                if (data.Length % size != 0 || count == 0 || (variable ? count > block.Length : count != block.Length))
-                {
-                    return Issue(result, di, "数据块长度不符，原始值保留");
-                }
-                List<string> values = new List<string>();
-                for (int i = 0; i < count; i++)
-                {
-                    values.Add(DecodeValue(result, offset + i * size, block[i], data.Skip(i * size).Take(size).ToArray(), MeterDefinition(block[i], false)));
-                }
-                return string.Join("；", values);
-            }
-            return "该数据项或数据块布局未实现解码，原始值保留";
+            return MeterName(di, false) + "；该数据项或数据块布局未实现解码，原始值保留";
         }
 
         private static string DecodeValue(FrameResult result, int offset, string di, byte[] data, MeterItem item)
@@ -674,7 +642,7 @@ namespace FrameTools
         {
             if (afn == 0x0C)
             {
-                MeterItem meter = MeterDefinition(di, true);
+                MeterItem meter = UplinkMeterDefinition(di);
                 if (meter != null)
                 {
                     return meter;
