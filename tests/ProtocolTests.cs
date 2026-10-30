@@ -236,7 +236,11 @@ internal static class ProtocolTests
             System.Windows.Forms.Application.EnableVisualStyles();
             using (MainForm form = new MainForm())
             {
-                Check(form.Text.StartsWith("FrameTools 0.5.0"), "Window title");
+                Check(form.Text.StartsWith("FrameTools 0.6.0"), "Window title");
+                Check(((System.Windows.Forms.Label)form.Controls.Find("appVersion", true).Single()).Text == "v0.6.0", "Visible version label");
+                Check(typeof(MainForm).Assembly.GetName().Version.ToString() == "0.6.0.0", "Assembly version");
+                System.Diagnostics.FileVersionInfo version = System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(MainForm).Assembly.Location);
+                Check(version.FileVersion == "0.6.0.0" && version.ProductVersion == "0.6.0.0", "Executable file/product version");
                 Check(form.Controls.Count > 0, "Window contains no layout");
             }
         });

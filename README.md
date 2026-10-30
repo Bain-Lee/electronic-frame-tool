@@ -1,10 +1,10 @@
 # FrameTools 电力报文工具
 
-Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前本机构建在 **0.5.0** 基础上加入规约XML字典和三规约按用途可视化组帧。
+Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.6.0**，包含规约XML字典和三规约按用途可视化组帧，详见 [版本说明](docs/release-v0.6.0.md)。
 
 ## 运行
 
-构建产物：`artifacts/FrameTools.exe`。双击运行，无需 Python、Node.js 或网络连接。
+构建产物：`artifacts/FrameTools.exe`；本次发布副本另存为 `artifacts/FrameTools-v0.6.0.exe`。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.6.0` 标签定位。
 
 - 目标环境：安装了 **.NET Framework 4.8** 的 Windows 10 / 11。
 - EXE 为 AnyCPU 托管程序，不包含 .NET Framework 运行时。

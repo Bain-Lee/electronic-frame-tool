@@ -52,7 +52,7 @@ namespace FrameTools
         public MainForm()
         {
             WorkspaceStyle.IsDark = false;
-            Text = "FrameTools 0.5.0 — 电力报文工具";
+            Text = "FrameTools " + Program.Version + " — 电力报文工具";
             Font = new Font("Microsoft YaHei UI", 9F);
             AutoScaleMode = AutoScaleMode.Font;
             MinimumSize = new Size(1020, 740);
@@ -79,7 +79,7 @@ namespace FrameTools
             Panel themePanel = new Panel { Dock = DockStyle.Right, Width = 34 };
             themePanel.Controls.Add(themeButton);
             heading.Controls.Add(themePanel);
-            heading.Controls.Add(new Label { Text = "v0.5.0", Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
+            heading.Controls.Add(new Label { Name = "appVersion", Text = "v" + Program.Version, Dock = DockStyle.Right, Width = 70, TextAlign = ContentAlignment.MiddleRight, Tag = "secondary" });
             themePanel.SendToBack();
             shell.Controls.Add(heading, 0, 0);
             WorkspaceGroupBox protocolGroup = new WorkspaceGroupBox { Text = "规约选择", Dock = DockStyle.Fill, Padding = new Padding(7, 3, 7, 2), Margin = new Padding(0, 0, 0, 5) };
@@ -713,7 +713,7 @@ namespace FrameTools
                 if (dialog.ShowDialog(this) == DialogResult.OK)
                 {
                     StringBuilder report = new StringBuilder();
-                    report.AppendLine("FrameTools 0.5.0");
+                    report.AppendLine("FrameTools " + Program.Version);
                     report.AppendLine(automaticProtocol.Checked ? "自动识别规约" : "手动规约：" + protocol.Text);
                     report.AppendLine(status.Text);
                     report.AppendLine("整形报文流：");

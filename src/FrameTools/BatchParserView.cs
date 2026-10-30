@@ -284,7 +284,7 @@ namespace FrameTools
                 {
                     return;
                 }
-                StringBuilder text = new StringBuilder("FrameTools 0.5.0 多帧解析" + Environment.NewLine);
+                StringBuilder text = new StringBuilder("FrameTools " + Program.Version + " 多帧解析" + Environment.NewLine);
                 text.AppendLine(status.Text);
                 text.AppendLine(parsed.FormattedText);
                 for (int i = 0; i < parsed.Parts.Count; i++)
