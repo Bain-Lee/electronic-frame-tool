@@ -70,4 +70,4 @@ python -X utf8 tools/GenerateDlt645Catalog.py --reference D:/AIproject/Assistent
 
 命令行构建与项目文件都内嵌三份XML。修改后重新构建单个EXE，运行时不依赖Python、原始规范、Assistent或外部XML；没有新增热重载、轮询或哈希缓存。
 
-验证结果见 [验证记录](verification.md)，最新审查见 [标准对应审查](standards-review-2026-11-02.md)；[0.7.0 Code Review](code-review-v0.7.0.md)保留为历史记录。
+验证结果见 [验证记录](../verification/history.md)，最新审查见 [标准对应审查](../reviews/standards-2026-11-02.md)；[0.7.0 Code Review](../reviews/code-v0.7.0.md)保留为历史记录。

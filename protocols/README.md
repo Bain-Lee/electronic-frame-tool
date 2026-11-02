@@ -49,6 +49,6 @@ CSG文件只包含本机原文基准“南网”，没有混入Assistent的省�
 
 645的DI名称、检索和完整普通读应答字段来自XML，移除了旧645常用数值表及选择器固定清单。本地名称来自XML；上行首个明文参数/当前数据项继续保留已验证业务分支，并用XML补充名称和字段。加密写参数、未确认的多信息体及认证域继续保留原始内容。
 
-645生成规则、页码、差异和边界见 [DL/T 645规范对齐](../docs/dlt645-alignment.md)。`tools/GenerateDlt645Catalog.py` 可由本机PDF重建645字典；其完整提取资料在 `.work/dlt645-alignment/`，与前述CSG核对副本分开。
+645生成规则、页码、差异和边界见 [DL/T 645规范对齐](../docs/reference/dlt645-alignment.md)。`tools/GenerateDlt645Catalog.py` 可由本机PDF重建645字典；其完整提取资料在 `.work/dlt645-alignment/`，与前述CSG核对副本分开。
 
-参见 [XML接入与Assistent参考](../docs/protocol-xml.md)。
+参见 [XML接入与Assistent参考](../docs/reference/protocol-catalogs.md)。

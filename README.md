@@ -1,6 +1,8 @@
 # FrameTools 电力报文工具
 
-Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.7.3**，减少拖动列宽时的重复行高计算，并移除解析底部重复信息框，详见 [版本说明](docs/release-v0.7.3.md)。规约对应情况见 [标准对应审查](docs/standards-review-2026-11-02.md)。
+Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.7.3**，减少拖动列宽时的重复行高计算，并移除解析底部重复信息框，详见 [版本说明](docs/releases/v0.7.3.md)。规约对应情况见 [标准对应审查](docs/reviews/standards-2026-11-02.md)。
+
+使用说明、技术参考、版本说明、审查及验证记录统一见 [文档导航](docs/README.md)。
 
 ## 运行
 
@@ -26,7 +28,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 
 同时提供无空格 / 有空格 HEX 自动整形、内置请求示例、645 电能应答示例、文本报文导入和 UTF-8 全部解析报告导出。
 
-“解读”列同时显示控制位含义、DI 名称和已支持的数据值 / 单位；字段按报文大类分组，控制位、数据标识和业务内容以缩进子行展示，并保留原始字节与偏移。具体支持项、标准依据及边界见 [字段解码范围](docs/decoding.md)。
+“解读”列同时显示控制位含义、DI 名称和已支持的数据值 / 单位；字段按报文大类分组，控制位、数据标识和业务内容以缩进子行展示，并保留原始字节与偏移。具体支持项、标准依据及边界见 [字段解码范围](docs/guides/decoding-scope.md)。
 
 **“帧结构校验通过”只表示已实现的字节结构检查通过，不代表业务字段全部合法、认证成功或真实设备会接受该命令。** 未知 DI 保留原始字节；上行 PW/MAC 不计算、不验证、不解密，也不猜测多信息体边界。
 
@@ -36,7 +38,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 2. 点击 **“识别并解析”** / **“开始多帧解析”** 或按 `Ctrl+Enter` 才开始处理。“自动识别规约”只控制如何匹配规约，不会触发定时或输入即解析。
 3. 单帧页上方只显示原始输入，下方为字段和诊断；点击字段可定位原始报文中的对应字节，兼容紧凑、分隔及 `0x` 前缀输入。多帧页上方输入，下方左侧列出每条帧 / 片段的状态、长度、规约及源偏移，右侧显示选中帧的整形 HEX、字段和诊断。原始输入保持不变。
 4. 单帧页检测到多条报文或多个片段时，提示使用 **“转到多帧解析”**；点击后只转移原始输入，再点击开始解析。
-5. 在 **“报文组装 → 按用途组帧”** 选择分类和操作，通过日期、数值、下拉框及列表填写参数，再生成、复制或送到单帧页检查。上行设置明确输出待加密认证的参数明文。原有手工入口在 **“原始 HEX”** 子页。`Ctrl+Enter` 执行当前子页的组帧操作，详细清单见 [按用途组帧说明](docs/purpose-composer.md)。
+5. 在 **“报文组装 → 按用途组帧”** 选择分类和操作，通过日期、数值、下拉框及列表填写参数，再生成、复制或送到单帧页检查。上行设置明确输出待加密认证的参数明文。原有手工入口在 **“原始 HEX”** 子页。`Ctrl+Enter` 执行当前子页的组帧操作，详细清单见 [按用途组帧说明](docs/guides/purpose-composer.md)。
 
 单帧和多帧详情中的分组默认展开。点击字段左侧箭头可折叠 / 展开控制域、用户数据域、应用数据或业务内容；选中分组后也可使用左右方向键。点击父分组会定位整段字节，点击子字段定位对应字节。折叠外层再展开会保留内层折叠状态，重新解析或切换到另一帧时恢复默认展开。导出全部解析始终包含完整字段，不受当前折叠状态影响。
 
@@ -77,19 +79,19 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 
 以下是本程序使用构造样例的离屏渲染预览：
 
-![浅色单帧解析界面](docs/images/parser-v0.7.3.png)
+![浅色单帧解析界面](docs/images/parser/single-light-v0.7.3.png)
 
-![亮色多帧解析界面](docs/images/batch-v0.7.3.png)
+![亮色多帧解析界面](docs/images/parser/batch-light-v0.7.3.png)
 
-![暗色多帧解析界面](docs/images/batch-dark-v0.7.3.png)
+![暗色多帧解析界面](docs/images/parser/batch-dark-v0.7.3.png)
 
-![报文组装界面](docs/images/composer-preview.png)
+![报文组装界面](docs/images/composer/raw-hex.png)
 
-当前视觉核对范围见 [验证记录](docs/verification.md)。[启动和界面记录](docs/startup-and-ui.md) 保留的是 v0.3.0 历史测量，不代表当前版本的启动耗时。
+当前视觉核对范围见 [验证记录](docs/verification/history.md)。[启动和界面记录](docs/verification/startup-v0.3.0.md) 保留的是 v0.3.0 历史测量，不代表当前版本的启动耗时。
 
 ## 构建与测试
 
-三规约现已整理为 [DLT645.xml](protocols/DLT645.xml)、[CSG13.xml](protocols/CSG13.xml) 和 [CSG16.xml](protocols/CSG16.xml)，共用字典读取及明确字段解释。645名称、检索、费率/需量块及状态位等已从硬编码迁入XML，依据与参考差异见 [645规范对齐](docs/dlt645-alignment.md)。字典包含明确字段、原文出处和未确认状态；名称和记录数量不等于完整业务支持。格式与范围见 [规约XML说明](protocols/README.md) 和 [接入说明](docs/protocol-xml.md)。
+三规约现已整理为 [DLT645.xml](protocols/DLT645.xml)、[CSG13.xml](protocols/CSG13.xml) 和 [CSG16.xml](protocols/CSG16.xml)，共用字典读取及明确字段解释。645名称、检索、费率/需量块及状态位等已从硬编码迁入XML，依据与参考差异见 [645规范对齐](docs/reference/dlt645-alignment.md)。字典包含明确字段、原文出处和未确认状态；名称和记录数量不等于完整业务支持。格式与范围见 [规约XML说明](protocols/README.md) 和 [接入说明](docs/reference/protocol-catalogs.md)。
 
 构建会将XML嵌入EXE，仍以单个程序交付；修改XML后重新构建，不在输入或解析时轮询、重载文件。
 
@@ -107,12 +109,12 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -Test
 ```
 
-最终构建通过222项测试，验证情况见 [验证记录](docs/verification.md)。
+最终构建通过222项测试，验证情况见 [验证记录](docs/verification/history.md)。
 
 ## 标准与设计
 
-- [功能与技术设计](docs/design.md)：标准版本、功能分期、帧结构、实现边界和验收条件。
-- [GitHub 开源项目调研](docs/open-source-research.md)：接近需求的项目、许可证及复用建议。
+- [功能与技术设计](docs/reference/technical-design.md)：标准版本、功能分期、帧结构、实现边界和验收条件。
+- [GitHub 开源项目调研](docs/reference/open-source-research.md)：接近需求的项目、许可证及复用建议。
 - [标准文件清单](specifications/README.md)：本机原始文件位置和使用范围。
 - [构造报文示例](examples/)：用于学习和测试，不是真实设备抓包。
 

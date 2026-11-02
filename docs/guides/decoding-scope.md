@@ -1,10 +1,10 @@
 # 0.7.1 字段解码范围
 
-依据本机 [标准清单](../specifications/README.md)，不把参考项目的其他规约或数据字典当作本项目的标准。业务解释显示在“解读”列及展开字段中，原始字节和偏移保持不变。
+依据本机 [标准清单](../../specifications/README.md)，不把参考项目的其他规约或数据字典当作本项目的标准。业务解释显示在“解读”列及展开字段中，原始字节和偏移保持不变。
 
-0.7.0在既有CSG接入基础上，将645名称和明确布局统一改为XML解释，详见 [规约XML与业务解码](protocol-xml.md) 和 [645规范对齐](dlt645-alignment.md)。按用途组帧的支持范围见 [用途清单](purpose-composer.md)，不等同于所有生成报文的内容均已支持语义解码。
+0.7.0在既有CSG接入基础上，将645名称和明确布局统一改为XML解释，详见 [规约XML与业务解码](../reference/protocol-catalogs.md) 和 [645规范对齐](../reference/dlt645-alignment.md)。按用途组帧的支持范围见 [用途清单](purpose-composer.md)，不等同于所有生成报文的内容均已支持语义解码。
 
-0.7.1按标准复查修正自动识别、SERR、组合量方向、浮动系数和复合时标，详情见 [标准对应审查](standards-review-2026-11-02.md)。
+0.7.1按标准复查修正自动识别、SERR、组合量方向、浮动系数和复合时标，详情见 [标准对应审查](../reviews/standards-2026-11-02.md)。
 
 ## 规约回显
 
@@ -70,8 +70,8 @@ BIN 数值低字节先传，地址以高字节在前的字符串显示；不执�
 
 全 FF 缺失标记、无效 BCD、未知 DI、方向/长度问题会在“解读”列说明。它们不被伪造为正常数值，也不把业务解释错误混同于帧结构校验错误。
 
-- [645 电能应答](../examples/645-energy-response.hex)：`123456.78 kWh`。
-- [本地模块版本应答](../examples/local-version-response.hex)：厂商 `AB`、芯片 `CD`、日期 `26-10-28`、版本 `1234`。
-- [上行电能应答](../examples/uplink-energy-response.hex)：同一电能值，原始业务字节是 `78 56 34 12`，不减 33H。
+- [645 电能应答](../../examples/645-energy-response.hex)：`123456.78 kWh`。
+- [本地模块版本应答](../../examples/local-version-response.hex)：厂商 `AB`、芯片 `CD`、日期 `26-10-28`、版本 `1234`。
+- [上行电能应答](../../examples/uplink-energy-response.hex)：同一电能值，原始业务字节是 `78 56 34 12`，不减 33H。
 
-这些是构造向量，不是真实设备抓包。自动回归及实机验证边界见 [验证记录](verification.md)。
+这些是构造向量，不是真实设备抓包。自动回归及实机验证边界见 [验证记录](../verification/history.md)。
