@@ -30,14 +30,24 @@ if ($Test)
 {
     $testApp = Join-Path $artifactDir 'FrameTools.Tests.exe'
     $testSources = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'tests') -Filter '*.cs' | Select-Object -ExpandProperty FullName
-    & $compiler /nologo /codepage:65001 /langversion:5 /warn:4 /warnaserror /target:exe "/out:$testApp" "/reference:$app" /reference:System.dll /reference:System.Core.dll /reference:System.Xml.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll $testSources
-    if ($LASTEXITCODE -ne 0)
+    try
     {
-        throw 'Test compilation failed.'
+        & $compiler /nologo /codepage:65001 /langversion:5 /warn:4 /warnaserror /target:exe "/out:$testApp" "/reference:$app" /reference:System.dll /reference:System.Core.dll /reference:System.Xml.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll $testSources
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw 'Test compilation failed.'
+        }
+        & $testApp
+        if ($LASTEXITCODE -ne 0)
+        {
+            throw 'Protocol tests failed.'
+        }
     }
-    & $testApp
-    if ($LASTEXITCODE -ne 0)
+    finally
     {
-        throw 'Protocol tests failed.'
+        if (Test-Path -LiteralPath $testApp)
+        {
+            Remove-Item -LiteralPath $testApp -Force
+        }
     }
 }

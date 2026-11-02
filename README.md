@@ -4,7 +4,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 
 ## 运行
 
-构建产物：`artifacts/FrameTools.exe`；本次发布副本另存为 `artifacts/FrameTools-v0.7.0.exe`。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.7.0` 标签定位。
+构建产物：`artifacts/FrameTools.exe`。构建物目录仅保留这一份最新应用，不保留带版本副本或测试EXE。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.7.0` 标签定位。
 
 - 目标环境：安装了 **.NET Framework 4.8** 的 Windows 10 / 11。
 - EXE 为 AnyCPU 托管程序，不包含 .NET Framework 运行时。
@@ -97,7 +97,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 .\Build.ps1 -Test
 ```
 
-脚本使用本机 .NET Framework C# 编译器，不下载 NuGet 包，不安装全局工具。产物输出到 `artifacts/`；`-Test` 还会生成 `FrameTools.Tests.exe`，日常运行软件只需要 `FrameTools.exe`。也可以通过 Visual Studio 打开 `src/FrameTools/FrameTools.csproj`，需要相应的 .NET Framework 4.8 开发组件。
+脚本使用本机 .NET Framework C# 编译器，不下载 NuGet 包，不安装全局工具。产物输出到 `artifacts/`；`-Test` 临时生成 `FrameTools.Tests.exe`，测试结束后自动清理，成功或失败均执行。日常运行软件只需要 `FrameTools.exe`。也可以通过 Visual Studio 打开 `src/FrameTools/FrameTools.csproj`，需要相应的 .NET Framework 4.8 开发组件。
 
 如 PowerShell 的当前执行策略阻止脚本，可以仅为本次进程执行：
 
