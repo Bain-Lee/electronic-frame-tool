@@ -14,7 +14,7 @@ namespace FrameTools
         private readonly WorkspaceTextBox input = new WorkspaceTextBox();
         private readonly WorkspaceTextBox selectedFrame = new WorkspaceTextBox();
         private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
-        private readonly DataGridView summary = new DataGridView();
+        private readonly DataGridView summary = new WorkspaceGrid();
         private readonly FrameFieldGrid fields = new FrameFieldGrid();
         private readonly Label status = new Label();
         private readonly WorkspaceButton export = new WorkspaceButton();
@@ -93,7 +93,7 @@ namespace FrameTools
             detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 65));
             detailLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 85));
+            detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             details.Controls.Add(detailLayout);
             ConfigureHex(selectedFrame, "batchSelectedFrame", true);
             selectedFrame.WordWrap = false;
@@ -121,6 +121,7 @@ namespace FrameTools
             ConfigureHex(diagnostics, "batchDiagnostics", true);
             diagnostics.Font = Font;
             diagnostics.Tag = "secondary";
+            diagnostics.AccessibleName = "规约名称与帧结构校验结果";
             detailLayout.Controls.Add(diagnostics, 0, 2);
             status.Name = "batchStatus";
             status.Dock = DockStyle.Fill;
@@ -175,12 +176,12 @@ namespace FrameTools
             {
                 parsed = FrameStream.Parse(input.Text, getProtocol());
             }
-            catch (FormatException e)
+            catch (FormatException)
             {
                 status.Tag = "error";
                 status.ForeColor = WorkspaceStyle.Error;
                 status.Text = "输入格式错误，请移除时间戳或收发标签。";
-                diagnostics.Text = e.Message;
+                diagnostics.Text = "规约未确定；未校验：输入格式错误";
                 return;
             }
             summary.SuspendLayout();
@@ -208,7 +209,7 @@ namespace FrameTools
             }
             else if (parsed.PendingNibble.Length > 0)
             {
-                diagnostics.Text = "保留末尾半字节：" + parsed.PendingNibble;
+                diagnostics.Text = "规约未确定；未校验：报文不完整";
             }
         }
 
@@ -231,26 +232,15 @@ namespace FrameTools
                 return;
             }
             selectedFrame.Text = Hex.Format(part.Bytes);
-            StringBuilder text = new StringBuilder();
-            text.AppendLine(ProtocolName(part.Protocol) + "；源字节偏移 " + part.Offset + "；长度 " + part.Bytes.Length + " 字节。");
-            text.AppendLine(part.Message);
             if (part.Result != null)
             {
                 fields.ShowFields(part.Result, part.Protocol);
-                foreach (string error in part.Result.Errors)
-                {
-                    text.AppendLine("错误：" + error);
-                }
-                foreach (string note in part.Result.Notes)
-                {
-                    text.AppendLine("说明：" + note);
-                }
             }
-            if (parsed != null && parsed.PendingNibble.Length > 0)
-            {
-                text.AppendLine("流末尾半字节待补全：" + parsed.PendingNibble);
-            }
-            diagnostics.Text = text.ToString();
+            string validation = part.Result != null
+                ? part.Result.IsFrameValid ? part.Message : "帧结构校验失败：" + part.Message
+                : "未校验：" + (part.Kind == StreamPartKind.Incomplete ? "报文不完整"
+                    : part.Kind == StreamPartKind.Ambiguous ? "规约有歧义" : "报文未识别");
+            diagnostics.Text = (part.Protocol.HasValue ? ProtocolName(part.Protocol) : "规约未确定") + "；" + validation;
         }
 
         private void NotifySelectionChanged()

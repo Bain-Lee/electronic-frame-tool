@@ -105,6 +105,50 @@ internal static class WindowFlowTests
         Application.DoEvents();
     }
 
+    private static void GridMouse(DataGridView grid, uint message, int x, int y)
+    {
+        SendMessage(grid.Handle, message, message == 0x0202 ? IntPtr.Zero : (IntPtr)1,
+            (IntPtr)((y << 16) | (x & 0xffff)));
+        Application.DoEvents();
+    }
+
+    private static int ResizeColumn(DataGridView grid)
+    {
+        DataGridViewColumn column = grid.Columns[2];
+        Rectangle header = grid.GetCellDisplayRectangle(column.Index, -1, false);
+        int x = header.Right;
+        int y = header.Top + header.Height / 2;
+        int width = column.Width;
+        int nextLeft = grid.GetCellDisplayRectangle(3, 0, false).Left;
+        GridMouse(grid, 0x0201, x, y); // WM_LBUTTONDOWN.
+        try
+        {
+            GridMouse(grid, 0x0200, x + 48, y); // WM_MOUSEMOVE while the button is down.
+            Check(column.Width == width + 48 && grid.Capture, grid.Name + " waits until mouse-up to resize or releases capture");
+            foreach (int row in new[] { 0, Math.Min(3, grid.Rows.Count - 1) })
+            {
+                Check(grid.GetCellDisplayRectangle(2, row, false).Width == width + 48
+                    && grid.GetCellDisplayRectangle(3, row, false).Left == nextLeft + 48,
+                    grid.Name + " did not resize the entire column");
+            }
+            GridMouse(grid, 0x0200, x - 20, y);
+            Check(column.Width == Math.Max(column.MinimumWidth, width - 20), grid.Name + " cannot shrink during dragging");
+            GridMouse(grid, 0x0200, x - width - 20, y);
+            Check(column.Width == column.MinimumWidth, grid.Name + " ignored minimum width");
+            GridMouse(grid, 0x0200, x + 36, y);
+        }
+        finally
+        {
+            GridMouse(grid, 0x0202, x + 36, y); // WM_LBUTTONUP.
+        }
+        Check(column.Width == width + 36 && !grid.Capture, grid.Name + " lost the final width or mouse capture");
+        GridMouse(grid, 0x0201, x + 36, y);
+        grid.Capture = false;
+        GridMouse(grid, 0x0200, x + 70, y);
+        Check(column.Width == width + 36, grid.Name + " kept resizing after capture was lost");
+        return column.Width;
+    }
+
     private static void PumpFor(int milliseconds)
     {
         Stopwatch timer = Stopwatch.StartNew();
@@ -518,6 +562,80 @@ internal static class WindowFlowTests
                 Click(theme);
                 Check(!WorkspaceStyle.IsDark && details.Text == original
                     && Named<TextBoxBase>(form, "rawInput").Text == Read645, "Light switch changed input");
+            }
+        });
+        RunTest("single parser resizes whole columns during dragging and preserves widths after folding", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                TextBoxBase raw = Named<TextBoxBase>(form, "rawInput");
+                raw.Text = LocalVersion;
+                Recognize(form);
+                DataGridView grid = Named<DataGridView>(form, "parsedFields");
+                int width = ResizeColumn(grid);
+                SelectField(grid, "用户数据域");
+                FieldKey(grid, Keys.Left);
+                FieldKey(grid, Keys.Right);
+                SelectField(grid, "厂商代码");
+                Check(grid.Columns[2].Width == width && raw.SelectedText == "41 42" && raw.Text == LocalVersion,
+                    "Column resizing changed folding or original byte selection");
+            }
+        });
+        RunTest("batch summary and detail columns resize live and retain widths when switching frames", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                Named<TextBoxBase>(form, "batchInput").Text = Compact(Read645 + LocalVersion + Uplink);
+                Batch(form);
+                DataGridView list = Named<DataGridView>(form, "batchSummary");
+                DataGridView grid = Named<DataGridView>(form, "batchFields");
+                int listWidth = ResizeColumn(list);
+                int detailWidth = ResizeColumn(grid);
+                list.CurrentCell = list.Rows[1].Cells[0];
+                SelectField(grid, "厂商代码");
+                Check(grid.Columns[2].Width == detailWidth && list.Columns[2].Width == listWidth
+                    && Named<TextBoxBase>(form, "batchSelectedFrame").SelectedText == "41 42",
+                    "Frame switch reset column widths or byte selection");
+            }
+        });
+        RunTest("parser footers show only protocol and validation in compact space", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                string[] frames = { Read645, Local, Uplink, Read645.Replace("B3 16", "B4 16"), "68 01", "AA BB", "68 ZZ" };
+                string[] outcomes = { "帧结构校验通过", "帧结构校验通过", "帧结构校验通过", "帧结构校验失败：", "未校验：报文不完整", "未校验：报文未识别", "未校验：输入格式错误" };
+                string[] names = { "645-2007", "南网本地", "南网上行", "645-2007", "规约未确定", "规约未确定", "规约未确定" };
+                for (int page = 0; page < 2; page++)
+                {
+                    Named<TabControl>(form, "workspaceTabs").SelectedIndex = page;
+                    TextBoxBase raw = Named<TextBoxBase>(form, page == 0 ? "rawInput" : "batchInput");
+                    TextBoxBase footer = Named<TextBoxBase>(form, page == 0 ? "parseDiagnostics" : "batchDiagnostics");
+                    for (int i = 0; i < frames.Length; i++)
+                    {
+                        raw.Text = frames[i];
+                        Click(Named<Button>(form, page == 0 ? "parseFrames" : "parseBatch"));
+                        Check(footer.Text.Contains(names[i]) && footer.Text.Contains(outcomes[i]), "Missing protocol or validation: " + footer.Text);
+                        Check(!footer.Text.Contains("源") && !footer.Text.Contains("说明") && !footer.Text.Contains("字段表")
+                            && !footer.Text.Contains(Environment.NewLine), "Footer contains unrelated diagnostics: " + footer.Text);
+                        Check(footer.Height <= 40, "Footer still occupies a large diagnostics area");
+                        if (i == 3)
+                        {
+                            Check(footer.Text.Contains("B3") && footer.Text.Contains("B4"), "Checksum failure detail was lost");
+                        }
+                    }
+                    form.Size = form.MinimumSize;
+                    Application.DoEvents();
+                    Check(footer.Parent.ClientRectangle.Contains(footer.Bounds) && footer.Height >= footer.Font.Height,
+                        "Compact footer is clipped at minimum window size");
+                }
             }
         });
         RunTest("local field groups fold independently and preserve nested state and raw selection", delegate

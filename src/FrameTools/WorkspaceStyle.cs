@@ -126,6 +126,100 @@ namespace FrameTools
         }
     }
 
+    internal class WorkspaceGrid : DataGridView
+    {
+        private DataGridViewColumn resizingColumn;
+        private int resizeStartX;
+        private int resizeStartWidth;
+
+        public WorkspaceGrid()
+        {
+            DoubleBuffered = true;
+        }
+
+        private DataGridViewColumn ColumnAtDivider(Point location)
+        {
+            if (!AllowUserToResizeColumns || !ColumnHeadersVisible || location.Y < 0 || location.Y >= ColumnHeadersHeight)
+            {
+                return null;
+            }
+            foreach (DataGridViewColumn column in Columns)
+            {
+                if (!column.Visible || column.Resizable == DataGridViewTriState.False)
+                {
+                    continue;
+                }
+                Rectangle bounds = GetColumnDisplayRectangle(column.Index, false);
+                int divider = bounds.Right;
+                if (bounds.Width > 0 && divider > 0 && divider < ClientSize.Width && Math.Abs(location.X - divider) <= 4)
+                {
+                    return column;
+                }
+            }
+            return null;
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left && e.Clicks == 1)
+            {
+                DataGridViewColumn column = ColumnAtDivider(e.Location);
+                if (column != null)
+                {
+                    resizingColumn = column;
+                    resizeStartX = e.X;
+                    resizeStartWidth = column.Width;
+                    Capture = true;
+                    Cursor = Cursors.VSplit;
+                    return;
+                }
+            }
+            base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            if (resizingColumn != null)
+            {
+                int delta = e.X - resizeStartX;
+                resizingColumn.Width = Math.Max(resizingColumn.MinimumWidth, resizeStartWidth + delta);
+                return;
+            }
+            base.OnMouseMove(e);
+            Cursor = ColumnAtDivider(e.Location) == null ? Cursors.Default : Cursors.VSplit;
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            // The native tracker releases capture on mouse leave, interrupting our live resize.
+            if (resizingColumn == null)
+            {
+                Cursor = Cursors.Default;
+                base.OnMouseLeave(e);
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            if (resizingColumn != null && e.Button == MouseButtons.Left)
+            {
+                OnMouseMove(e);
+                resizingColumn = null;
+                Capture = false;
+                Cursor = ColumnAtDivider(e.Location) == null ? Cursors.Default : Cursors.VSplit;
+                return;
+            }
+            base.OnMouseUp(e);
+        }
+
+        protected override void OnMouseCaptureChanged(EventArgs e)
+        {
+            resizingColumn = null;
+            Cursor = Cursors.Default;
+            base.OnMouseCaptureChanged(e);
+        }
+    }
+
     internal sealed class WorkspaceAddressBox : TextBox
     {
         private string savedValue = "";

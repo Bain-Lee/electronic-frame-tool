@@ -265,7 +265,7 @@ namespace FrameTools
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 25));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 90));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             page.Controls.Add(layout);
             ConfigureHex(input, false);
             input.Name = "rawInput";
@@ -332,7 +332,7 @@ namespace FrameTools
             diagnostics.Font = Font;
             diagnostics.ForeColor = WorkspaceStyle.Secondary;
             diagnostics.Tag = "secondary";
-            diagnostics.AccessibleName = "帧结构诊断与解析范围";
+            diagnostics.AccessibleName = "规约名称与帧结构校验结果";
             layout.Controls.Add(EditorSurface(diagnostics), 0, 4);
         }
 
@@ -607,12 +607,12 @@ namespace FrameTools
             {
                 parsedStream = FrameStream.Parse(input.Text, automaticProtocol.Checked ? (ProtocolKind?)null : SelectedProtocol);
             }
-            catch (FormatException e)
+            catch (FormatException)
             {
                 status.Text = "输入格式错误；请保留 HEX 字节并移除日志时间戳或文字。";
                 status.Tag = "error";
                 status.ForeColor = WorkspaceStyle.Error;
-                diagnostics.Text = e.Message;
+                diagnostics.Text = "规约未确定；未校验：输入格式错误";
                 return;
             }
             UpdateProtocolMode();
@@ -621,7 +621,7 @@ namespace FrameTools
                 status.Tag = "warning";
                 status.ForeColor = WorkspaceStyle.Warning;
                 status.Text = "检测到多条报文或多个数据片段，请点击“转到多帧解析”逐条查看。";
-                diagnostics.Text = "原始输入已保留。转入多帧页后，点击“开始多帧解析”查看全部内容。";
+                diagnostics.Text = "规约未确定；未校验：包含多个报文片段";
                 return;
             }
             exportButton.Enabled = parsedStream.Parts.Count > 0 || parsedStream.PendingNibble.Length > 0;
@@ -642,6 +642,10 @@ namespace FrameTools
             else
             {
                 status.Text = parsedStream.PendingNibble.Length > 0 ? "末尾只有半个字节，等待继续输入。" : "请粘贴 HEX 报文，可连续输入多条。";
+                if (parsedStream.PendingNibble.Length > 0)
+                {
+                    diagnostics.Text = "规约未确定；未校验：报文不完整";
+                }
             }
         }
 
@@ -660,26 +664,15 @@ namespace FrameTools
             }
             StreamPart part = parsedStream.Parts[0];
             current = part.Result;
-            StringBuilder description = new StringBuilder();
-            description.AppendLine(ProtocolLabel(part.Protocol) + "；源字节偏移 " + part.Offset + "；字段表偏移相对于本条报文。");
-            description.AppendLine(part.Message);
             if (current != null)
             {
                 fields.ShowFields(current, part.Protocol);
-                foreach (string error in current.Errors)
-                {
-                    description.AppendLine("错误：" + error);
-                }
-                foreach (string note in current.Notes)
-                {
-                    description.AppendLine("说明：" + note);
-                }
             }
-            if (parsedStream.PendingNibble.Length > 0)
-            {
-                description.AppendLine("流末尾保留半字节 " + parsedStream.PendingNibble + "，补全后再次点击识别。");
-            }
-            diagnostics.Text = description.ToString();
+            string validation = current != null
+                ? current.IsFrameValid ? part.Message : "帧结构校验失败：" + part.Message
+                : "未校验：" + (part.Kind == StreamPartKind.Incomplete ? "报文不完整"
+                    : part.Kind == StreamPartKind.Ambiguous ? "规约有歧义" : "报文未识别");
+            diagnostics.Text = ProtocolLabel(part.Protocol) + "；" + validation;
         }
 
         private string RequireOutput()

@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace FrameTools
 {
-    internal sealed class FrameFieldGrid : DataGridView
+    internal sealed class FrameFieldGrid : WorkspaceGrid
     {
         private sealed class FieldNode
         {
@@ -26,7 +26,6 @@ namespace FrameTools
 
         public FrameFieldGrid()
         {
-            DoubleBuffered = true;
             AccessibleName = "可折叠报文字段";
             AccessibleDescription = "点击字段左侧箭头展开或折叠；选中分组后也可使用左右方向键。";
         }
