@@ -120,9 +120,12 @@ internal static class WindowFlowTests
         int y = header.Top + header.Height / 2;
         int width = column.Width;
         int nextLeft = grid.GetCellDisplayRectangle(3, 0, false).Left;
+        DataGridViewAutoSizeRowsMode rowMode = grid.AutoSizeRowsMode;
+        int[] rowHeights = grid.Rows.Cast<DataGridViewRow>().Select(row => row.Height).ToArray();
         GridMouse(grid, 0x0201, x, y); // WM_LBUTTONDOWN.
         try
         {
+            Check(grid.AutoSizeRowsMode == DataGridViewAutoSizeRowsMode.None, grid.Name + " keeps measuring all row heights during dragging");
             GridMouse(grid, 0x0200, x + 48, y); // WM_MOUSEMOVE while the button is down.
             Check(column.Width == width + 48 && grid.Capture, grid.Name + " waits until mouse-up to resize or releases capture");
             foreach (int row in new[] { 0, Math.Min(3, grid.Rows.Count - 1) })
@@ -135,6 +138,7 @@ internal static class WindowFlowTests
             Check(column.Width == Math.Max(column.MinimumWidth, width - 20), grid.Name + " cannot shrink during dragging");
             GridMouse(grid, 0x0200, x - width - 20, y);
             Check(column.Width == column.MinimumWidth, grid.Name + " ignored minimum width");
+            Check(rowHeights.SequenceEqual(grid.Rows.Cast<DataGridViewRow>().Select(row => row.Height)), grid.Name + " changes row heights during dragging");
             GridMouse(grid, 0x0200, x + 36, y);
         }
         finally
@@ -142,10 +146,16 @@ internal static class WindowFlowTests
             GridMouse(grid, 0x0202, x + 36, y); // WM_LBUTTONUP.
         }
         Check(column.Width == width + 36 && !grid.Capture, grid.Name + " lost the final width or mouse capture");
+        Check(grid.AutoSizeRowsMode == rowMode, grid.Name + " did not restore automatic row sizing after mouse-up");
+        if (rowMode != DataGridViewAutoSizeRowsMode.None)
+        {
+            Check(grid.Rows[0].Height == grid.Rows[0].GetPreferredHeight(0, DataGridViewAutoSizeRowMode.AllCells, true),
+                grid.Name + " did not fit wrapped text after mouse-up");
+        }
         GridMouse(grid, 0x0201, x + 36, y);
         grid.Capture = false;
         GridMouse(grid, 0x0200, x + 70, y);
-        Check(column.Width == width + 36, grid.Name + " kept resizing after capture was lost");
+        Check(column.Width == width + 36 && grid.AutoSizeRowsMode == rowMode, grid.Name + " kept resizing or lost row sizing after capture was lost");
         return column.Width;
     }
 
@@ -483,8 +493,8 @@ internal static class WindowFlowTests
                 form.Show();
                 string[][] editors =
                 {
-                    new[] { "rawInput", "parseDiagnostics" },
-                    new[] { "batchInput", "batchSelectedFrame", "batchDiagnostics" },
+                    new[] { "rawInput" },
+                    new[] { "batchInput", "batchSelectedFrame" },
                     new[] { "businessInput", "builtFrame" }
                 };
                 for (int page = 0; page < editors.Length; page++)
@@ -606,35 +616,75 @@ internal static class WindowFlowTests
                     "Frame switch reset column widths or byte selection");
             }
         });
-        RunTest("parser footers show only protocol and validation in compact space", delegate
+        RunTest("long wrapped rows retain their height after column dragging and scrolling", delegate
+        {
+            using (MainForm form = NewForm())
+            {
+                form.ShowInTaskbar = false;
+                form.StartPosition = FormStartPosition.Manual;
+                form.Location = new Point(-16000, -16000);
+                form.Show();
+                DataGridView grid = Named<DataGridView>(form, "parsedFields");
+                FrameResult result = new FrameResult(new byte[0]);
+                for (int i = 0; i < 80; i++)
+                {
+                    result.Fields.Add(new FrameField
+                    {
+                        Offset = i, Length = 1, Name = "字段 " + i, Raw = "00",
+                        Meaning = i == 79 ? string.Concat(Enumerable.Repeat("滚动后应按当前列宽完整显示长解读内容。", 8)) : "字段说明"
+                    });
+                }
+                grid.GetType().GetMethod("ShowFields").Invoke(grid, new object[] { result, ProtocolKind.CsgUplink });
+                Application.DoEvents();
+                ResizeColumn(grid);
+                grid.CurrentCell = grid.Rows[79].Cells[2];
+                grid.FirstDisplayedScrollingRowIndex = 79;
+                Application.DoEvents();
+                Check(grid.Rows[79].Height > grid.RowTemplate.Height
+                    && grid.Rows[79].Height == grid.Rows[79].GetPreferredHeight(79, DataGridViewAutoSizeRowMode.AllCells, true),
+                    "Long offscreen row was not resized when scrolled into view: height=" + grid.Rows[79].Height
+                    + ", preferred=" + grid.Rows[79].GetPreferredHeight(79, DataGridViewAutoSizeRowMode.AllCells, true)
+                    + ", displayed=" + grid.Rows[79].Displayed + ", first=" + grid.FirstDisplayedScrollingRowIndex);
+            }
+        });
+        RunTest("parser pages omit duplicate footers and retain validation in status and fields", delegate
         {
             using (MainForm form = NewForm())
             {
                 string[] frames = { Read645, Local, Uplink, Read645.Replace("B3 16", "B4 16"), "68 01", "AA BB", "68 ZZ" };
-                string[] outcomes = { "帧结构校验通过", "帧结构校验通过", "帧结构校验通过", "帧结构校验失败：", "未校验：报文不完整", "未校验：报文未识别", "未校验：输入格式错误" };
-                string[] names = { "645-2007", "南网本地", "南网上行", "645-2007", "规约未确定", "规约未确定", "规约未确定" };
+                string[] outcomes = { "通过 1", "通过 1", "通过 1", "错误 1", "待定片段 1", "待定片段 1", "输入格式错误" };
                 for (int page = 0; page < 2; page++)
                 {
                     Named<TabControl>(form, "workspaceTabs").SelectedIndex = page;
                     TextBoxBase raw = Named<TextBoxBase>(form, page == 0 ? "rawInput" : "batchInput");
-                    TextBoxBase footer = Named<TextBoxBase>(form, page == 0 ? "parseDiagnostics" : "batchDiagnostics");
+                    DataGridView grid = Named<DataGridView>(form, page == 0 ? "parsedFields" : "batchFields");
+                    Label status = Named<Label>(form, page == 0 ? "parseStatus" : "batchStatus");
+                    Check(form.Controls.Find(page == 0 ? "parseDiagnostics" : "batchDiagnostics", true).Length == 0,
+                        "Duplicate protocol and validation footer remains");
                     for (int i = 0; i < frames.Length; i++)
                     {
                         raw.Text = frames[i];
                         Click(Named<Button>(form, page == 0 ? "parseFrames" : "parseBatch"));
-                        Check(footer.Text.Contains(names[i]) && footer.Text.Contains(outcomes[i]), "Missing protocol or validation: " + footer.Text);
-                        Check(!footer.Text.Contains("源") && !footer.Text.Contains("说明") && !footer.Text.Contains("字段表")
-                            && !footer.Text.Contains(Environment.NewLine), "Footer contains unrelated diagnostics: " + footer.Text);
-                        Check(footer.Height <= 40, "Footer still occupies a large diagnostics area");
-                        if (i == 3)
+                        Check(status.Text.Contains(outcomes[i]), "Missing validation status: " + status.Text);
+                        if (i < 4)
                         {
-                            Check(footer.Text.Contains("B3") && footer.Text.Contains("B4"), "Checksum failure detail was lost");
+                            FrameField checksum = Data(grid).Single(field => field.Name == "校验和 CS");
+                            Check(checksum.Meaning.Contains(i == 3 ? "失败" : "通过"), "Checksum result missing from fields");
+                            if (i == 3)
+                            {
+                                Check(checksum.Raw == "B4" && checksum.Meaning.Contains("B3"), "Checksum failure detail was lost");
+                            }
+                        }
+                        else
+                        {
+                            Check(Data(grid).Length == 0, "Unrecognized input retained stale fields");
                         }
                     }
                     form.Size = form.MinimumSize;
                     Application.DoEvents();
-                    Check(footer.Parent.ClientRectangle.Contains(footer.Bounds) && footer.Height >= footer.Font.Height,
-                        "Compact footer is clipped at minimum window size");
+                    Check(grid.Parent.ClientRectangle.Contains(grid.Bounds)
+                        && grid.Bottom + grid.Margin.Bottom == grid.Parent.ClientSize.Height,
+                        "Removed footer left unused space below the fields");
                 }
             }
         });

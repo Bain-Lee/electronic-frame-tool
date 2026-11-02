@@ -13,7 +13,6 @@ namespace FrameTools
         private readonly Func<ProtocolKind?> getProtocol;
         private readonly WorkspaceTextBox input = new WorkspaceTextBox();
         private readonly WorkspaceTextBox selectedFrame = new WorkspaceTextBox();
-        private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
         private readonly DataGridView summary = new WorkspaceGrid();
         private readonly FrameFieldGrid fields = new FrameFieldGrid();
         private readonly Label status = new Label();
@@ -89,11 +88,10 @@ namespace FrameTools
 
             GroupBox details = new WorkspaceGroupBox { Text = "选中帧详细解析", Dock = DockStyle.Fill, Padding = new Padding(7) };
             split.Panel2.Controls.Add(details);
-            TableLayoutPanel detailLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 3, ColumnCount = 1 };
+            TableLayoutPanel detailLayout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
             detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 65));
             detailLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            detailLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             details.Controls.Add(detailLayout);
             ConfigureHex(selectedFrame, "batchSelectedFrame", true);
             selectedFrame.WordWrap = false;
@@ -118,11 +116,6 @@ namespace FrameTools
                 }
             };
             detailLayout.Controls.Add(fields, 0, 1);
-            ConfigureHex(diagnostics, "batchDiagnostics", true);
-            diagnostics.Font = Font;
-            diagnostics.Tag = "secondary";
-            diagnostics.AccessibleName = "规约名称与帧结构校验结果";
-            detailLayout.Controls.Add(diagnostics, 0, 2);
             status.Name = "batchStatus";
             status.Dock = DockStyle.Fill;
             status.TextAlign = ContentAlignment.MiddleLeft;
@@ -161,7 +154,6 @@ namespace FrameTools
             fields.DataSource = null;
             summary.Rows.Clear();
             selectedFrame.Clear();
-            diagnostics.Clear();
             export.Enabled = false;
             status.Tag = "secondary";
             status.ForeColor = WorkspaceStyle.Secondary;
@@ -181,7 +173,6 @@ namespace FrameTools
                 status.Tag = "error";
                 status.ForeColor = WorkspaceStyle.Error;
                 status.Text = "输入格式错误，请移除时间戳或收发标签。";
-                diagnostics.Text = "规约未确定；未校验：输入格式错误";
                 return;
             }
             summary.SuspendLayout();
@@ -206,10 +197,6 @@ namespace FrameTools
             {
                 summary.CurrentCell = summary.Rows[0].Cells[0];
                 ShowSelected();
-            }
-            else if (parsed.PendingNibble.Length > 0)
-            {
-                diagnostics.Text = "规约未确定；未校验：报文不完整";
             }
         }
 
@@ -236,11 +223,6 @@ namespace FrameTools
             {
                 fields.ShowFields(part.Result, part.Protocol);
             }
-            string validation = part.Result != null
-                ? part.Result.IsFrameValid ? part.Message : "帧结构校验失败：" + part.Message
-                : "未校验：" + (part.Kind == StreamPartKind.Incomplete ? "报文不完整"
-                    : part.Kind == StreamPartKind.Ambiguous ? "规约有歧义" : "报文未识别");
-            diagnostics.Text = (part.Protocol.HasValue ? ProtocolName(part.Protocol) : "规约未确定") + "；" + validation;
         }
 
         private void NotifySelectionChanged()

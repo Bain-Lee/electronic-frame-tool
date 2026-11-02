@@ -21,7 +21,6 @@ namespace FrameTools
         private readonly BatchParserView batch;
         private readonly Label protocolLabel = new Label();
         private readonly WorkspaceTextBox input = new WorkspaceTextBox();
-        private readonly WorkspaceTextBox diagnostics = new WorkspaceTextBox();
         private readonly FrameFieldGrid fields = new FrameFieldGrid();
         private readonly Label status = new Label();
         private readonly TextBox control = new TextBox();
@@ -260,12 +259,11 @@ namespace FrameTools
         {
             TabPage page = new TabPage("单帧解析") { BackColor = BackColor, Padding = new Padding(8) };
             tabs.TabPages.Add(page);
-            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 5, ColumnCount = 1 };
+            TableLayoutPanel layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 1 };
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 145));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 32));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 25));
             layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
             page.Controls.Add(layout);
             ConfigureHex(input, false);
             input.Name = "rawInput";
@@ -327,13 +325,6 @@ namespace FrameTools
                 }
             };
             layout.Controls.Add(fields, 0, 3);
-            ConfigureHex(diagnostics, true);
-            diagnostics.Name = "parseDiagnostics";
-            diagnostics.Font = Font;
-            diagnostics.ForeColor = WorkspaceStyle.Secondary;
-            diagnostics.Tag = "secondary";
-            diagnostics.AccessibleName = "规约名称与帧结构校验结果";
-            layout.Controls.Add(EditorSurface(diagnostics), 0, 4);
         }
 
         private TableLayoutPanel EditorPane(string title, WorkspaceTextBox editor)
@@ -579,7 +570,6 @@ namespace FrameTools
             parsedStream = null;
             fields.DataSource = null;
             inputDigits = new int[0];
-            diagnostics.Clear();
             exportButton.Enabled = false;
         }
 
@@ -612,7 +602,6 @@ namespace FrameTools
                 status.Text = "输入格式错误；请保留 HEX 字节并移除日志时间戳或文字。";
                 status.Tag = "error";
                 status.ForeColor = WorkspaceStyle.Error;
-                diagnostics.Text = "规约未确定；未校验：输入格式错误";
                 return;
             }
             UpdateProtocolMode();
@@ -621,7 +610,6 @@ namespace FrameTools
                 status.Tag = "warning";
                 status.ForeColor = WorkspaceStyle.Warning;
                 status.Text = "检测到多条报文或多个数据片段，请点击“转到多帧解析”逐条查看。";
-                diagnostics.Text = "规约未确定；未校验：包含多个报文片段";
                 return;
             }
             exportButton.Enabled = parsedStream.Parts.Count > 0 || parsedStream.PendingNibble.Length > 0;
@@ -642,10 +630,6 @@ namespace FrameTools
             else
             {
                 status.Text = parsedStream.PendingNibble.Length > 0 ? "末尾只有半个字节，等待继续输入。" : "请粘贴 HEX 报文，可连续输入多条。";
-                if (parsedStream.PendingNibble.Length > 0)
-                {
-                    diagnostics.Text = "规约未确定；未校验：报文不完整";
-                }
             }
         }
 
@@ -668,11 +652,6 @@ namespace FrameTools
             {
                 fields.ShowFields(current, part.Protocol);
             }
-            string validation = current != null
-                ? current.IsFrameValid ? part.Message : "帧结构校验失败：" + part.Message
-                : "未校验：" + (part.Kind == StreamPartKind.Incomplete ? "报文不完整"
-                    : part.Kind == StreamPartKind.Ambiguous ? "规约有歧义" : "报文未识别");
-            diagnostics.Text = ProtocolLabel(part.Protocol) + "；" + validation;
         }
 
         private string RequireOutput()

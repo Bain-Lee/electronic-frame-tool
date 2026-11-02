@@ -131,6 +131,7 @@ namespace FrameTools
         private DataGridViewColumn resizingColumn;
         private int resizeStartX;
         private int resizeStartWidth;
+        private DataGridViewAutoSizeRowsMode resizeRowsMode;
 
         public WorkspaceGrid()
         {
@@ -166,6 +167,16 @@ namespace FrameTools
                 DataGridViewColumn column = ColumnAtDivider(e.Location);
                 if (column != null)
                 {
+                    resizeRowsMode = AutoSizeRowsMode;
+                    if (resizeRowsMode != DataGridViewAutoSizeRowsMode.None)
+                    {
+                        // Retain the measured heights as manual heights before pausing automatic sizing.
+                        foreach (DataGridViewRow row in Rows)
+                        {
+                            row.Height = row.Height;
+                        }
+                        AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
+                    }
                     resizingColumn = column;
                     resizeStartX = e.X;
                     resizeStartWidth = column.Width;
@@ -204,7 +215,7 @@ namespace FrameTools
             if (resizingColumn != null && e.Button == MouseButtons.Left)
             {
                 OnMouseMove(e);
-                resizingColumn = null;
+                EndColumnResize();
                 Capture = false;
                 Cursor = ColumnAtDivider(e.Location) == null ? Cursors.Default : Cursors.VSplit;
                 return;
@@ -214,9 +225,18 @@ namespace FrameTools
 
         protected override void OnMouseCaptureChanged(EventArgs e)
         {
-            resizingColumn = null;
+            EndColumnResize();
             Cursor = Cursors.Default;
             base.OnMouseCaptureChanged(e);
+        }
+
+        private void EndColumnResize()
+        {
+            if (resizingColumn != null)
+            {
+                resizingColumn = null;
+                AutoSizeRowsMode = resizeRowsMode;
+            }
         }
     }
 
