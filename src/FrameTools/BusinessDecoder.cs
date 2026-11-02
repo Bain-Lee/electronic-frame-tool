@@ -53,7 +53,8 @@ namespace FrameTools
             {
                 string prefix = period == 0 ? "当前" : "上" + period + "结算日";
                 string tariff = part == 0 ? "总电能" : "费率" + part + "电能";
-                return new MeterItem(prefix + EnergyNames[group] + tariff, 4, 2, group < 3 ? "kWh" : group < 9 ? "kvarh" : "kVAh");
+                return new MeterItem(prefix + EnergyNames[group] + tariff, 4, 2, group < 3 ? "kWh" : group < 9 ? "kvarh" : "kVAh",
+                    group == 0 || group == 3 || group == 4);
             }
             if (category == 2 && period == 0)
             {
@@ -111,20 +112,20 @@ namespace FrameTools
             return null;
         }
 
-        private static string MeterName(string di, bool uplink)
+        private static string MeterName(string di, bool uplink, byte function = 0x11)
         {
             if (!uplink)
             {
-                return ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x11, true, di)
+                return ProtocolCatalog.Name(ProtocolKind.Dlt645, function, true, di)
                     ?? ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x14, false, di) ?? "未收录的数据项";
             }
             MeterItem item = UplinkMeterDefinition(di);
             return item == null ? "未收录的数据项" : item.Name;
         }
 
-        public static string DescribeMeterDi(string di, bool uplink)
+        public static string DescribeMeterDi(string di, bool uplink, byte function = 0x11)
         {
-            return di + " — " + MeterName(di, uplink);
+            return di + " — " + MeterName(di, uplink, function);
         }
 
         public static string DecodeMeter(FrameResult result, int offset, string di, byte[] data)
@@ -270,6 +271,21 @@ namespace FrameTools
                 }
             }
             return "减33H后 " + error.ToString("X2") + "；" + (set.Count == 0 ? "未置错误标志" : string.Join("；", set));
+        }
+
+        public static string Describe645SecurityError(byte[] data)
+        {
+            string[] names = { "其他错误", "重复充值", "ESAM验证失败", "身份认证失败", "客户编号不匹配", "充值次数错误", "购电超囤积" };
+            int value = data[0] | data[1] << 8;
+            List<string> set = new List<string>();
+            for (int bit = 0; bit < 16; bit++)
+            {
+                if ((value & (1 << bit)) != 0)
+                {
+                    set.Add("Bit" + bit + "：" + (bit < names.Length ? names[bit] : "保留位"));
+                }
+            }
+            return "减33H后 " + Hex.Format(data) + "；" + (set.Count == 0 ? "未置安全认证错误标志" : string.Join("；", set));
         }
 
         public static string Decode645Command(FrameResult result, int offset, byte control, byte[] data)

@@ -41,6 +41,10 @@ def element(parent, name, text=None, **attributes):
 
 
 def section(category):
+    if category == 7:
+        return 'A.7.1/A.7.2'
+    if category >= 0x10:
+        return 'A（本机事件补充表）'
     return 'A.' + str({0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7}.get(category, 4))
 
 
@@ -187,7 +191,8 @@ def main():
     unresolved = []
 
     def make(identifier, name, row, access='r', status='raw'):
-        item = ET.Element('dataItem', id=identifier, protocol='dlt645', function=','.join(['11'] if access == 'r' else ['14'] if access == 'w' else ['11', '14']),
+        function = '03' if identifier.startswith('07') else ','.join(['11'] if access == 'r' else ['14'] if access == 'w' else ['11', '14'])
+        item = ET.Element('dataItem', id=identifier, protocol='dlt645', function=function,
                           dir='0,1', access=access, status=status, source='DL/T 645-2007 附录' + section(int(identifier[:2], 16)))
         element(item, 'name', name)
         element(item, 'sourceRef', page=row['page'], table=row['table'], row=row['row'])
@@ -239,7 +244,8 @@ def main():
                 unit = row['units']['values'].get('%02X' % code[row['units']['column']], unit)
             if re.fullmatch(r'\d+', length or '') and len(variations) <= 1:
                 length = int(length)
-                if time_format(fmt) or re.fullmatch(r'[XN]+(?:\.[XN]+)?', fmt or '') and len(fmt.replace('.', '')) == length * 2:
+                clock = time_format(fmt)
+                if clock and len(clock) == length * 2 or re.fullmatch(r'[XN]+(?:\.[XN]+)?', fmt or '') and len(fmt.replace('.', '')) == length * 2:
                     set_scalar(item, length, fmt, unit)
                 elif 'ASCII' in name or 'ASCII' in cells[9] and count == 1:
                     set_scalar(item, length, 'RAW')
@@ -366,6 +372,17 @@ def main():
             elif code[1] == 4 and code[2] in [1, 2]:
                 set_scalar(item, 4, 'XXXXXX.XX', 'kWh')
             items[item.get('id')] = item
+
+    # A.4 power-loss records contain two separate six-byte timestamps.
+    for identifier, item in items.items():
+        if identifier.startswith('031100') and 1 <= int(identifier[-2:], 16) <= 10:
+            for child in list(item):
+                if child.tag not in ['name', 'sourceRef', 'note']:
+                    item.remove(child)
+            item.set('status', 'ready')
+            element(item, 'length', 12)
+            scalar(item, '掉电发生时刻', 6, 'YYMMDDhhmmss')
+            scalar(item, '掉电结束时刻', 6, 'YYMMDDhhmmss')
 
     # A.4 purchase records explicitly span record 1 through record 10.
     for identifier, original in list(items.items()):

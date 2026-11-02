@@ -1,10 +1,10 @@
 # FrameTools 电力报文工具
 
-Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.7.0**，三规约统一维护XML字典，并提供按用途可视化组帧，详见 [版本说明](docs/release-v0.7.0.md)。
+Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接口和南网上行通信规约的报文解析及组装。当前版本为 **0.7.1**，修正规范复查发现的符号、认证错误字、自动识别及复合时间等问题，详见 [版本说明](docs/release-v0.7.1.md) 和 [标准对应审查](docs/standards-review-2026-11-02.md)。
 
 ## 运行
 
-构建产物：`artifacts/FrameTools.exe`。构建物目录仅保留这一份最新应用，不保留带版本副本或测试EXE。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.7.0` 标签定位。
+构建产物：`artifacts/FrameTools.exe`。构建物目录仅保留这一份最新应用，不保留带版本副本或测试EXE。双击运行，无需 Python、Node.js 或网络连接。Git源码版本由 `v0.7.1` 标签定位。
 
 - 目标环境：安装了 **.NET Framework 4.8** 的 Windows 10 / 11。
 - EXE 为 AnyCPU 托管程序，不包含 .NET Framework 运行时。
@@ -105,7 +105,7 @@ Windows 离线桌面工具，用于 DL/T 645-2007、南网本地通信模块接�
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1 -Test
 ```
 
-最终构建通过209项测试，验证情况见 [验证记录](docs/verification.md)，本次审查见 [0.7.0 Code Review](docs/code-review-v0.7.0.md)。
+最终构建通过218项测试，验证情况见 [验证记录](docs/verification.md)，本次审查见 [标准对应审查](docs/standards-review-2026-11-02.md)。
 
 ## 标准与设计
 

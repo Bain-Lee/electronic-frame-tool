@@ -323,7 +323,7 @@ namespace FrameTools
             if (!forced && available >= 9)
             {
                 int function = bytes[start + 8] & 31;
-                if (function != 8 && (function < 0x11 || function > 0x1B))
+                if (function != 0x03 && function != 8 && (function < 0x11 || function > 0x1D))
                 {
                     return false;
                 }

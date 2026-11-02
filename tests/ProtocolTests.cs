@@ -236,11 +236,11 @@ internal static class ProtocolTests
             System.Windows.Forms.Application.EnableVisualStyles();
             using (MainForm form = new MainForm())
             {
-                Check(form.Text.StartsWith("FrameTools 0.7.0"), "Window title");
-                Check(((System.Windows.Forms.Label)form.Controls.Find("appVersion", true).Single()).Text == "v0.7.0", "Visible version label");
-                Check(typeof(MainForm).Assembly.GetName().Version.ToString() == "0.7.0.0", "Assembly version");
+                Check(form.Text.StartsWith("FrameTools 0.7.1"), "Window title");
+                Check(((System.Windows.Forms.Label)form.Controls.Find("appVersion", true).Single()).Text == "v0.7.1", "Visible version label");
+                Check(typeof(MainForm).Assembly.GetName().Version.ToString() == "0.7.1.0", "Assembly version");
                 System.Diagnostics.FileVersionInfo version = System.Diagnostics.FileVersionInfo.GetVersionInfo(typeof(MainForm).Assembly.Location);
-                Check(version.FileVersion == "0.7.0.0" && version.ProductVersion == "0.7.0.0", "Executable file/product version");
+                Check(version.FileVersion == "0.7.1.0" && version.ProductVersion == "0.7.1.0", "Executable file/product version");
                 Check(form.Controls.Count > 0, "Window contains no layout");
             }
         });
@@ -258,6 +258,8 @@ internal static class ProtocolTests
         passed += PurposeComposerTests.Passed;
         failed += Dlt645CatalogTests.Run();
         passed += Dlt645CatalogTests.Passed;
+        failed += StandardsReviewTests.Run();
+        passed += StandardsReviewTests.Passed;
         Console.WriteLine("RESULT: " + passed + " passed, " + failed + " failed");
         return failed == 0 ? 0 : 1;
     }

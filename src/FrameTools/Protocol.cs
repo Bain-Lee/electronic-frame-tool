@@ -212,14 +212,32 @@ namespace FrameTools
             bool abnormal = (control & 0xC0) == 0xC0;
             if (abnormal && plain.Length > 0)
             {
-                string error = BusinessDecoder.Describe645Error(plain[0]);
-                r.Add(s + 10, 1, "异常信息 ERR", error);
-                dataField.Meaning += "；" + error;
+                if (function == 0x03)
+                {
+                    if (plain.Length == 2)
+                    {
+                        string error = BusinessDecoder.Describe645SecurityError(plain);
+                        r.Add(s + 10, 2, "异常信息 SERR", error);
+                        dataField.Meaning += "；" + error;
+                    }
+                    else
+                    {
+                        string error = "安全认证SERR应为2字节，实际" + plain.Length + "字节；原始值保留";
+                        r.Notes.Add(error);
+                        dataField.Meaning += "；" + error;
+                    }
+                }
+                else
+                {
+                    string error = BusinessDecoder.Describe645Error(plain[0]);
+                    r.Add(s + 10, 1, "异常信息 ERR", error);
+                    dataField.Meaning += "；" + error;
+                }
             }
-            else if (plain.Length >= 4 && (function == 0x11 || function == 0x12 || (function == 0x14 && (control & 0x80) == 0)))
+            else if (plain.Length >= 4 && (function == 0x03 || function == 0x11 || function == 0x12 || (function == 0x14 && (control & 0x80) == 0)))
             {
                 string di = Hex.ReverseDisplay(plain.Take(4).ToArray());
-                r.Add(s + 10, 4, "数据标识 DI", BusinessDecoder.DescribeMeterDi(di, false) + "（减33H，DI0先传）");
+                r.Add(s + 10, 4, "数据标识 DI", BusinessDecoder.DescribeMeterDi(di, false, (byte)function) + "（减33H，DI0先传）");
                 // Only decode a complete ordinary read response.
                 if ((control & 0x80) != 0 && function == 0x11)
                 {
@@ -229,6 +247,10 @@ namespace FrameTools
                 else if ((control & 0x80) != 0 && function == 0x12)
                 {
                     dataField.Meaning += "；后续数据帧，本程序尚未重组，数据保留原值";
+                }
+                else if (function == 0x03)
+                {
+                    dataField.Meaning += "；安全认证命令数据保留原值；未验证MAC或认证结果";
                 }
                 else
                 {
@@ -264,6 +286,7 @@ namespace FrameTools
         {
             Dictionary<int, string> names = new Dictionary<int, string>
             {
+                { 0x03, "安全认证" },
                 { 0x08, "广播校时" }, { 0x11, "读数据" }, { 0x12, "读后续数据" },
                 { 0x13, "读通信地址" }, { 0x14, "写数据" }, { 0x15, "写通信地址" },
                 { 0x16, "冻结" }, { 0x17, "更改速率" }, { 0x18, "修改密码" },

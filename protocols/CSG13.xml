@@ -19797,11 +19797,12 @@
         <length>1</length>
         <type>BCD</type>
     </dataItem>
-    <dataItem id="E0000C0F" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
+    <dataItem id="E0000C0F" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="raw" source="表A.14　负荷管理参数">
         <name>开关接点类型，开关编号0~E，；NN：00常开，01常闭。；开关编号0表示门节点，；0F表示00~0E集合</name>
         <sourceRef table="91" row="3" />
-        <length>1</length>
-        <type>BCD</type>
+        <length>unknown</length>
+        <type>RAW</type>
+        <note>本标识为0至E号开关的集合；源表单项为1字节，集合内容未形成明确消费规则，不能按单项1字节截取。</note>
     </dataItem>
     <dataItem id="E0000C10" protocol="csg-uplink" region="南网" afn="0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
         <name>输入开关状态，开关编号0~E，；NN：开关状态00：合；01：分；开关编号0表示门节点，；1F表示10~1E集合</name>
@@ -19893,11 +19894,12 @@
         <length>1</length>
         <type>BCD</type>
     </dataItem>
-    <dataItem id="E0000C1F" protocol="csg-uplink" region="南网" afn="0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
+    <dataItem id="E0000C1F" protocol="csg-uplink" region="南网" afn="0A" dir="0,1" status="raw" source="表A.14　负荷管理参数">
         <name>输入开关状态，开关编号0~E，；NN：开关状态00：合；01：分；开关编号0表示门节点，；1F表示10~1E集合</name>
         <sourceRef table="91" row="4" />
-        <length>1</length>
-        <type>BCD</type>
+        <length>unknown</length>
+        <type>RAW</type>
+        <note>本标识为0至E号开关的集合；源表单项为1字节，集合内容未形成明确消费规则，不能按单项1字节截取。</note>
     </dataItem>
     <dataItem id="E0000C20" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
         <name>输出开关状态，开关编号0~E，；置分表示拉闸，置合表示允许合闸；NN：开关状态00：合；01：分；开关编号0表示门节点，；2F表示20~2E集合</name>
@@ -19989,11 +19991,12 @@
         <length>1</length>
         <type>BCD</type>
     </dataItem>
-    <dataItem id="E0000C2F" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
+    <dataItem id="E0000C2F" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="raw" source="表A.14　负荷管理参数">
         <name>输出开关状态，开关编号0~E，；置分表示拉闸，置合表示允许合闸；NN：开关状态00：合；01：分；开关编号0表示门节点，；2F表示20~2E集合</name>
         <sourceRef table="91" row="5" />
-        <length>1</length>
-        <type>BCD</type>
+        <length>unknown</length>
+        <type>RAW</type>
+        <note>本标识为0至E号开关的集合；源表单项为1字节，集合内容未形成明确消费规则，不能按单项1字节截取。</note>
     </dataItem>
     <dataItem id="E0000C30" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
         <name>输出开关轮次，开关编号0~E，；NN：轮次号（1~12）；3F表示30~3E集合</name>
@@ -20085,11 +20088,12 @@
         <length>1</length>
         <type>BCD</type>
     </dataItem>
-    <dataItem id="E0000C3F" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
+    <dataItem id="E0000C3F" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="raw" source="表A.14　负荷管理参数">
         <name>输出开关轮次，开关编号0~E，；NN：轮次号（1~12）；3F表示30~3E集合</name>
         <sourceRef table="91" row="6" />
-        <length>1</length>
-        <type>BCD</type>
+        <length>unknown</length>
+        <type>RAW</type>
+        <note>本标识为0至E号开关的集合；源表单项为1字节，集合内容未形成明确消费规则，不能按单项1字节截取。</note>
     </dataItem>
     <dataItem id="E0000C40" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
         <name>遥控拉闸时间，如果都为0，；表示遥控后不自动合闸，；否则在拉闸后延时本时间后，；自动允许合闸。缺省都为0。</name>
@@ -20180,12 +20184,18 @@
         <sourceRef table="91" row="20" />
         <length>1</length>
         <type>BIN</type>
+        <sign>yes</sign>
+        <unit>%</unit>
+        <note>最高位为方向位：0上浮、1下浮；其余7位是BIN幅值，按正负百分数显示。</note>
     </dataItem>
     <dataItem id="E0000C6C" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
         <name>月电量控定值浮动系数（％）缺省为00；最高位表示符号位：00上浮，01下浮；其余7位用BIN编码表示浮动的百分数</name>
         <sourceRef table="91" row="21" />
         <length>1</length>
         <type>BIN</type>
+        <sign>yes</sign>
+        <unit>%</unit>
+        <note>最高位为方向位：0上浮、1下浮；其余7位是BIN幅值，按正负百分数显示。</note>
     </dataItem>
     <dataItem id="E0000C6D" protocol="csg-uplink" region="南网" afn="04,0A" dir="0,1" status="ready" source="表A.14　负荷管理参数">
         <name>最低负荷</name>
@@ -22074,6 +22084,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率1电能</name>
@@ -22082,6 +22093,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率2电能</name>
@@ -22090,6 +22102,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率3电能</name>
@@ -22098,6 +22111,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率4电能</name>
@@ -22106,6 +22120,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率5电能</name>
@@ -22114,6 +22129,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率6电能</name>
@@ -22122,6 +22138,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率7电能</name>
@@ -22130,6 +22147,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率8电能</name>
@@ -22138,6 +22156,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率9电能</name>
@@ -22146,6 +22165,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率10电能</name>
@@ -22154,6 +22174,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率11电能</name>
@@ -22162,6 +22183,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率12电能</name>
@@ -22170,6 +22192,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率13电能</name>
@@ -22178,6 +22201,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率14电能</name>
@@ -22186,6 +22210,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00000F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率15电能</name>
@@ -22194,6 +22219,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率16电能</name>
@@ -22202,6 +22228,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率17电能</name>
@@ -22210,6 +22237,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率18电能</name>
@@ -22218,6 +22246,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率19电能</name>
@@ -22226,6 +22255,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率20电能</name>
@@ -22234,6 +22264,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率21电能</name>
@@ -22242,6 +22273,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率22电能</name>
@@ -22250,6 +22282,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率23电能</name>
@@ -22258,6 +22291,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率24电能</name>
@@ -22266,6 +22300,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率25电能</name>
@@ -22274,6 +22309,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率26电能</name>
@@ -22282,6 +22318,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率27电能</name>
@@ -22290,6 +22327,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率28电能</name>
@@ -22298,6 +22336,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率29电能</name>
@@ -22306,6 +22345,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率30电能</name>
@@ -22314,6 +22354,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00001F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率31电能</name>
@@ -22322,6 +22363,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率32电能</name>
@@ -22330,6 +22372,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率33电能</name>
@@ -22338,6 +22381,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率34电能</name>
@@ -22346,6 +22390,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率35电能</name>
@@ -22354,6 +22399,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率36电能</name>
@@ -22362,6 +22408,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率37电能</name>
@@ -22370,6 +22417,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率38电能</name>
@@ -22378,6 +22426,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率39电能</name>
@@ -22386,6 +22435,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率40电能</name>
@@ -22394,6 +22444,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率41电能</name>
@@ -22402,6 +22453,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率42电能</name>
@@ -22410,6 +22462,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率43电能</name>
@@ -22418,6 +22471,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率44电能</name>
@@ -22426,6 +22480,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率45电能</name>
@@ -22434,6 +22489,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率46电能</name>
@@ -22442,6 +22498,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00002F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率47电能</name>
@@ -22450,6 +22507,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率48电能</name>
@@ -22458,6 +22516,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率49电能</name>
@@ -22466,6 +22525,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率50电能</name>
@@ -22474,6 +22534,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率51电能</name>
@@ -22482,6 +22543,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率52电能</name>
@@ -22490,6 +22552,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率53电能</name>
@@ -22498,6 +22561,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率54电能</name>
@@ -22506,6 +22570,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率55电能</name>
@@ -22514,6 +22579,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率56电能</name>
@@ -22522,6 +22588,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率57电能</name>
@@ -22530,6 +22597,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率58电能</name>
@@ -22538,6 +22606,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率59电能</name>
@@ -22546,6 +22615,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率60电能</name>
@@ -22554,6 +22624,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率61电能</name>
@@ -22562,6 +22633,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率62电能</name>
@@ -22570,6 +22642,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00003F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合有功费率63电能</name>
@@ -22578,6 +22651,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="0000FF00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="raw" source="表C.2　测量点当前数据定义">
         <name>费率数；(当前)组合有功电能数据块</name>
@@ -23625,6 +23699,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率1电能</name>
@@ -23633,6 +23708,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率2电能</name>
@@ -23641,6 +23717,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率3电能</name>
@@ -23649,6 +23726,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率4电能</name>
@@ -23657,6 +23735,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率5电能</name>
@@ -23665,6 +23744,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率6电能</name>
@@ -23673,6 +23753,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率7电能</name>
@@ -23681,6 +23762,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率8电能</name>
@@ -23689,6 +23771,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率9电能</name>
@@ -23697,6 +23780,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率10电能</name>
@@ -23705,6 +23789,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率11电能</name>
@@ -23713,6 +23798,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率12电能</name>
@@ -23721,6 +23807,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率13电能</name>
@@ -23729,6 +23816,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率14电能</name>
@@ -23737,6 +23825,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00030F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率15电能</name>
@@ -23745,6 +23834,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率16电能</name>
@@ -23753,6 +23843,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率17电能</name>
@@ -23761,6 +23852,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率18电能</name>
@@ -23769,6 +23861,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率19电能</name>
@@ -23777,6 +23870,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率20电能</name>
@@ -23785,6 +23879,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率21电能</name>
@@ -23793,6 +23888,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率22电能</name>
@@ -23801,6 +23897,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率23电能</name>
@@ -23809,6 +23906,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率24电能</name>
@@ -23817,6 +23915,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率25电能</name>
@@ -23825,6 +23924,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率26电能</name>
@@ -23833,6 +23933,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率27电能</name>
@@ -23841,6 +23942,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率28电能</name>
@@ -23849,6 +23951,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率29电能</name>
@@ -23857,6 +23960,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率30电能</name>
@@ -23865,6 +23969,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00031F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率31电能</name>
@@ -23873,6 +23978,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率32电能</name>
@@ -23881,6 +23987,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率33电能</name>
@@ -23889,6 +23996,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率34电能</name>
@@ -23897,6 +24005,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率35电能</name>
@@ -23905,6 +24014,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率36电能</name>
@@ -23913,6 +24023,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率37电能</name>
@@ -23921,6 +24032,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率38电能</name>
@@ -23929,6 +24041,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率39电能</name>
@@ -23937,6 +24050,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率40电能</name>
@@ -23945,6 +24059,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率41电能</name>
@@ -23953,6 +24068,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率42电能</name>
@@ -23961,6 +24077,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率43电能</name>
@@ -23969,6 +24086,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率44电能</name>
@@ -23977,6 +24095,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率45电能</name>
@@ -23985,6 +24104,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率46电能</name>
@@ -23993,6 +24113,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00032F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率47电能</name>
@@ -24001,6 +24122,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率48电能</name>
@@ -24009,6 +24131,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率49电能</name>
@@ -24017,6 +24140,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率50电能</name>
@@ -24025,6 +24149,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率51电能</name>
@@ -24033,6 +24158,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率52电能</name>
@@ -24041,6 +24167,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率53电能</name>
@@ -24049,6 +24176,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率54电能</name>
@@ -24057,6 +24185,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率55电能</name>
@@ -24065,6 +24194,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率56电能</name>
@@ -24073,6 +24203,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率57电能</name>
@@ -24081,6 +24212,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率58电能</name>
@@ -24089,6 +24221,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率59电能</name>
@@ -24097,6 +24230,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率60电能</name>
@@ -24105,6 +24239,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率61电能</name>
@@ -24113,6 +24248,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率62电能</name>
@@ -24121,6 +24257,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00033F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功1费率63电能</name>
@@ -24129,6 +24266,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="0003FF00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="raw" source="表C.2　测量点当前数据定义">
         <name>费率数；(当前)组合无功1电能数据块</name>
@@ -24142,6 +24280,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率1电能</name>
@@ -24150,6 +24289,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率2电能</name>
@@ -24158,6 +24298,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率3电能</name>
@@ -24166,6 +24307,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率4电能</name>
@@ -24174,6 +24316,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率5电能</name>
@@ -24182,6 +24325,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率6电能</name>
@@ -24190,6 +24334,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率7电能</name>
@@ -24198,6 +24343,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率8电能</name>
@@ -24206,6 +24352,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率9电能</name>
@@ -24214,6 +24361,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率10电能</name>
@@ -24222,6 +24370,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率11电能</name>
@@ -24230,6 +24379,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率12电能</name>
@@ -24238,6 +24388,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率13电能</name>
@@ -24246,6 +24397,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率14电能</name>
@@ -24254,6 +24406,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00040F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率15电能</name>
@@ -24262,6 +24415,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率16电能</name>
@@ -24270,6 +24424,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率17电能</name>
@@ -24278,6 +24433,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率18电能</name>
@@ -24286,6 +24442,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率19电能</name>
@@ -24294,6 +24451,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率20电能</name>
@@ -24302,6 +24460,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率21电能</name>
@@ -24310,6 +24469,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率22电能</name>
@@ -24318,6 +24478,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率23电能</name>
@@ -24326,6 +24487,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率24电能</name>
@@ -24334,6 +24496,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率25电能</name>
@@ -24342,6 +24505,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率26电能</name>
@@ -24350,6 +24514,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率27电能</name>
@@ -24358,6 +24523,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率28电能</name>
@@ -24366,6 +24532,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率29电能</name>
@@ -24374,6 +24541,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率30电能</name>
@@ -24382,6 +24550,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00041F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率31电能</name>
@@ -24390,6 +24559,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率32电能</name>
@@ -24398,6 +24568,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率33电能</name>
@@ -24406,6 +24577,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率34电能</name>
@@ -24414,6 +24586,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率35电能</name>
@@ -24422,6 +24595,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率36电能</name>
@@ -24430,6 +24604,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率37电能</name>
@@ -24438,6 +24613,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率38电能</name>
@@ -24446,6 +24622,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率39电能</name>
@@ -24454,6 +24631,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率40电能</name>
@@ -24462,6 +24640,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率41电能</name>
@@ -24470,6 +24649,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率42电能</name>
@@ -24478,6 +24658,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率43电能</name>
@@ -24486,6 +24667,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率44电能</name>
@@ -24494,6 +24676,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率45电能</name>
@@ -24502,6 +24685,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率46电能</name>
@@ -24510,6 +24694,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00042F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率47电能</name>
@@ -24518,6 +24703,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率48电能</name>
@@ -24526,6 +24712,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043100" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率49电能</name>
@@ -24534,6 +24721,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043200" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率50电能</name>
@@ -24542,6 +24730,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043300" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率51电能</name>
@@ -24550,6 +24739,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043400" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率52电能</name>
@@ -24558,6 +24748,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043500" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率53电能</name>
@@ -24566,6 +24757,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043600" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率54电能</name>
@@ -24574,6 +24766,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043700" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率55电能</name>
@@ -24582,6 +24775,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043800" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率56电能</name>
@@ -24590,6 +24784,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043900" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率57电能</name>
@@ -24598,6 +24793,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043A00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率58电能</name>
@@ -24606,6 +24802,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043B00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率59电能</name>
@@ -24614,6 +24811,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043C00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率60电能</name>
@@ -24622,6 +24820,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043D00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率61电能</name>
@@ -24630,6 +24829,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043E00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率62电能</name>
@@ -24638,6 +24838,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="00043F00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>(当前)组合无功2费率63电能</name>
@@ -24646,6 +24847,7 @@
         <type>BCD</type>
         <unit>kvarh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="0004FF00" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="raw" source="表C.2　测量点当前数据定义">
         <name>费率数；(当前)组合无功2电数据块</name>
@@ -27761,6 +27963,7 @@
         <type>BCD</type>
         <unit>kWh</unit>
         <decimal>2</decimal>
+        <sign>yes</sign>
     </dataItem>
     <dataItem id="000C0000" protocol="csg-uplink" region="南网" afn="0C" dir="0,1" status="ready" source="表C.2　测量点当前数据定义">
         <name>当前月度组合有功总累计用电量</name>

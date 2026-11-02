@@ -545,6 +545,10 @@ namespace FrameTools
                     {
                         throw new FormatException("该负荷记录DI需要记录数量/起始时间等附加参数，请按标准使用原始HEX入口。");
                     }
+                    if (ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x03, false, ids[0]) != null)
+                    {
+                        throw new FormatException("该DI属于03H安全认证命令，不能按11H普通读取组帧；请按标准使用原始HEX入口。");
+                    }
                     if (ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x11, false, ids[0]) == null
                         && ProtocolCatalog.Name(ProtocolKind.Dlt645, 0x14, false, ids[0]) != null)
                     {
